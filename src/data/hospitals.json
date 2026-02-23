@@ -1,0 +1,19 @@
+[
+    {
+        "id": 1,
+        "name": "Manipal Hospitals Bangalore Sarjapur",
+        "address": "Sarjapur - Marathahalli Rd, Carmelaram, Doddakannelli, Bengaluru, Karnataka 560035",
+        "location": {
+            "city": "Bangalore",
+            "region": "Sarjapur"
+        },
+        "specialties": [
+            "Spine Surgery",
+            "Orthopedics",
+            "Physiotherapy"
+        ],
+        "rating": 4.8,
+        "url": "https://www.manipalhospitals.com/sarjapurroad/",
+        "isEmergency": true
+    }
+]

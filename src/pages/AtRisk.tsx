@@ -1,5 +1,15 @@
 import { useAuth } from '../context/AuthContext';
 import { AlertTriangle, Activity, ShieldAlert, HeartPulse } from 'lucide-react';
+import hospitals from '../data/hospitals.json';
+
+interface Hospital {
+    id: number;
+    name: string;
+    address: string;
+    specialties: string[];
+    rating: number;
+    url: string;
+}
 
 export default function AtRisk() {
     const { user } = useAuth();
@@ -97,6 +107,53 @@ export default function AtRisk() {
                     <p className="text-sm text-text-secondary">Ensure top of screen is at eye level and lower back is supported by your chair.</p>
                 </div>
             </div>
+
+            {/* Hospital Recommendations (Only for At-Risk Users) */}
+            {(user?.riskTier === 'high' || user?.riskTier === 'moderate') && (
+                <div className="mt-12">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-accent-red/10 text-accent-red rounded-lg">
+                            <Activity size={24} />
+                        </div>
+                        <h2 className="text-2xl font-display font-bold text-text-primary">Recommended Medical Centers</h2>
+                    </div>
+
+                    <p className="text-text-secondary mb-6">
+                        Based on your risk profile, we recommend consulting a specialist at one of these top-rated spine care facilities near you.
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {(hospitals as Hospital[]).map((hospital) => (
+                            <a
+                                key={hospital.id}
+                                href={hospital.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block group bg-bg-card border border-border hover:border-accent-cyan/50 rounded-radius-lg p-6 transition-colors"
+                            >
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="font-bold text-lg text-text-primary group-hover:text-accent-cyan transition-colors">
+                                        {hospital.name}
+                                    </h3>
+                                    <span className="bg-accent-amber/10 text-accent-amber text-xs font-bold px-2 py-1 rounded">
+                                        ★ {hospital.rating}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-text-secondary mb-4 line-clamp-2">
+                                    {hospital.address}
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-4">
+                                    {hospital.specialties.map(spec => (
+                                        <span key={spec} className="text-xs border border-border px-2 py-1 rounded-full text-text-secondary">
+                                            {spec}
+                                        </span>
+                                    ))}
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
 
         </div>
     );
