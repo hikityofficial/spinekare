@@ -19,8 +19,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Track active fetch to prevent duplicate simultaneous calls
+    const [isFetching, setIsFetching] = useState(false);
+
     // Helper to fetch or initialize profile
     const fetchOrInitProfile = async (authId: string, email?: string) => {
+        if (isFetching) return;
+        setIsFetching(true);
+
         try {
             const { data, error } = await supabase
                 .from('user_profiles')
@@ -29,8 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .single();
 
             if (data) {
-                // Return mapped data (handle snake_case to camelCase mapping here if needed, but our type UserProfile expects camelCase properties)
-                // Let's assume the DB returns snake case and we map it:
                 const mappedProfile: UserProfile = {
                     id: data.id,
                     fullName: data.full_name || email?.split('@')[0] || 'User',
@@ -42,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 };
                 setUser(mappedProfile);
             } else if (error && error.code === 'PGRST116') {
-                // No rows returned
+                // No rows returned, initialize profile
                 const newProfile: UserProfile = {
                     id: authId,
                     fullName: email?.split('@')[0] || 'User',
@@ -50,41 +54,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 };
                 setUser(newProfile);
 
-                // We won't insert immediately until onboarding is complete to avoid partial saves,
-                // actually we can insert immediately so RLS works.
                 await supabase.from('user_profiles').insert({
                     id: authId,
                     full_name: newProfile.fullName,
                     onboarding_complete: false
                 });
+            } else if (error) {
+                console.error("Unknown DB error while fetching profile:", error);
             }
         } catch (err) {
-            console.error('Error fetching profile:', err);
+            console.error('Error executing profile fetch:', err);
         } finally {
             setIsLoading(false);
+            setIsFetching(false);
         }
     };
 
     useEffect(() => {
-        // Initial session check
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session?.user) {
-                fetchOrInitProfile(session.user.id, session.user.email);
-            } else {
+        let mounted = true;
+
+        // Force fallback to hide loading screen if Supabase completely hangs
+        const fallbackTimer = setTimeout(() => {
+            if (mounted && isLoading) {
+                console.warn("Auth initialization timed out, forcing load to false.");
                 setIsLoading(false);
             }
-        });
+        }, 8000);
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const init = async () => {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+
+                if (session?.user) {
+                    await fetchOrInitProfile(session.user.id, session.user.email);
+                } else {
+                    if (mounted) setIsLoading(false);
+                }
+            } catch (error) {
+                console.error("Error getting session:", error);
+                if (mounted) setIsLoading(false);
+            }
+        };
+
+        // Delay slighty to ensure OAuth hashes are parsed by Supabase JS client
+        setTimeout(init, 100);
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("Supabase Auth Event:", event);
             if (session?.user) {
                 await fetchOrInitProfile(session.user.id, session.user.email);
             } else {
-                setUser(null);
+                if (mounted) {
+                    setUser(null);
+                    setIsLoading(false);
+                }
             }
-            setIsLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            clearTimeout(fallbackTimer);
+            subscription.unsubscribe();
+        };
     }, []);
 
     const login = async (email: string, password?: string) => {
