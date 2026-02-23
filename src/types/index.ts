@@ -1,0 +1,54 @@
+export type RiskTier = 'low' | 'moderate' | 'high';
+
+export interface UserProfile {
+    id: string;
+    fullName?: string;
+    ageGroup?: string;
+    occupationType?: string;
+    isWeightlifter?: boolean;
+    exerciseFrequency?: string;
+    painLevel?: string;
+    postureAwareness?: string;
+    sleepPosition?: string;
+    spineRiskScore?: number;
+    riskTier?: RiskTier;
+    onboardingComplete: boolean;
+}
+
+export interface Exercise {
+    id: number;
+    name: string;
+    description: string;
+    targetArea: 'cervical' | 'thoracic' | 'lumbar' | 'core' | 'full';
+    category: string;
+    durationSeconds: number;
+    reps?: string;
+    animationUrl?: string;
+    whatItDoes: string;
+    difficulty: 'beginner' | 'intermediate' | 'advanced';
+}
+
+export interface Routine {
+    id: number;
+    dayNumber: number;
+    title: string;
+    focusArea: string;
+    estimatedMinutes: number;
+    exercises: Exercise[];
+}
+
+export interface SpineFact {
+    id: number;
+    fact: string;
+    category: string;
+    dayNumber: number;
+}
+
+export interface UserStreak {
+    userId: string;
+    currentStreak: number;
+    longestStreak: number;
+    lastActivityDate: string; // ISO date
+    streakFreezes: number;
+    totalPoints: number;
+}
