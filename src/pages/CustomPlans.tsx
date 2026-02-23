@@ -4,6 +4,21 @@ import { useAllExercises } from '../hooks/useAllExercises';
 import { Play, Plus, Trash2, Save, X, ClipboardList } from 'lucide-react';
 import type { Exercise } from '../types';
 
+import sse1 from '../../assets/sse1.png';
+import sse2 from '../../assets/sse2.png';
+import sse3 from '../../assets/sse3.png';
+import sse4 from '../../assets/sse4.png';
+import sse5 from '../../assets/sse5.png';
+import sse6 from '../../assets/sse6.png';
+import sse7 from '../../assets/sse7.png';
+import sse8 from '../../assets/sse8.png';
+import sse9 from '../../assets/sse9.png';
+import sse10 from '../../assets/sse10.png';
+import sse11 from '../../assets/sse11.png';
+import sse12 from '../../assets/sse12.png';
+
+const EXERCISE_IMAGES = [sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8, sse9, sse10, sse11, sse12];
+
 interface SavedPlan {
     id: string;
     name: string;
@@ -111,11 +126,22 @@ export default function CustomPlans() {
                     <div className="bg-bg-card border border-border rounded-radius-lg p-6 flex flex-col h-[600px]">
                         <h2 className="text-xl font-bold font-display mb-4">Select Exercises</h2>
                         <div className="overflow-y-auto flex-1 pr-2 space-y-3 scrollbar-hide">
-                            {exercises.map(ex => (
-                                <div key={ex.id} className="flex items-center justify-between p-3 bg-bg-secondary border border-border rounded-radius-md hover:border-accent-cyan/30 transition-colors">
-                                    <div>
-                                        <p className="font-bold text-text-primary">{ex.name}</p>
-                                        <p className="text-xs text-text-secondary">{Math.round(ex.durationSeconds / 60) >= 1 ? `${Math.round(ex.durationSeconds / 60)}m` : `${ex.durationSeconds}s`} • {ex.targetArea}</p>
+                            {exercises.map((ex, idx) => {
+                                const title = `Exercise ${String(idx + 1).padStart(2, '0')}`;
+                                const imageSrc = EXERCISE_IMAGES[idx % EXERCISE_IMAGES.length];
+
+                                return (
+                                <div key={ex.id} className="flex items-center justify-between p-3 bg-bg-secondary border border-border rounded-radius-md hover:border-accent-cyan/30 transition-colors gap-3">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="w-14 h-14 rounded-radius-md overflow-hidden border border-border bg-bg-card flex-shrink-0">
+                                            <img src={imageSrc} alt={title} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-extrabold text-text-primary truncate">{title}</p>
+                                            <p className="text-xs text-text-secondary">
+                                                {Math.round(ex.durationSeconds / 60) >= 1 ? `${Math.round(ex.durationSeconds / 60)}m` : `${ex.durationSeconds}s`} • {ex.targetArea} • {ex.difficulty}
+                                            </p>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={() => handleAddExercise(ex)}
@@ -124,7 +150,8 @@ export default function CustomPlans() {
                                         <Plus size={16} />
                                     </button>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -155,12 +182,12 @@ export default function CustomPlans() {
                                     <p>Select exercises from the left</p>
                                 </div>
                             ) : (
-                                selectedExercises.map((ex, i) => (
+                                selectedExercises.map((_, i) => (
                                     <div key={i} className="flex items-center justify-between p-3 bg-bg-secondary border border-border rounded-radius-md group">
                                         <div className="flex items-center gap-3">
                                             <span className="text-text-secondary font-bold w-4">{i + 1}.</span>
                                             <div>
-                                                <p className="font-bold text-text-primary">{ex.name}</p>
+                                                <p className="font-extrabold text-text-primary">Exercise {String(i + 1).padStart(2, '0')}</p>
                                             </div>
                                         </div>
                                         <button

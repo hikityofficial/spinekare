@@ -1,6 +1,7 @@
+import { useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Activity, ShieldAlert, HeartPulse, Bone, ArrowRight } from 'lucide-react';
+import { ArrowRight, LogIn } from 'lucide-react';
+
 import logo from '../../assets/sslogo.png';
 import sse1 from '../../assets/sse1.png';
 import sse2 from '../../assets/sse2.png';
@@ -15,155 +16,127 @@ import sse10 from '../../assets/sse10.png';
 import sse11 from '../../assets/sse11.png';
 import sse12 from '../../assets/sse12.png';
 
-const exerciseImages = [sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8, sse9, sse10, sse11, sse12];
-
 export default function Home() {
     const navigate = useNavigate();
+    const listRef = useRef<HTMLDivElement | null>(null);
 
-    const statCards = [
-        { icon: <Activity className="text-accent-cyan" size={28} />, text: '80% of people will experience back pain in their lifetime.' },
-        { icon: <ShieldAlert className="text-accent-red" size={28} />, text: 'Spinal disorders cost over $100B annually in the US.' },
-        { icon: <HeartPulse className="text-accent-amber" size={28} />, text: 'Poor posture can reduce lung capacity by up to 30%.' },
-        { icon: <Bone className="text-accent-cyan" size={28} />, text: 'Sedentary lifestyles increase disc degeneration risk significantly.' },
-    ];
+    const exerciseImages = useMemo(
+        () => [sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8, sse9, sse10, sse11, sse12],
+        [],
+    );
 
     return (
-        <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
-            {/* Top navigation with logo */}
-            <header className="w-full border-b border-border bg-bg-secondary/80 backdrop-blur-sm">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+        <div className="min-h-screen bg-bg-primary">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_20%_10%,rgba(14,165,164,0.12),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(217,119,6,0.10),transparent_45%)]" />
+
+            {/* Top bar */}
+            <header className="relative z-10 border-b border-border bg-bg-card/70 backdrop-blur">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <img
-                            src={logo}
-                            alt="SpineKare Logo"
-                            className="h-10 w-auto rounded-md border border-border bg-white object-contain"
-                        />
-                        <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-text-secondary tracking-wide uppercase">
-                                Digital Spine Health Platform
-                            </span>
-                            <span className="text-xl font-display font-bold tracking-tight">
-                                <span className="text-accent-cyan">Spine</span>Kare
-                            </span>
+                        <img src={logo} alt="SpineKare" className="h-9 w-9 rounded-md object-contain bg-white" />
+                        <div className="leading-tight">
+                            <div className="font-display font-extrabold tracking-tight text-text-primary">SpineKare</div>
+                            <div className="text-xs font-semibold tracking-wide text-text-secondary uppercase">Medical-grade posture care</div>
                         </div>
                     </div>
 
                     <button
                         onClick={() => navigate('/auth')}
-                        className="px-4 py-2 rounded-full border border-border bg-bg-card text-sm font-semibold text-text-primary hover:border-accent-cyan hover:text-accent-cyan transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-radius-lg bg-accent-cyan text-bg-primary font-bold hover:bg-accent-cyan-dim transition-colors"
                     >
-                        Log in / Sign up
+                        <LogIn size={18} /> Login / Sign up
                     </button>
                 </div>
             </header>
 
-            {/* Content */}
-            <main className="flex-1 w-full">
-                <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-10">
-                    {/* Hero section */}
-                    <section className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center">
-                        <div className="space-y-6">
-                            <motion.h1
-                                initial={{ opacity: 0, y: 16 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6 }}
-                                className="text-3xl md:text-4xl lg:text-5xl font-display font-bold leading-tight"
+            {/* Hero */}
+            <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                    <div className="text-left">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bg-secondary border border-border text-text-secondary text-xs font-bold tracking-widest uppercase">
+                            Clinical wellness • Home routines
+                        </div>
+                        <h1 className="mt-5 text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-text-primary">
+                            A light, professional spine-care companion.
+                        </h1>
+                        <p className="mt-4 text-lg text-text-secondary leading-relaxed max-w-xl">
+                            Explore a preview of guided movements first. When you’re ready, log in to get your plan, tracking, and 3D targeting.
+                        </p>
+
+                        <div className="mt-7 flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={() => navigate('/auth')}
+                                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-radius-lg bg-text-primary text-bg-primary font-bold hover:bg-black/90 transition-colors"
                             >
-                                Clinically structured exercises to protect your spine – before symptoms start.
-                            </motion.h1>
-
-                            <p className="text-text-secondary text-sm md:text-base max-w-xl">
-                                Review the structured exercise set your patients will follow. Each movement is numbered and
-                                visually guided to keep instructions simple and adherence high.
-                            </p>
-
-                            <div className="flex flex-wrap gap-3">
-                                <button
-                                    onClick={() => navigate('/auth')}
-                                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-radius-md bg-accent-cyan text-bg-primary font-semibold text-sm md:text-base shadow-sm hover:bg-accent-cyan-dim transition-colors"
-                                >
-                                    Start Spine Assessment
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        const gallery = document.getElementById('exercise-gallery');
-                                        if (gallery) {
-                                            gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                        }
-                                    }}
-                                    className="inline-flex items-center justify-center px-5 py-3 rounded-radius-md border border-border bg-bg-secondary text-sm md:text-base font-semibold text-text-primary hover:border-accent-cyan hover:text-accent-cyan transition-colors"
-                                >
-                                    View exercise list
-                                </button>
-                            </div>
+                                Get started <ArrowRight size={18} />
+                            </button>
+                            <button
+                                onClick={() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-radius-lg bg-bg-card border border-border text-text-primary font-bold hover:bg-bg-secondary transition-colors"
+                            >
+                                View exercise list
+                            </button>
                         </div>
+                    </div>
 
-                        <div className="space-y-3 bg-bg-secondary border border-border rounded-radius-lg p-5 md:p-6 shadow-sm">
-                            <p className="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]">
-                                Why proactive spine care
-                            </p>
-                            <div className="space-y-3">
-                                {statCards.map((stat, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex items-start gap-3 rounded-radius-md bg-bg-card/70 border border-border/60 px-3 py-3"
-                                    >
-                                        <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-bg-secondary border border-border">
-                                            {stat.icon}
-                                        </div>
-                                        <p className="text-xs md:text-sm text-text-secondary leading-relaxed">
-                                            {stat.text}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Exercise gallery */}
-                    <section id="exercise-gallery" className="space-y-4 md:space-y-6">
-                        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+                    <div className="bg-bg-card border border-border rounded-radius-lg p-5 sm:p-6 shadow-[var(--shadow)]">
+                        <div className="flex items-start justify-between gap-4">
                             <div>
-                                <h2 className="text-2xl md:text-3xl font-display font-bold">
-                                    Structured exercise list (12)
-                                </h2>
-                                <p className="text-text-secondary text-sm md:text-base max-w-2xl">
-                                    Each exercise is referenced only by number and image to keep the programme simple and
-                                    consistent for patients and clinicians.
-                                </p>
+                                <div className="text-sm font-bold tracking-widest uppercase text-text-secondary">Preview</div>
+                                <div className="mt-1 text-2xl font-display font-extrabold text-text-primary">Exercise cards</div>
+                                <div className="mt-1 text-sm text-text-secondary">Numbers only (no names) as requested.</div>
                             </div>
-                            <p className="text-xs md:text-sm text-text-secondary">
-                                Designed for use on mobile, tablet, and desktop in clinical or at-home settings.
-                            </p>
+                            <div className="text-xs font-bold px-2.5 py-1 rounded-full bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20">
+                                Light theme
+                            </div>
                         </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
-                            {exerciseImages.map((img, index) => (
-                                <div
-                                    key={index}
-                                    className="flex flex-col rounded-radius-md bg-bg-secondary border border-border overflow-hidden shadow-sm hover:border-accent-cyan/70 transition-colors"
-                                >
-                                    <div className="aspect-[4/3] w-full bg-bg-card/60 flex items-center justify-center">
-                                        <img
-                                            src={img}
-                                            alt={`Exercise ${index + 1}`}
-                                            className="h-full w-full object-contain"
-                                        />
-                                    </div>
-                                    <div className="px-3 py-2 flex items-center justify-between">
-                                        <span className="inline-flex h-7 min-w-[2.25rem] items-center justify-center rounded-full bg-accent-cyan/10 text-accent-cyan text-xs font-semibold">
-                                            #{index + 1}
-                                        </span>
-                                        <span className="text-[11px] text-text-secondary uppercase tracking-[0.16em]">
-                                            Exercise
-                                        </span>
+                        <div className="mt-5 grid grid-cols-3 gap-3">
+                            {exerciseImages.slice(0, 6).map((src, idx) => (
+                                <div key={idx} className="relative aspect-square rounded-radius-md overflow-hidden border border-border bg-bg-secondary">
+                                    <img src={src} alt={`Exercise ${idx + 1}`} className="w-full h-full object-cover" />
+                                    <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-bg-card/85 backdrop-blur border border-border text-text-primary text-xs font-extrabold">
+                                        {String(idx + 1).padStart(2, '0')}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </section>
+                    </div>
                 </div>
+
+                {/* Exercise list */}
+                <section ref={listRef} className="mt-12 sm:mt-16">
+                    <div className="flex items-end justify-between gap-4 flex-wrap">
+                        <div className="text-left">
+                            <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Exercise list (preview)</h2>
+                            <p className="mt-1 text-text-secondary">Tap any card after login to start a routine.</p>
+                        </div>
+                        <button
+                            onClick={() => navigate('/auth')}
+                            className="px-4 py-2.5 rounded-radius-lg bg-accent-cyan text-bg-primary font-bold hover:bg-accent-cyan-dim transition-colors"
+                        >
+                            Login to play
+                        </button>
+                    </div>
+
+                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {exerciseImages.map((src, idx) => (
+                            <div key={idx} className="group bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-colors shadow-sm">
+                                <div className="relative aspect-[4/3] bg-bg-secondary">
+                                    <img src={src} alt={`Exercise ${idx + 1}`} className="w-full h-full object-cover" />
+                                    <div className="absolute top-3 left-3 px-2.5 py-1.5 rounded-full bg-bg-card/90 backdrop-blur border border-border text-text-primary text-xs font-extrabold">
+                                        Exercise {String(idx + 1).padStart(2, '0')}
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <div className="text-sm text-text-secondary">
+                                        Numbered preview card
+                                    </div>
+                                    <div className="mt-2 h-10 rounded-radius-md bg-bg-secondary border border-border" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
             </main>
         </div>
     );

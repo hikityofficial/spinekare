@@ -3,7 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useAllExercises } from '../hooks/useAllExercises';
 import { Play, Filter } from 'lucide-react';
 
+import sse1 from '../../assets/sse1.png';
+import sse2 from '../../assets/sse2.png';
+import sse3 from '../../assets/sse3.png';
+import sse4 from '../../assets/sse4.png';
+import sse5 from '../../assets/sse5.png';
+import sse6 from '../../assets/sse6.png';
+import sse7 from '../../assets/sse7.png';
+import sse8 from '../../assets/sse8.png';
+import sse9 from '../../assets/sse9.png';
+import sse10 from '../../assets/sse10.png';
+import sse11 from '../../assets/sse11.png';
+import sse12 from '../../assets/sse12.png';
+
 const CATEGORIES = ['All', 'Lumbar', 'Thoracic', 'Cervical', 'Core', 'Full'];
+const EXERCISE_IMAGES = [sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8, sse9, sse10, sse11, sse12];
 
 export default function ExerciseLibrary() {
     const { exercises, isLoading, error } = useAllExercises();
@@ -13,8 +27,11 @@ export default function ExerciseLibrary() {
 
     const filteredExercises = exercises.filter(ex => {
         const matchesCategory = activeFilter === 'All' || ex.targetArea.toLowerCase() === activeFilter.toLowerCase();
-        const matchesSearch = ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ex.category.toLowerCase().includes(searchQuery.toLowerCase());
+        const q = searchQuery.trim().toLowerCase();
+        const matchesSearch = !q ||
+            ex.category.toLowerCase().includes(q) ||
+            ex.targetArea.toLowerCase().includes(q) ||
+            ex.difficulty.toLowerCase().includes(q);
         return matchesCategory && matchesSearch;
     });
 
@@ -63,8 +80,19 @@ export default function ExerciseLibrary() {
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredExercises.map(ex => (
-                    <div key={ex.id} className="bg-bg-card border border-border rounded-radius-lg overflow-hidden group hover:border-accent-cyan/50 transition-all flex flex-col h-full shadow-sm hover:shadow-[0_0_30px_rgba(0,229,204,0.1)]">
+                {filteredExercises.map((ex, idx) => {
+                    const exerciseNumber = idx + 1;
+                    const imageSrc = EXERCISE_IMAGES[idx % EXERCISE_IMAGES.length];
+                    const title = `Exercise ${String(exerciseNumber).padStart(2, '0')}`;
+
+                    return (
+                    <div key={ex.id} className="bg-bg-card border border-border rounded-radius-lg overflow-hidden group hover:border-accent-cyan/50 transition-all flex flex-col h-full shadow-sm hover:shadow-[0_0_30px_rgba(14,165,164,0.12)]">
+                        <div className="relative aspect-[16/9] bg-bg-secondary border-b border-border overflow-hidden">
+                            <img src={imageSrc} alt={title} className="w-full h-full object-cover" />
+                            <div className="absolute top-3 left-3 px-2.5 py-1.5 rounded-full bg-bg-card/90 backdrop-blur border border-border text-text-primary text-xs font-extrabold">
+                                {title}
+                            </div>
+                        </div>
                         <div className="p-6 flex-1 flex flex-col">
                             <div className="flex justify-between items-start mb-4">
                                 <span className="inline-block px-3 py-1 bg-bg-secondary border border-border text-text-secondary font-bold text-xs uppercase tracking-widest rounded-full">
@@ -78,8 +106,8 @@ export default function ExerciseLibrary() {
                                 </span>
                             </div>
 
-                            <h3 className="text-xl font-display font-bold text-text-primary mb-2 group-hover:text-accent-cyan transition-colors">
-                                {ex.name}
+                            <h3 className="text-xl font-display font-extrabold text-text-primary mb-2 group-hover:text-accent-cyan transition-colors">
+                                {title}
                             </h3>
                             <p className="text-sm text-accent-cyan mb-4 font-bold">{ex.category}</p>
 
@@ -95,14 +123,14 @@ export default function ExerciseLibrary() {
 
                         <div className="p-4 border-t border-border bg-bg-secondary/30 mt-auto">
                             <button
-                                onClick={() => navigate('/routine', { state: { exercises: [ex], title: ex.name } })}
+                                onClick={() => navigate('/routine', { state: { exercises: [ex], title } })}
                                 className="w-full flex items-center justify-center gap-2 py-3 bg-accent-cyan text-bg-primary rounded-radius-md font-bold hover:bg-accent-cyan-dim transition-colors"
                             >
                                 <Play size={18} fill="currentColor" /> Start (+50 pts)
                             </button>
                         </div>
                     </div>
-                ))}
+                )})}
             </div>
 
             {filteredExercises.length === 0 && (

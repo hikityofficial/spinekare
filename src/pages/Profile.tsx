@@ -26,7 +26,7 @@ export default function Profile() {
 
             {/* Header / Basic Info */}
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start bg-bg-card p-8 rounded-radius-lg border border-border">
-                <div className="w-32 h-32 rounded-full border-4 border-bg-secondary bg-border flex flex-col items-center justify-center text-4xl text-text-secondary uppercase shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+                <div className="w-32 h-32 rounded-full border-4 border-bg-secondary bg-border flex flex-col items-center justify-center text-4xl text-text-secondary uppercase shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                     {user?.fullName?.substring(0, 2) || 'U'}
                 </div>
 

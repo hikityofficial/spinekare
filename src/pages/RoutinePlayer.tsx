@@ -179,6 +179,8 @@ export default function RoutinePlayer() {
 
     if (!currentExercise) return null;
 
+    const exerciseLabel = `Exercise ${currentIndex + 1} of ${activeExercises.length}`;
+
     return (
         <div className="fixed inset-0 bg-bg-primary z-50 flex flex-col md:flex-row overflow-hidden">
             {/* Top Bar (Mobile) / Close Button */}
@@ -194,7 +196,7 @@ export default function RoutinePlayer() {
                     <h2 className="text-xl font-display font-bold text-text-primary tracking-wide">
                         {activeTitle}
                     </h2>
-                    <p className="text-text-secondary text-sm mt-1">Exercise {currentIndex + 1} of {activeExercises.length}</p>
+                    <p className="text-text-secondary text-sm mt-1">{exerciseLabel}</p>
                 </div>
 
                 <div className="w-full h-full max-h-[80vh] relative z-0">
@@ -227,7 +229,7 @@ export default function RoutinePlayer() {
                                 </div>
 
                                 <h2 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-4 leading-tight">
-                                    {currentExercise.name}
+                                    Exercise {String(currentIndex + 1).padStart(2, '0')}
                                 </h2>
 
                                 <p className="text-text-secondary text-lg mb-8 h-20">
@@ -290,7 +292,9 @@ export default function RoutinePlayer() {
                                 className="flex flex-col items-center justify-center h-full text-center"
                             >
                                 <h2 className="text-3xl font-display font-bold text-accent-amber mb-2">Rest & Prepare</h2>
-                                <p className="text-text-secondary mb-12">Up next: <span className="text-text-primary font-bold">{activeExercises[currentIndex + 1]?.name}</span></p>
+                                <p className="text-text-secondary mb-12">
+                                    Up next: <span className="text-text-primary font-bold">Exercise {String(currentIndex + 2).padStart(2, '0')}</span>
+                                </p>
 
                                 <div className="text-7xl font-display font-bold text-text-primary mb-12 tabular-nums">
                                     {timeLeft}s

@@ -2,22 +2,22 @@
 
 :root {
   /* Light, clinical palette */
-  --bg-primary: #f5f7fb;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --accent-cyan: #00a7a0;
-  --accent-cyan-dim: #008f89;
-  --accent-amber: #f7b94c;
-  --accent-red: #e05757;
-  --accent-green: #2ebc73;
-  --text-primary: #1a2240;
-  --text-secondary: #5b6b8b;
-  --border: #d5deea;
+  --bg-primary: #F6F9FC;
+  --bg-secondary: #EEF4FA;
+  --bg-card: #FFFFFF;
+  --accent-cyan: #0EA5A4;
+  --accent-cyan-dim: #0B8B8A;
+  --accent-amber: #D97706;
+  --accent-red: #DC2626;
+  --accent-green: #16A34A;
+  --text-primary: #0B1F35;
+  --text-secondary: #4B647E;
+  --border: #D7E2EE;
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
   --radius: 16px;
   --radius-sm: 8px;
-  --shadow: 0 8px 32px rgba(0, 229, 204, 0.08);
+  --shadow: 0 10px 30px rgba(11, 31, 53, 0.06);
 }
 
 @theme {
@@ -39,11 +39,11 @@
 
 a {
   font-weight: 500;
-  color: #0056b3;
+  color: #646cff;
   text-decoration: inherit;
 }
 a:hover {
-  color: #003f80;
+  color: #535bf2;
 }
 
 body {
@@ -56,26 +56,4 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #ffffff;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: var(--accent-cyan);
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+/* Let Tailwind handle element styling (avoid global button overrides). */
