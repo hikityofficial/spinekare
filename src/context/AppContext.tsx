@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { UserStreak, Routine, SpineFact } from '../types';
-import { mockRoutines, mockSpineFacts } from '../services/mockData';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -36,38 +35,88 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         totalPoints: 0
     });
 
+    const [todayRoutine, setTodayRoutine] = useState<Routine>({
+        id: 0,
+        dayNumber: 0,
+        title: 'Loading Routine...',
+        focusArea: '',
+        estimatedMinutes: 0,
+        exercises: []
+    });
+
+    const [todayFact, setTodayFact] = useState<SpineFact>({
+        id: 0,
+        fact: 'Loading spine fact...',
+        category: '',
+        dayNumber: 0
+    });
+
     const dayOfYear = getDayOfYear();
-
-    // Modulo calculation to cycle routines and facts
-    const routineIndex = dayOfYear % mockRoutines.length;
-    const todayRoutine = mockRoutines[routineIndex];
-
-    const factIndex = dayOfYear % mockSpineFacts.length;
-    const todayFact = mockSpineFacts[factIndex];
-
     const todayStr = new Date().toISOString().split('T')[0];
     const hasCompletedToday = streak.lastActivityDate === todayStr;
+
+    useEffect(() => {
+        const fetchDailyContent = async () => {
+            // Calculate 1-30 for routine and 1-100 for facts
+            const rDay = (dayOfYear % 30) + 1;
+            const fDay = (dayOfYear % 100) + 1;
+
+            const [routineRes, factRes] = await Promise.all([
+                supabase
+                    .from('routines')
+                    .select('*, routine_exercises(order_index, exercises(*))')
+                    .eq('day_number', rDay)
+                    .single(),
+                supabase
+                    .from('spine_facts')
+                    .select('*')
+                    .eq('day_number', fDay)
+                    .single()
+            ]);
+
+            if (routineRes.data) {
+                const exMap = routineRes.data.routine_exercises
+                    .sort((a: any, b: any) => a.order_index - b.order_index)
+                    .map((re: any) => ({
+                        id: re.exercises.id,
+                        name: re.exercises.name,
+                        description: re.exercises.description,
+                        targetArea: re.exercises.target_area,
+                        category: re.exercises.category,
+                        durationSeconds: re.exercises.duration_seconds,
+                        reps: re.exercises.reps,
+                        whatItDoes: re.exercises.what_it_does,
+                        difficulty: re.exercises.difficulty
+                    }));
+
+                setTodayRoutine({
+                    id: routineRes.data.id,
+                    dayNumber: routineRes.data.day_number,
+                    title: routineRes.data.title,
+                    focusArea: routineRes.data.focus_area,
+                    estimatedMinutes: routineRes.data.estimated_minutes,
+                    exercises: exMap
+                });
+            }
+
+            if (factRes.data) {
+                setTodayFact({
+                    id: factRes.data.id,
+                    fact: factRes.data.fact,
+                    category: factRes.data.category,
+                    dayNumber: factRes.data.day_number
+                });
+            }
+        };
+
+        fetchDailyContent();
+    }, []);
 
     // Load initial streak data
     useEffect(() => {
         if (!user) return;
 
-        if (user.id.includes('mock')) {
-            const saved = localStorage.getItem('spincare_streak');
-            if (saved) {
-                setStreak(JSON.parse(saved));
-            } else {
-                setStreak({
-                    userId: user.id,
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    lastActivityDate: '',
-                    streakFreezes: 0,
-                    totalPoints: 0
-                });
-            }
-            return;
-        }
+        // LocalStorage fallback sync for mock mode - REMOVED
 
         // Fetch from Supabase
         const fetchStreak = async () => {
@@ -103,12 +152,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         fetchStreak();
     }, [user]);
 
-    // LocalStorage fallback sync for mock mode
-    useEffect(() => {
-        if (user && user.id.includes('mock')) {
-            localStorage.setItem('spincare_streak', JSON.stringify(streak));
-        }
-    }, [streak, user]);
+    // LocalStorage fallback sync for mock mode - REMOVED
 
     const completeRoutine = async () => {
         if (hasCompletedToday || !user) return;
@@ -137,7 +181,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             return updated;
         });
 
-        if (newStreakObj && !user.id.includes('mock')) {
+        if (newStreakObj) {
             const s = newStreakObj as UserStreak;
             await supabase.from('user_streaks').upsert({
                 user_id: user.id,
@@ -162,7 +206,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             return updated;
         });
 
-        if (newStreakObj && !user.id.includes('mock')) {
+        if (newStreakObj) {
             const s = newStreakObj as UserStreak;
             await supabase.from('user_streaks').upsert({
                 user_id: user.id,

@@ -87,12 +87,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password?: string) => {
         if (!password) {
-            // Mock google login
-            setUser({
-                id: 'mock-google-id',
-                fullName: email.split('@')[0],
-                onboardingComplete: false,
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
             });
+            if (error) throw error;
             return;
         }
 
@@ -102,12 +100,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const signup = async (email: string, password?: string) => {
         if (!password) {
-            // Mock google login
-            setUser({
-                id: 'mock-google-id',
-                fullName: email.split('@')[0],
-                onboardingComplete: false,
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
             });
+            if (error) throw error;
             return;
         }
 
@@ -138,9 +134,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             age_group: newProfile.ageGroup,
             occupation_type: newProfile.occupationType,
         };
-
-        // If it's a mock user, don't update db
-        if (user.id.includes('mock')) return;
 
         const { error } = await supabase.from('user_profiles').upsert(dbData);
         if (error) {

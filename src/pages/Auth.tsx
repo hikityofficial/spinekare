@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { mockSpineFacts } from '../services/mockData';
 import { ShieldCheck, ArrowRight, Play } from 'lucide-react';
 
 export default function Auth() {
@@ -34,7 +33,16 @@ export default function Auth() {
         }
     };
 
-    const currentFact = mockSpineFacts[Math.floor(Math.random() * mockSpineFacts.length)];
+    const handleGoogleAuth = async () => {
+        try {
+            setIsLoading(true);
+            // In Supabase, OAuth auto-redirects
+            await login('', ''); // The empty password triggers OAuth in our context 
+        } catch (error: any) {
+            setErrorMsg(error.message || 'Google Auth failed');
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-bg-primary flex">
@@ -68,10 +76,10 @@ export default function Auth() {
 
                 <div className="relative z-10 w-full bg-bg-card border border-border p-6 rounded-radius-lg">
                     <p className="text-accent-cyan text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <ShieldCheck size={16} /> Daily Fact
+                        <ShieldCheck size={16} /> Clinical Insight
                     </p>
                     <p className="text-text-primary font-body text-lg italic">
-                        "{currentFact?.fact}"
+                        "Eighty percent of adults will experience significant back pain in their lifetime. Prevention requires daily biomechanical maintenance."
                     </p>
                 </div>
             </div>
@@ -134,10 +142,9 @@ export default function Auth() {
                             {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')} {!isLoading && <ArrowRight size={18} />}
                         </button>
 
-                        {/* Mock Google OAuth */}
                         <button
                             type="button"
-                            onClick={() => { login('google@user.com'); navigate('/dashboard'); }}
+                            onClick={handleGoogleAuth}
                             className="w-full py-3.5 bg-bg-card border border-border hover:bg-bg-secondary text-text-primary font-bold rounded-radius-lg transition-colors flex items-center justify-center gap-2"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">

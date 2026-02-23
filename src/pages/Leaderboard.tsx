@@ -32,15 +32,8 @@ export default function Leaderboard() {
                 }
             }
 
-            // Fallback to mock data if not authenticated, no data, or RLS error
-            setLeaderboardData([
-                { rank: 1, name: 'Sarah Jenkins', points: 14500, streak: 84, isCurrentUser: false },
-                { rank: 2, name: 'David Chen', points: 12200, streak: 62, isCurrentUser: false },
-                { rank: 3, name: 'Marcus R.', points: 11050, streak: 45, isCurrentUser: false },
-                { rank: 4, name: 'Elena V.', points: 9800, streak: 31, isCurrentUser: false },
-                { rank: 5, name: 'James W.', points: 8400, streak: 28, isCurrentUser: false },
-                { rank: 47, name: user?.fullName || 'You', points: streak.totalPoints, streak: streak.currentStreak, isCurrentUser: true }
-            ]);
+            // Fallback if not authenticated, no data, or RLS error
+            // setLeaderboardData([]); (Leaving empty if no real users are found)
         };
 
         fetchLeaderboard();

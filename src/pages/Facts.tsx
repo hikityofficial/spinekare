@@ -1,11 +1,34 @@
-import { useState } from 'react';
-import { mockSpineFacts } from '../services/mockData';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import type { SpineFact } from '../types';
 import { BookOpen, Search } from 'lucide-react';
 
 export default function Facts() {
     const [searchTerm, setSearchTerm] = useState('');
+    const [facts, setFacts] = useState<SpineFact[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const filteredFacts = mockSpineFacts.filter(item =>
+    useEffect(() => {
+        const fetchFacts = async () => {
+            const { data, error } = await supabase
+                .from('spine_facts')
+                .select('*')
+                .order('id', { ascending: true });
+
+            if (data && !error) {
+                setFacts(data.map(d => ({
+                    id: d.id,
+                    fact: d.fact,
+                    category: d.category,
+                    dayNumber: d.day_number
+                })));
+            }
+            setIsLoading(false);
+        };
+        fetchFacts();
+    }, []);
+
+    const filteredFacts = facts.filter(item =>
         item.fact.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -19,7 +42,7 @@ export default function Facts() {
                     </div>
                     <div>
                         <h1 className="text-3xl font-display font-bold text-text-primary">Spine Facts Archive</h1>
-                        <p className="text-text-secondary">Discover {mockSpineFacts.length} fascinating insights about human bio-mechanics.</p>
+                        <p className="text-text-secondary">Discover fascinating insights about human bio-mechanics.</p>
                     </div>
                 </div>
 
@@ -36,7 +59,11 @@ export default function Facts() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredFacts.length > 0 ? (
+                {isLoading ? (
+                    <div className="col-span-full py-20 text-center text-text-secondary animate-pulse">
+                        Loading clinical archive...
+                    </div>
+                ) : filteredFacts.length > 0 ? (
                     filteredFacts.map(fact => (
                         <div key={fact.id} className="bg-bg-card border border-border rounded-radius-lg p-6 hover:border-accent-cyan/50 transition-colors flex flex-col h-full group">
                             <div className="text-3xl font-display font-bold text-border group-hover:text-accent-cyan/20 transition-colors mb-4">
