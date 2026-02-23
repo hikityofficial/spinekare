@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, ArrowRight, Play } from 'lucide-react';
+import logo from '../../assets/sslogo.png';
 
 export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
@@ -51,9 +52,16 @@ export default function Auth() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,204,0.05),transparent_70%)]"></div>
 
                 <div className="w-full flex justify-between items-center relative z-10">
-                    <h1 className="text-3xl font-display font-bold flex items-center gap-2 text-text-primary">
-                        <span className="text-accent-cyan">Spin</span>Care
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <img
+                            src={logo}
+                            alt="SpineKare Logo"
+                            className="h-10 w-auto rounded-md border border-border bg-white object-contain"
+                        />
+                        <h1 className="text-3xl font-display font-bold flex items-center gap-1 text-text-primary">
+                            <span className="text-accent-cyan">Spine</span>Kare
+                        </h1>
+                    </div>
                     <span className="text-text-secondary text-sm font-semibold tracking-widest uppercase">
                         Clinical Wellness
                     </span>
@@ -89,9 +97,14 @@ export default function Auth() {
                 <div className="absolute inset-0 block lg:hidden bg-[radial-gradient(circle_at_center,rgba(0,229,204,0.05),transparent_70%)]"></div>
 
                 <div className="w-full max-w-md relative z-10">
-                    <div className="lg:hidden mb-12 text-center">
-                        <h1 className="text-4xl font-display font-bold flex items-center justify-center gap-2">
-                            <span className="text-accent-cyan">Spin</span>Care
+                    <div className="lg:hidden mb-10 flex flex-col items-center gap-3">
+                        <img
+                            src={logo}
+                            alt="SpineKare Logo"
+                            className="h-10 w-auto rounded-md border border-border bg-white object-contain"
+                        />
+                        <h1 className="text-3xl font-display font-bold flex items-center justify-center gap-1">
+                            <span className="text-accent-cyan">Spine</span>Kare
                         </h1>
                     </div>
 

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import SpineModel3D from '../components/SpineModel3D';
 import AdPlaceholder from '../components/AdPlaceholder';
+import logo from '../../assets/sslogo.png';
 
 export const DashboardLayout = () => {
     const { streak } = useApp();
@@ -21,10 +22,17 @@ export const DashboardLayout = () => {
         <div className="flex h-screen w-full bg-bg-primary text-text-primary overflow-hidden">
             {/* Sidebar */}
             <aside className="w-64 border-r border-border bg-bg-secondary flex flex-col hidden md:flex">
-                <div className="p-6 flex items-center justify-between">
-                    <h1 className="text-2xl font-bold font-display tracking-tight flex items-center gap-2">
-                        <span className="text-accent-cyan">Spin</span>Care
-                    </h1>
+                <div className="p-6 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <img
+                            src={logo}
+                            alt="SpineKare Logo"
+                            className="h-8 w-auto rounded-md border border-border bg-white object-contain"
+                        />
+                        <h1 className="text-2xl font-bold font-display tracking-tight flex items-center gap-1">
+                            <span className="text-accent-cyan">Spine</span>Kare
+                        </h1>
+                    </div>
                     <div className="flex items-center gap-1.5 text-text-primary px-3 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Your daily streak">
                         <Flame size={16} className={streak.currentStreak > 0 ? "text-accent-amber" : "text-text-secondary"} />
                         <span className="font-bold text-sm tracking-wide">{streak.currentStreak}</span>
@@ -75,8 +83,17 @@ export const DashboardLayout = () => {
             {/* Main Content Area */}
             <main className="flex-1 overflow-y-auto">
                 {/* Mobile Header */}
-                <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-bg-secondary">
-                    <h1 className="text-xl font-bold font-display text-accent-cyan">SpinCare</h1>
+                <header className="md:hidden flex items-center justify-between gap-3 p-4 border-b border-border bg-bg-secondary/90 backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                        <img
+                            src={logo}
+                            alt="SpineKare Logo"
+                            className="h-8 w-auto rounded-md border border-border bg-white object-contain"
+                        />
+                        <h1 className="text-lg font-bold font-display text-text-primary tracking-tight">
+                            <span className="text-accent-cyan">Spine</span>Kare
+                        </h1>
+                    </div>
 
                     <div className="flex items-center gap-1.5 text-text-primary px-3 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Your daily streak">
                         <Flame size={16} className={streak.currentStreak > 0 ? "text-accent-amber" : "text-text-secondary"} />

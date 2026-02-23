@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0A1628;
-  --bg-secondary: #0F1F3D;
-  --bg-card: #152240;
-  --accent-cyan: #00E5CC;
-  --accent-cyan-dim: #00B3A4;
-  --accent-amber: #FFB347;
-  --accent-red: #FF4757;
-  --accent-green: #2ED573;
-  --text-primary: #F0F4FF;
-  --text-secondary: #8A9BBE;
-  --border: #1E3358;
+  /* Light, clinical palette */
+  --bg-primary: #f5f7fb;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --accent-cyan: #00a7a0;
+  --accent-cyan-dim: #008f89;
+  --accent-amber: #f7b94c;
+  --accent-red: #e05757;
+  --accent-green: #2ebc73;
+  --text-primary: #1a2240;
+  --text-secondary: #5b6b8b;
+  --border: #d5deea;
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
   --radius: 16px;
@@ -38,11 +39,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #0056b3;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #003f80;
 }
 
 body {
@@ -67,27 +68,14 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--accent-cyan);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
