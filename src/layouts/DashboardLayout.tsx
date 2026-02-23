@@ -1,12 +1,14 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import {
-    Home, Award, User, AlertCircle, Info, LogOut
+    Home, Award, User, AlertCircle, Info, LogOut, Flame
 } from 'lucide-react';
 import SpineModel3D from '../components/SpineModel3D';
 import AdPlaceholder from '../components/AdPlaceholder';
 
 export const DashboardLayout = () => {
+    const { streak } = useApp();
     const { logout } = useAuth();
     const navigate = useNavigate();
 
@@ -19,10 +21,14 @@ export const DashboardLayout = () => {
         <div className="flex h-screen w-full bg-bg-primary text-text-primary overflow-hidden">
             {/* Sidebar */}
             <aside className="w-64 border-r border-border bg-bg-secondary flex flex-col hidden md:flex">
-                <div className="p-6">
+                <div className="p-6 flex items-center justify-between">
                     <h1 className="text-2xl font-bold font-display tracking-tight flex items-center gap-2">
                         <span className="text-accent-cyan">Spin</span>Care
                     </h1>
+                    <div className="flex items-center gap-1.5 text-text-primary px-3 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Your daily streak">
+                        <Flame size={16} className={streak.currentStreak > 0 ? "text-accent-amber" : "text-text-secondary"} />
+                        <span className="font-bold text-sm tracking-wide">{streak.currentStreak}</span>
+                    </div>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] border-y border-border/50 my-2 relative">
@@ -65,7 +71,11 @@ export const DashboardLayout = () => {
                 {/* Mobile Header */}
                 <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-bg-secondary">
                     <h1 className="text-xl font-bold font-display text-accent-cyan">SpinCare</h1>
-                    {/* Hamburger menu later */}
+
+                    <div className="flex items-center gap-1.5 text-text-primary px-3 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Your daily streak">
+                        <Flame size={16} className={streak.currentStreak > 0 ? "text-accent-amber" : "text-text-secondary"} />
+                        <span className="font-bold text-sm tracking-wide">{streak.currentStreak}</span>
+                    </div>
                 </header>
 
                 <div className="p-4 md:p-8 max-w-5xl mx-auto min-h-full pb-24 md:pb-8">
