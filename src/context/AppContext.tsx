@@ -57,9 +57,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const fetchDailyContent = async () => {
-            // Calculate 1-30 for routine and 1-100 for facts
-            const rDay = (dayOfYear % 30) + 1;
-            const fDay = (dayOfYear % 100) + 1;
+            // Calculate mapping based on our 3 seeded routines and 5 seeded facts
+            const rDay = (dayOfYear % 3) + 1;
+            const fDay = (dayOfYear % 5) + 1;
 
             const [routineRes, factRes] = await Promise.all([
                 supabase

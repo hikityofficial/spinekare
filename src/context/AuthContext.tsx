@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 };
                 setUser(newProfile);
 
-                await supabase.from('user_profiles').insert({
+                await supabase.from('user_profiles').upsert({
                     id: authId,
                     full_name: newProfile.fullName,
                     onboarding_complete: false
