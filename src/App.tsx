@@ -14,6 +14,8 @@ import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import AtRisk from './pages/AtRisk';
 import Facts from './pages/Facts';
+import ExerciseLibrary from './pages/ExerciseLibrary';
+import CustomPlans from './pages/CustomPlans';
 
 export default function App() {
   return (
@@ -34,6 +36,8 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/library" element={<ExerciseLibrary />} />
+                <Route path="/plans" element={<CustomPlans />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/at-risk" element={<AtRisk />} />
                 <Route path="/spine-facts" element={<Facts />} />

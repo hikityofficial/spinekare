@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import SpineModel3D from '../components/SpineModel3D';
 import confetti from 'canvas-confetti';
 import { Play, Pause, X, ChevronRight, Check } from 'lucide-react';
+import type { Exercise } from '../types';
 
 export default function RoutinePlayer() {
-    const { todayRoutine, completeRoutine } = useApp();
+    const { todayRoutine, completeRoutine, addPoints } = useApp();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Custom flow state
+    const customExercises: Exercise[] = location.state?.exercises;
+    const customTitle: string = location.state?.title || 'Custom Workout';
+    const isCustomPlay = !!customExercises;
+
+    const activeExercises = isCustomPlay ? customExercises : todayRoutine.exercises;
+    const activeTitle = isCustomPlay ? customTitle : todayRoutine.title;
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -16,7 +26,7 @@ export default function RoutinePlayer() {
     const [isResting, setIsResting] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
 
-    const currentExercise = todayRoutine.exercises[currentIndex];
+    const currentExercise = activeExercises[currentIndex];
     const restDuration = 15; // 15 seconds rest between exercises
 
     // Timer logic
@@ -30,7 +40,7 @@ export default function RoutinePlayer() {
             // Time is up! 
             if (!isResting) {
                 // Exercise finished, go to rest or next
-                if (currentIndex < todayRoutine.exercises.length - 1) {
+                if (currentIndex < activeExercises.length - 1) {
                     setIsResting(true);
                     setTimeLeft(restDuration);
                 } else {
@@ -41,11 +51,11 @@ export default function RoutinePlayer() {
                 // Rest finished, start next exercise
                 setIsResting(false);
                 setCurrentIndex(prev => prev + 1);
-                setTimeLeft(todayRoutine.exercises[currentIndex + 1].durationSeconds);
+                setTimeLeft(activeExercises[currentIndex + 1].durationSeconds);
             }
         }
         return () => clearInterval(interval);
-    }, [isPlaying, timeLeft, isResting, currentIndex, todayRoutine]);
+    }, [isPlaying, timeLeft, isResting, currentIndex, activeExercises]);
 
     // Handle Initial Start
     useEffect(() => {
@@ -58,10 +68,10 @@ export default function RoutinePlayer() {
     const togglePlay = () => setIsPlaying(!isPlaying);
 
     const handleSkip = () => {
-        if (currentIndex < todayRoutine.exercises.length - 1) {
+        if (currentIndex < activeExercises.length - 1) {
             setIsResting(false);
             setCurrentIndex(prev => prev + 1);
-            setTimeLeft(todayRoutine.exercises[currentIndex + 1].durationSeconds);
+            setTimeLeft(activeExercises[currentIndex + 1].durationSeconds);
             setIsPlaying(true);
         } else {
             handleFinish();
@@ -71,7 +81,12 @@ export default function RoutinePlayer() {
     const handleFinish = () => {
         setIsFinished(true);
         setIsPlaying(false);
-        completeRoutine();
+
+        if (isCustomPlay) {
+            addPoints(activeExercises.length * 50); // 50 points per exercise config
+        } else {
+            completeRoutine();
+        }
 
         // Fire confetti
         const duration = 3000;
@@ -116,11 +131,12 @@ export default function RoutinePlayer() {
     const totalDuration = isResting ? restDuration : currentExercise?.durationSeconds || 1;
     const progressPercent = ((totalDuration - timeLeft) / totalDuration) * 100;
 
+    const pointsEarned = isCustomPlay ? activeExercises.length * 50 : 100;
+
     if (isFinished) {
         return (
             <div className="fixed inset-0 bg-bg-primary z-50 flex flex-col items-center justify-center p-6 text-center">
                 <div className="absolute inset-0 bg-accent-green/5 blur-[100px] rounded-full flex items-center justify-center pointer-events-none">
-                    {/* We can put a fully green spine model here! */}
                     <div className="w-96 h-96 opacity-30">
                         <SpineModel3D activeArea="full" />
                     </div>
@@ -135,8 +151,12 @@ export default function RoutinePlayer() {
                     <div className="w-24 h-24 bg-accent-green/20 text-accent-green rounded-full flex items-center justify-center mb-6 border-2 border-accent-green shadow-[0_0_50px_rgba(46,213,115,0.4)]">
                         <Check size={48} strokeWidth={3} />
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-4">Routine Complete!</h1>
-                    <p className="text-xl text-text-secondary mb-8">You earned <span className="text-accent-cyan font-bold">+100 Points</span></p>
+                    <h1 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-4">
+                        {isCustomPlay ? "Workout Complete!" : "Routine Complete!"}
+                    </h1>
+                    <p className="text-xl text-text-secondary mb-8">
+                        You earned <span className="text-accent-cyan font-bold">+{pointsEarned} Points</span>
+                    </p>
 
                     <div className="flex gap-4">
                         <button
@@ -172,9 +192,9 @@ export default function RoutinePlayer() {
             <div className="hidden md:flex flex-1 bg-bg-secondary border-r border-border relative flex-col justify-center items-center overflow-hidden h-full">
                 <div className="absolute top-8 text-center w-full z-10 px-8">
                     <h2 className="text-xl font-display font-bold text-text-primary tracking-wide">
-                        {todayRoutine.title}
+                        {activeTitle}
                     </h2>
-                    <p className="text-text-secondary text-sm mt-1">Exercise {currentIndex + 1} of {todayRoutine.exercises.length}</p>
+                    <p className="text-text-secondary text-sm mt-1">Exercise {currentIndex + 1} of {activeExercises.length}</p>
                 </div>
 
                 <div className="w-full h-full max-h-[80vh] relative z-0">
@@ -270,7 +290,7 @@ export default function RoutinePlayer() {
                                 className="flex flex-col items-center justify-center h-full text-center"
                             >
                                 <h2 className="text-3xl font-display font-bold text-accent-amber mb-2">Rest & Prepare</h2>
-                                <p className="text-text-secondary mb-12">Up next: <span className="text-text-primary font-bold">{todayRoutine.exercises[currentIndex + 1]?.name}</span></p>
+                                <p className="text-text-secondary mb-12">Up next: <span className="text-text-primary font-bold">{activeExercises[currentIndex + 1]?.name}</span></p>
 
                                 <div className="text-7xl font-display font-bold text-text-primary mb-12 tabular-nums">
                                     {timeLeft}s

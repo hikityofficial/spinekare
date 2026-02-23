@@ -2,7 +2,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import {
-    Home, Award, User, AlertCircle, Info, LogOut, Flame
+    Home, Award, User, AlertCircle, Info, LogOut, Flame, BookOpen, ClipboardList
 } from 'lucide-react';
 import SpineModel3D from '../components/SpineModel3D';
 import AdPlaceholder from '../components/AdPlaceholder';
@@ -41,6 +41,12 @@ export const DashboardLayout = () => {
                 <nav className="flex-1 px-4 py-4 space-y-2">
                     <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-radius-lg hover:bg-bg-card transition-colors text-text-primary">
                         <Home size={20} /> Dashboard
+                    </Link>
+                    <Link to="/library" className="flex items-center gap-3 px-4 py-3 rounded-radius-lg hover:bg-bg-card transition-colors text-text-secondary hover:text-text-primary">
+                        <BookOpen size={20} /> Library
+                    </Link>
+                    <Link to="/plans" className="flex items-center gap-3 px-4 py-3 rounded-radius-lg hover:bg-bg-card transition-colors text-text-secondary hover:text-text-primary">
+                        <ClipboardList size={20} /> My Plans
                     </Link>
                     <Link to="/leaderboard" className="flex items-center gap-3 px-4 py-3 rounded-radius-lg hover:bg-bg-card transition-colors text-text-secondary hover:text-text-primary">
                         <Award size={20} /> Leaderboard
