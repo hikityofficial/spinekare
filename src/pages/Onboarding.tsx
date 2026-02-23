@@ -36,19 +36,56 @@ export default function Onboarding() {
         setIsCalculating(true);
 
         setTimeout(async () => {
-            // Mock calculation
-            // Using tier directly. Real app would aggregate score.
-            const tier = 'moderate';
+            let score = 0;
+
+            // Age Group
+            if (answers['ageGroup'] === '35–50') score += 10;
+            if (answers['ageGroup'] === '50–65') score += 15;
+            if (answers['ageGroup'] === '65+') score += 20;
+
+            // Occupation
+            if (answers['occupationType'] === 'Desk job (8+ hrs sitting)') score += 25;
+            if (answers['occupationType'] === 'Driver') score += 20;
+            if (answers['occupationType'] === 'Physical labor') score += 15;
+
+            // Weightlifting
+            if (answers['isWeightlifter'] === 'Gym' || answers['isWeightlifter'] === 'Both') score += 10;
+            if (answers['isWeightlifter'] === 'Construction') score += 15;
+
+            // Exercise Frequency (Mitigator)
+            if (answers['exerciseFrequency'] === 'Never') score += 20;
+            if (answers['exerciseFrequency'] === '1–2x week') score += 10;
+            if (answers['exerciseFrequency'] === 'Daily') score -= 10; // Reduction for good habits
+
+            // Pain Level
+            if (answers['painLevel'] === 'Occasionally') score += 15;
+            if (answers['painLevel'] === 'Frequently') score += 25;
+            if (answers['painLevel'] === 'Chronic') score += 35;
+
+            // Posture
+            if (answers['postureAwareness'] === 'I slouch constantly') score += 15;
+            if (answers['postureAwareness'] === 'I am conscious of it') score -= 5;
+
+            // Sleep
+            if (answers['sleepPosition'] === 'Stomach') score += 10;
+
+            // Normalize score between 0 and 100
+            const finalScore = Math.max(0, Math.min(100, score));
+
+            let tier: 'low' | 'moderate' | 'high' = 'low';
+            if (finalScore >= 60) tier = 'high';
+            else if (finalScore >= 30) tier = 'moderate';
+
             await updateProfile({
                 ...answers,
-                spineRiskScore: 65,
+                spineRiskScore: finalScore,
                 riskTier: tier,
                 onboardingComplete: true
             });
 
             setIsCalculating(false);
             setStep(questions.length); // go to results screen
-        }, 2000);
+        }, 1500);
     };
 
     if (step === questions.length) {

@@ -1,18 +1,71 @@
 import { useAuth } from '../context/AuthContext';
-import { AlertTriangle, Activity, ShieldAlert, HeartPulse } from 'lucide-react';
+import { AlertTriangle, Activity, ShieldAlert, HeartPulse, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import hospitals from '../data/hospitals.json';
 
 interface Hospital {
     id: number;
     name: string;
     address: string;
+    location: {
+        city: string;
+        region: string;
+        lat: number;
+        lng: number;
+    };
     specialties: string[];
     rating: number;
     url: string;
+    distance?: number;
+}
+
+// Haversine formula to calculate distance between two lat/lng coordinates in km
+function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371; // Radius of the earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return d;
+}
+
+function deg2rad(deg: number) {
+    return deg * (Math.PI / 180);
 }
 
 export default function AtRisk() {
     const { user } = useAuth();
+    const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+    const [sortedHospitals, setSortedHospitals] = useState<Hospital[]>(hospitals as Hospital[]);
+
+    useEffect(() => {
+        if (navigator.geolocation && (user?.riskTier === 'high' || user?.riskTier === 'moderate')) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    setUserLoc({ lat, lng });
+
+                    const withDistance = (hospitals as Hospital[]).map(h => {
+                        return {
+                            ...h,
+                            distance: getDistanceFromLatLonInKm(lat, lng, h.location.lat, h.location.lng)
+                        };
+                    }).sort((a, b) => (a.distance || 0) - (b.distance || 0));
+
+                    setSortedHospitals(withDistance);
+                },
+                (error) => {
+                    console.log("Geolocation error:", error);
+                    // Leave default sorting
+                }
+            );
+        }
+    }, [user?.riskTier]);
 
     const getRiskColor = (tier?: string) => {
         if (tier === 'low') return 'text-accent-green';
@@ -123,15 +176,20 @@ export default function AtRisk() {
                     </p>
 
                     <div className="grid md:grid-cols-2 gap-6">
-                        {(hospitals as Hospital[]).map((hospital) => (
+                        {sortedHospitals.map((hospital) => (
                             <a
                                 key={hospital.id}
                                 href={hospital.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block group bg-bg-card border border-border hover:border-accent-cyan/50 rounded-radius-lg p-6 transition-colors"
+                                className="block group bg-bg-card border border-border hover:border-accent-cyan/50 rounded-radius-lg p-6 transition-colors relative"
                             >
-                                <div className="flex justify-between items-start mb-4">
+                                {userLoc && hospital.distance !== undefined && (
+                                    <div className="absolute top-6 right-6 flex items-center gap-1 text-xs font-bold text-accent-cyan bg-accent-cyan/10 px-2 py-1 rounded">
+                                        <MapPin size={12} /> {hospital.distance.toFixed(1)} km
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-start mb-4 pr-20">
                                     <h3 className="font-bold text-lg text-text-primary group-hover:text-accent-cyan transition-colors">
                                         {hospital.name}
                                     </h3>
