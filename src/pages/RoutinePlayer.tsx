@@ -209,12 +209,20 @@ export default function RoutinePlayer() {
                     <p className="text-text-secondary text-sm mt-1">{exerciseLabel}</p>
                 </div>
 
-                <div className="w-full h-full max-h-[80vh] relative z-0">
-                    <SpineModel3D activeArea={isResting ? 'none' : currentExercise.targetArea} />
+                <div className="w-full h-full max-h-[80vh] relative z-0 flex items-center justify-center p-8">
+                    {!isResting && !isPrepping ? (
+                        <img
+                            src={getExerciseImage(currentExercise.id)}
+                            alt={currentExercise.name}
+                            className="w-full h-full object-contain drop-shadow-2xl"
+                        />
+                    ) : (
+                        <SpineModel3D activeArea={isResting ? 'none' : currentExercise.targetArea} />
+                    )}
                 </div>
 
                 {/* Target highlight label */}
-                {!isResting && (
+                {(!isResting && isPrepping) && (
                     <div className="absolute bottom-12 bg-bg-primary/80 backdrop-blur px-6 py-3 rounded-full border border-accent-cyan/30 text-accent-cyan font-bold tracking-widest uppercase text-sm">
                         Targeting: {currentExercise.targetArea} spine
                     </div>
@@ -286,10 +294,11 @@ export default function RoutinePlayer() {
                                 exit={{ opacity: 0, scale: 1.05 }}
                                 className="flex flex-col items-center md:items-start text-center md:text-left w-full"
                             >
-                                {/* Header with Image & Title */}
+                                {/* Header with Spine Model & Title */}
                                 <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8 w-full">
-                                    <div className="w-24 h-24 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center p-2">
-                                        <img src={getExerciseImage(currentExercise.id)} alt={currentExercise.name} className="w-full h-full object-contain" />
+                                    <div className="w-24 h-24 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center relative overflow-hidden pointer-events-none">
+                                        <div className="absolute inset-0 bg-accent-cyan/5"></div>
+                                        <SpineModel3D activeArea={currentExercise.targetArea} />
                                     </div>
                                     <div>
                                         <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-accent-cyan/10 text-[10px] font-bold tracking-widest text-accent-cyan uppercase mb-2">
