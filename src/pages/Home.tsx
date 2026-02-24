@@ -1,6 +1,7 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, LogIn } from 'lucide-react';
+import { ArrowRight, LogIn, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import logo from '../../assets/sslogo.png';
 import sse1 from '../../assets/sse1.png';
@@ -19,6 +20,22 @@ import sse12 from '../../assets/sse12.png';
 export default function Home() {
     const navigate = useNavigate();
     const listRef = useRef<HTMLDivElement | null>(null);
+    const [showPopup, setShowPopup] = useState(false);
+
+    useEffect(() => {
+        const hasSeenPopup = localStorage.getItem('spinekare_seen_intro_popup');
+        if (!hasSeenPopup) {
+            const timer = setTimeout(() => {
+                setShowPopup(true);
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, []);
+
+    const closePopup = () => {
+        localStorage.setItem('spinekare_seen_intro_popup', 'true');
+        setShowPopup(false);
+    };
 
     const exerciseImages = useMemo(
         () => [sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8, sse9, sse10, sse11, sse12],
@@ -28,6 +45,41 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-bg-primary">
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_20%_10%,rgba(14,165,164,0.12),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(217,119,6,0.10),transparent_45%)]" />
+
+            {/* Intro Popup */}
+            <AnimatePresence>
+                {showPopup && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-primary/80 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-bg-card border border-border shadow-[0_0_50px_rgba(0,229,204,0.15)] rounded-radius-lg max-w-lg w-full p-8 text-center relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-cyan via-accent-green to-accent-amber" />
+                            <div className="mx-auto w-16 h-16 rounded-full bg-accent-cyan/10 flex items-center justify-center mb-6 text-accent-cyan">
+                                <Activity size={32} />
+                            </div>
+                            <h2 className="text-3xl font-display font-extrabold text-text-primary mb-4">Did you know?</h2>
+                            <p className="text-lg text-text-secondary leading-relaxed mb-8">
+                                Sitting puts up to <strong className="text-text-primary">40% more pressure</strong> on your spine than standing.
+                                SpineKare monitors your risk and provides daily, clinical-grade routines to decompress and strengthen your back.
+                            </p>
+                            <button
+                                onClick={closePopup}
+                                className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-radius-lg bg-accent-cyan text-bg-primary font-bold hover:bg-accent-cyan-dim transition-colors text-lg"
+                            >
+                                Enter SpineKare <ArrowRight size={20} />
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Top bar */}
             <header className="relative z-10 border-b border-border bg-bg-card/70 backdrop-blur">
