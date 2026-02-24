@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Flame, CheckCircle, PlayCircle, ShieldAlert } from 'lucide-react';
+import { getExerciseImage } from '../utils/exerciseImages';
 
 export default function Dashboard() {
     const { streak, todayRoutine, todayFact, hasCompletedToday } = useApp();
@@ -74,6 +75,28 @@ export default function Dashboard() {
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    {/* Exercise Previews */}
+                    <div className="mb-8 overflow-x-auto pb-4 -mx-8 px-8 snap-x">
+                        <div className="flex gap-4 w-max">
+                            {todayRoutine.exercises.map((ex, i) => (
+                                <div key={`${ex.id}-${i}`} className="w-48 bg-bg-primary rounded-radius-md border border-border p-4 shrink-0 snap-start flex flex-col group/card hover:border-accent-cyan/40 transition-colors">
+                                    <div className="h-32 mb-3 bg-bg-secondary rounded-radius-sm flex items-center justify-center p-2">
+                                        <img
+                                            src={getExerciseImage(ex.id)}
+                                            alt={ex.name}
+                                            className="h-full w-full object-contain group-hover/card:scale-105 transition-transform"
+                                        />
+                                    </div>
+                                    <h3 className="font-bold text-text-primary text-sm truncate" title={ex.name}>{ex.name}</h3>
+                                    <div className="flex justify-between items-center mt-2 mt-auto">
+                                        <span className="text-xs text-text-secondary bg-bg-secondary px-2 py-0.5 rounded-full capitalize">{ex.targetArea}</span>
+                                        <span className="text-xs text-text-secondary font-mono">{Math.floor(ex.durationSeconds / 60)}:{(ex.durationSeconds % 60).toString().padStart(2, '0')}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {!hasCompletedToday ? (

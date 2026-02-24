@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, LogIn, Activity } from 'lucide-react';
+import { ArrowRight, LogIn, Activity, AlertTriangle, Heart, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import logo from '../../assets/sslogo.png';
@@ -20,22 +20,64 @@ import sse12 from '../../assets/sse12.png';
 export default function Home() {
     const navigate = useNavigate();
     const listRef = useRef<HTMLDivElement | null>(null);
+
+    // Popup State
     const [showPopup, setShowPopup] = useState(false);
+    const [popupStep, setPopupStep] = useState(0);
+    const [canContinue, setCanContinue] = useState(false);
 
     useEffect(() => {
         const hasSeenPopup = localStorage.getItem('spinekare_seen_intro_popup');
         if (!hasSeenPopup) {
             const timer = setTimeout(() => {
                 setShowPopup(true);
-            }, 1500);
+            }, 1000);
             return () => clearTimeout(timer);
         }
     }, []);
 
-    const closePopup = () => {
-        localStorage.setItem('spinekare_seen_intro_popup', 'true');
-        setShowPopup(false);
+    // Timer logic to enforce reading
+    useEffect(() => {
+        if (showPopup) {
+            setCanContinue(false);
+            const timer = setTimeout(() => {
+                setCanContinue(true);
+            }, 3000); // 3 seconds per slide
+            return () => clearTimeout(timer);
+        }
+    }, [showPopup, popupStep]);
+
+    const handleNextStep = () => {
+        if (popupStep < 3) {
+            setPopupStep(prev => prev + 1);
+        } else {
+            localStorage.setItem('spinekare_seen_intro_popup', 'true');
+            setShowPopup(false);
+        }
     };
+
+    const popupSlides = useMemo(() => [
+        {
+            icon: <Activity size={32} />,
+            title: "Your Body's Pillar",
+            text: "Your spine supports the entire weight of your upper body and head, enduring immense mechanical stress every single day."
+        },
+        {
+            icon: <AlertTriangle size={32} />,
+            title: "The Cost of Neglect",
+            text: "Neglecting your spine can lead to herniated discs, chronic nerve pain, and a severely restricted range of motion over time."
+        },
+        {
+            icon: <Heart size={32} />,
+            title: "Why You Should Care",
+            text: "Your spinal cord is the main highway for your central nervous system. A healthy spine means a healthy, active, and pain-free life."
+        },
+        {
+            icon: <Users size={32} />,
+            title: "You Are Not Alone",
+            text: "Over 80% of adults will experience significant back pain in their lifetime, making it the leading cause of disability worldwide."
+        }
+    ], []);
 
     const exerciseImages = useMemo(
         () => [sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8, sse9, sse10, sse11, sse12],
@@ -53,7 +95,7 @@ export default function Home() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-primary/80 backdrop-blur-md"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-primary/90 backdrop-blur-md"
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 20 }}
@@ -62,19 +104,55 @@ export default function Home() {
                             className="bg-bg-card border border-border shadow-[0_0_50px_rgba(0,229,204,0.15)] rounded-radius-lg max-w-lg w-full p-8 text-center relative overflow-hidden"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-cyan via-accent-green to-accent-amber" />
-                            <div className="mx-auto w-16 h-16 rounded-full bg-accent-cyan/10 flex items-center justify-center mb-6 text-accent-cyan">
-                                <Activity size={32} />
+
+                            {/* Step Indicator */}
+                            <div className="flex justify-center gap-2 mb-6">
+                                {[0, 1, 2, 3].map(i => (
+                                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === popupStep ? 'w-8 bg-accent-cyan' : 'w-2 bg-border'}`} />
+                                ))}
                             </div>
-                            <h2 className="text-3xl font-display font-extrabold text-text-primary mb-4">Did you know?</h2>
-                            <p className="text-lg text-text-secondary leading-relaxed mb-8">
-                                Sitting puts up to <strong className="text-text-primary">40% more pressure</strong> on your spine than standing.
-                                SpineKare monitors your risk and provides daily, clinical-grade routines to decompress and strengthen your back.
-                            </p>
+
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={popupStep}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <div className="mx-auto w-16 h-16 rounded-full bg-accent-cyan/10 flex items-center justify-center mb-6 text-accent-cyan">
+                                        {popupSlides[popupStep].icon}
+                                    </div>
+                                    <h2 className="text-3xl font-display font-extrabold text-text-primary mb-4">
+                                        {popupSlides[popupStep].title}
+                                    </h2>
+                                    <p className="text-lg text-text-secondary leading-relaxed mb-8 min-h-[6rem] flex items-center justify-center">
+                                        {popupSlides[popupStep].text}
+                                    </p>
+                                </motion.div>
+                            </AnimatePresence>
+
                             <button
-                                onClick={closePopup}
-                                className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-radius-lg bg-accent-cyan text-bg-primary font-bold hover:bg-accent-cyan-dim transition-colors text-lg"
+                                onClick={handleNextStep}
+                                disabled={!canContinue}
+                                className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-radius-lg bg-accent-cyan text-bg-primary font-bold hover:bg-accent-cyan-dim disabled:opacity-50 disabled:cursor-not-allowed transition-all text-lg group relative overflow-hidden"
                             >
-                                Enter SpineKare <ArrowRight size={20} />
+                                {canContinue ? (
+                                    <>
+                                        {popupStep < 3 ? "Continue" : "Enter SpineKare"} <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <motion.div
+                                            key={`progress-${popupStep}`}
+                                            initial={{ width: 0 }}
+                                            animate={{ width: "100%" }}
+                                            transition={{ duration: 3, ease: "linear" }}
+                                            className="absolute bottom-0 left-0 h-1 bg-black/20"
+                                        />
+                                        <span className="opacity-80">Please read...</span>
+                                    </>
+                                )}
                             </button>
                         </motion.div>
                     </motion.div>

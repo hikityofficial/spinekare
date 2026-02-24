@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import SpineModel3D from '../components/SpineModel3D';
 import confetti from 'canvas-confetti';
-import { Play, Pause, X, ChevronRight, Check } from 'lucide-react';
+import { Play, Pause, X, ChevronRight, Check, Info } from 'lucide-react';
 import type { Exercise } from '../types';
+import { getExerciseImage } from '../utils/exerciseImages';
+import { exerciseMeta } from '../utils/exerciseMeta';
 
 export default function RoutinePlayer() {
     const { todayRoutine, completeRoutine, addPoints } = useApp();
@@ -24,6 +26,7 @@ export default function RoutinePlayer() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
     const [isResting, setIsResting] = useState(false);
+    const [isPrepping, setIsPrepping] = useState(true);
     const [isFinished, setIsFinished] = useState(false);
 
     const currentExercise = activeExercises[currentIndex];
@@ -32,11 +35,11 @@ export default function RoutinePlayer() {
     // Timer logic
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
-        if (isPlaying && timeLeft > 0) {
+        if (isPlaying && !isPrepping && timeLeft > 0) {
             interval = setInterval(() => {
                 setTimeLeft(prev => prev - 1);
             }, 1000);
-        } else if (isPlaying && timeLeft === 0) {
+        } else if (isPlaying && !isPrepping && timeLeft === 0) {
             // Time is up! 
             if (!isResting) {
                 // Exercise finished, go to rest or next
@@ -48,31 +51,38 @@ export default function RoutinePlayer() {
                     handleFinish();
                 }
             } else {
-                // Rest finished, start next exercise
+                // Rest finished, start next exercise prep
                 setIsResting(false);
+                setIsPrepping(true);
                 setCurrentIndex(prev => prev + 1);
-                setTimeLeft(activeExercises[currentIndex + 1].durationSeconds);
+                setIsPlaying(false);
             }
         }
         return () => clearInterval(interval);
-    }, [isPlaying, timeLeft, isResting, currentIndex, activeExercises]);
+    }, [isPlaying, isPrepping, timeLeft, isResting, currentIndex, activeExercises]);
 
-    // Handle Initial Start
+    // Handle Initial Start - No longer auto-starts
     useEffect(() => {
-        if (currentExercise && !isResting && timeLeft === 0 && !isFinished && currentIndex === 0) {
+        if (currentExercise && isPrepping && currentIndex === 0 && !isFinished) {
             setTimeLeft(currentExercise.durationSeconds);
-            setIsPlaying(true); // auto-start
+            setIsPlaying(false);
         }
-    }, [currentExercise]);
+    }, [currentExercise, isPrepping, currentIndex, isFinished]);
+
+    const startExercise = () => {
+        setIsPrepping(false);
+        setTimeLeft(activeExercises[currentIndex].durationSeconds);
+        setIsPlaying(true);
+    };
 
     const togglePlay = () => setIsPlaying(!isPlaying);
 
     const handleSkip = () => {
         if (currentIndex < activeExercises.length - 1) {
             setIsResting(false);
+            setIsPrepping(true);
             setCurrentIndex(prev => prev + 1);
-            setTimeLeft(activeExercises[currentIndex + 1].durationSeconds);
-            setIsPlaying(true);
+            setIsPlaying(false);
         } else {
             handleFinish();
         }
@@ -216,68 +226,121 @@ export default function RoutinePlayer() {
                 <div className="w-full max-w-lg mx-auto">
 
                     <AnimatePresence mode="wait">
-                        {!isResting ? (
+                        {isPrepping ? (
                             <motion.div
-                                key="exercise"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
+                                key="prep"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
                                 className="flex flex-col items-center md:items-start text-center md:text-left"
                             >
                                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-xs font-bold tracking-widest text-accent-cyan uppercase mb-4">
-                                    {currentExercise.category}
+                                    Next: {currentExercise.category}
                                 </div>
 
-                                <h2 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-4 leading-tight">
-                                    Exercise {String(currentIndex + 1).padStart(2, '0')}
+                                <h2 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-6 leading-tight">
+                                    {currentExercise.name}
                                 </h2>
 
-                                <p className="text-text-secondary text-lg mb-8 h-20">
-                                    {currentExercise.whatItDoes}
-                                </p>
+                                <div className="w-full bg-bg-secondary rounded-radius-lg border border-border p-6 mb-8 flex flex-col items-center">
+                                    <img
+                                        src={getExerciseImage(currentExercise.id)}
+                                        alt={currentExercise.name}
+                                        className="w-48 h-48 object-contain mb-6 drop-shadow-xl"
+                                    />
 
-                                {/* Mobile Spine Representation (only visible on mobile) */}
-                                <div className="md:hidden w-full h-48 bg-bg-secondary rounded-radius-lg border border-border mb-8 flex items-center justify-center relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-accent-cyan/5"></div>
-                                    <SpineModel3D activeArea={currentExercise.targetArea} />
-                                    <div className="absolute bottom-2 bg-bg-primary/80 backdrop-blur px-3 py-1 rounded-full text-[10px] border border-accent-cyan/30 text-accent-cyan font-bold uppercase">
-                                        Target: {currentExercise.targetArea}
+                                    <div className="w-full text-left space-y-4">
+                                        <div className="flex items-start gap-3 bg-bg-primary p-4 rounded-radius-md border border-border">
+                                            <Info className="text-accent-cyan mt-0.5 shrink-0" size={20} />
+                                            <div>
+                                                <p className="text-sm font-bold text-text-primary mb-1">Surface Needed</p>
+                                                <p className="text-text-secondary text-sm">
+                                                    {exerciseMeta[currentExercise.id]?.surface || "Comfortable surface"}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-bg-primary p-4 rounded-radius-md border border-border">
+                                            <p className="text-sm font-bold text-text-primary mb-3">Form Cues</p>
+                                            <ul className="text-sm text-text-secondary space-y-2 list-disc pl-5">
+                                                {(exerciseMeta[currentExercise.id]?.formCues || [currentExercise.whatItDoes]).map((cue, i) => (
+                                                    <li key={i}>{cue}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={startExercise}
+                                    className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all shadow-[0_0_20px_rgba(0,229,204,0.3)] text-lg flex items-center justify-center gap-2"
+                                >
+                                    I'm Ready <ChevronRight size={20} />
+                                </button>
+                            </motion.div>
+                        ) : !isResting ? (
+                            <motion.div
+                                key="exercise"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 1.05 }}
+                                className="flex flex-col items-center md:items-start text-center md:text-left w-full"
+                            >
+                                {/* Header with Image & Title */}
+                                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8 w-full">
+                                    <div className="w-24 h-24 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center p-2">
+                                        <img src={getExerciseImage(currentExercise.id)} alt={currentExercise.name} className="w-full h-full object-contain" />
+                                    </div>
+                                    <div>
+                                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-accent-cyan/10 text-[10px] font-bold tracking-widest text-accent-cyan uppercase mb-2">
+                                            {currentExercise.category}
+                                        </div>
+                                        <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary leading-tight">
+                                            {currentExercise.name}
+                                        </h2>
                                     </div>
                                 </div>
 
                                 {/* Timer Circle */}
-                                <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto md:mx-0 mb-8 flex items-center justify-center">
+                                <div className="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
                                     {/* Background Ring */}
                                     <svg className="absolute inset-0 w-full h-full -rotate-90">
                                         <circle
                                             cx="50%" cy="50%" r="48%"
-                                            fill="none" stroke="currentColor" strokeWidth="4"
+                                            fill="none" stroke="currentColor" strokeWidth="6"
                                             className="text-bg-secondary"
                                         />
                                         <circle
                                             cx="50%" cy="50%" r="48%"
-                                            fill="none" stroke="currentColor" strokeWidth="4"
+                                            fill="none" stroke="currentColor" strokeWidth="6"
                                             strokeDasharray="300"
                                             strokeDashoffset={300 - (300 * progressPercent) / 100}
-                                            className="text-accent-cyan drop-shadow-[0_0_8px_rgba(0,229,204,0.5)] transition-all duration-1000 ease-linear"
+                                            className="text-accent-cyan drop-shadow-[0_0_12px_rgba(0,229,204,0.6)] transition-all duration-1000 ease-linear"
                                         />
                                     </svg>
-                                    <div className="text-5xl md:text-6xl font-display font-bold text-text-primary tracking-tighter tabular-nums">
+                                    <div className="text-6xl md:text-7xl font-display font-bold text-text-primary tracking-tighter tabular-nums">
                                         {formatTime(timeLeft)}
                                     </div>
                                 </div>
 
+                                {/* Form Tip Reminder */}
+                                <div className="w-full text-center mb-8">
+                                    <p className="text-text-secondary italic">
+                                        Tip: {exerciseMeta[currentExercise.id]?.formCues[0] || currentExercise.whatItDoes}
+                                    </p>
+                                </div>
+
                                 {/* Controls */}
-                                <div className="flex items-center gap-6 justify-center w-full md:justify-start">
+                                <div className="flex items-center gap-6 justify-center w-full">
                                     <button
                                         onClick={togglePlay}
-                                        className="w-16 h-16 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(0,229,204,0.3)]"
+                                        className="w-20 h-20 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,229,204,0.4)]"
                                     >
-                                        {isPlaying ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
+                                        {isPlaying ? <Pause size={36} /> : <Play size={36} className="ml-1" />}
                                     </button>
                                     <button
                                         onClick={handleSkip}
-                                        className="flex items-center gap-2 text-text-secondary hover:text-text-primary font-bold px-4 py-2 rounded-full hover:bg-bg-secondary transition-colors"
+                                        className="flex items-center gap-2 text-text-secondary hover:text-text-primary font-bold px-4 py-2 rounded-full hover:bg-bg-secondary transition-colors absolute right-0 bottom-0 md:relative"
                                     >
                                         Skip <ChevronRight size={20} />
                                     </button>

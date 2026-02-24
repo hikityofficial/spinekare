@@ -57,45 +57,63 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const fetchDailyContent = async () => {
-            // Calculate mapping based on our 3 seeded routines and 5 seeded facts
-            const rDay = (dayOfYear % 3) + 1;
             const fDay = (dayOfYear % 5) + 1;
 
-            const [routineRes, factRes] = await Promise.all([
-                supabase
-                    .from('routines')
-                    .select('*, routine_exercises(order_index, exercises(*))')
-                    .eq('day_number', rDay)
-                    .single(),
-                supabase
-                    .from('spine_facts')
-                    .select('*')
-                    .eq('day_number', fDay)
-                    .single()
+            const [exercisesRes, factRes] = await Promise.all([
+                supabase.from('exercises').select('*').order('id'),
+                supabase.from('spine_facts').select('*').eq('day_number', fDay).single()
             ]);
 
-            if (routineRes.data) {
-                const exMap = routineRes.data.routine_exercises
-                    .sort((a: any, b: any) => a.order_index - b.order_index)
-                    .map((re: any) => ({
-                        id: re.exercises.id,
-                        name: re.exercises.name,
-                        description: re.exercises.description,
-                        targetArea: re.exercises.target_area,
-                        category: re.exercises.category,
-                        durationSeconds: re.exercises.duration_seconds,
-                        reps: re.exercises.reps,
-                        whatItDoes: re.exercises.what_it_does,
-                        difficulty: re.exercises.difficulty
-                    }));
+            if (exercisesRes.data) {
+                const allExercises = exercisesRes.data.map((ex: any) => ({
+                    id: ex.id,
+                    name: ex.name,
+                    description: ex.description,
+                    targetArea: ex.target_area,
+                    category: ex.category,
+                    durationSeconds: ex.duration_seconds,
+                    reps: ex.reps,
+                    whatItDoes: ex.what_it_does,
+                    difficulty: ex.difficulty
+                }));
+
+                // Personalize Daily Routine based on Risk Tier & Streak Day
+                const tier = user?.riskTier || 'moderate';
+                const currentDay = streak.currentStreak + 1;
+
+                let selectedExercises: any[] = [];
+                let title = "Daily Assignment";
+                let count = 4;
+
+                if (tier === 'low') {
+                    count = 3;
+                    title = `Day ${currentDay} — Spine Maintenance`;
+                } else if (tier === 'moderate') {
+                    count = 4;
+                    title = `Day ${currentDay} — Posture Correction`;
+                } else {
+                    count = 6;
+                    title = `Day ${currentDay} — Full Corrective Program`;
+                }
+
+                // Deterministically select exercises cycling based on the current streak day
+                // This ensures variety each day while following the tier volume limits
+                for (let i = 0; i < count; i++) {
+                    const index = (currentDay + i) % allExercises.length;
+                    selectedExercises.push(allExercises[index]);
+                }
+
+                const estimatedMins = Math.ceil(
+                    selectedExercises.reduce((acc, ex) => acc + ex.durationSeconds + 15, 0) / 60
+                );
 
                 setTodayRoutine({
-                    id: routineRes.data.id,
-                    dayNumber: routineRes.data.day_number,
-                    title: routineRes.data.title,
-                    focusArea: routineRes.data.focus_area,
-                    estimatedMinutes: routineRes.data.estimated_minutes,
-                    exercises: exMap
+                    id: currentDay, // Fake ID based on day
+                    dayNumber: currentDay,
+                    title: title,
+                    focusArea: tier === 'low' ? 'Maintenance' : 'Correction',
+                    estimatedMinutes: estimatedMins,
+                    exercises: selectedExercises
                 });
             }
 
@@ -109,8 +127,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             }
         };
 
-        fetchDailyContent();
-    }, []);
+        // If we don't have the user/streak loaded yet, Wait.
+        if (streak.userId !== '') {
+            fetchDailyContent();
+        }
+    }, [user?.riskTier, streak.currentStreak, streak.userId]);
 
     // Load initial streak data
     useEffect(() => {
