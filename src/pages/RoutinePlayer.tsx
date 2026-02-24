@@ -210,19 +210,19 @@ export default function RoutinePlayer() {
                 </div>
 
                 <div className="w-full h-full max-h-[80vh] relative z-0 flex items-center justify-center p-8">
-                    {!isResting && !isPrepping ? (
+                    {!isResting ? (
                         <img
                             src={getExerciseImage(currentExercise.id)}
                             alt={currentExercise.name}
                             className="w-full h-full object-contain drop-shadow-2xl"
                         />
                     ) : (
-                        <SpineModel3D activeArea={isResting ? 'none' : currentExercise.targetArea} />
+                        <SpineModel3D activeArea="none" />
                     )}
                 </div>
 
                 {/* Target highlight label */}
-                {(!isResting && isPrepping) && (
+                {!isResting && (
                     <div className="absolute bottom-12 bg-bg-primary/80 backdrop-blur px-6 py-3 rounded-full border border-accent-cyan/30 text-accent-cyan font-bold tracking-widest uppercase text-sm">
                         Targeting: {currentExercise.targetArea} spine
                     </div>
@@ -251,11 +251,10 @@ export default function RoutinePlayer() {
                                 </h2>
 
                                 <div className="w-full bg-bg-secondary rounded-radius-lg border border-border p-6 mb-8 flex flex-col items-center">
-                                    <img
-                                        src={getExerciseImage(currentExercise.id)}
-                                        alt={currentExercise.name}
-                                        className="w-48 h-48 object-contain mb-6 drop-shadow-xl"
-                                    />
+                                    <div className="w-48 h-48 mb-6 relative flex items-center justify-center overflow-hidden rounded-xl bg-bg-primary border border-border">
+                                        <div className="absolute inset-0 bg-accent-cyan/5"></div>
+                                        <SpineModel3D activeArea={currentExercise.targetArea} />
+                                    </div>
 
                                     <div className="w-full text-left space-y-4">
                                         <div className="flex items-start gap-3 bg-bg-primary p-4 rounded-radius-md border border-border">
