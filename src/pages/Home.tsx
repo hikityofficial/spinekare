@@ -391,24 +391,24 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Reasons for Spine Care Section */}
+                {/* Reasons for Spine Issues */}
                 <section className="mt-16 sm:mt-20">
                     <div className="text-left mb-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan text-xs font-bold tracking-widest uppercase mb-3">
-                            Evidence-Based Care
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs font-bold tracking-widest uppercase mb-3">
+                            Know the Risks
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Reasons for Spine Care</h2>
+                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Reasons for Spine Issues</h2>
                         <p className="mt-2 text-text-secondary max-w-2xl">
-                            Visual evidence showing why daily spine care is essential for long-term health and mobility.
+                            Understanding what causes spine problems helps you take preventive action before it's too late.
                         </p>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                            { id: 1, title: "Postural Impact", desc: "How poor posture affects your spine over time" },
-                            { id: 2, title: "Disc Degeneration", desc: "Progressive effects of neglecting spine health" },
-                            { id: 3, title: "Nerve Compression", desc: "Understanding spinal nerve pathways and pain" },
-                            { id: 4, title: "Recovery Progress", desc: "Before and after consistent spine care routines" },
+                            { id: 1, title: "Prolonged Sitting", desc: "Sitting 8+ hours daily compresses spinal discs and weakens core muscles" },
+                            { id: 2, title: "Poor Sleeping Posture", desc: "Wrong mattress or sleep position strains the cervical and lumbar spine" },
+                            { id: 3, title: "Heavy Lifting", desc: "Incorrect lifting technique causes herniated discs and muscle tears" },
+                            { id: 4, title: "Screen Neck Syndrome", desc: "Looking down at phones puts up to 27 kg of pressure on your neck" },
                         ].map(item => (
                             <div
                                 key={item.id}
