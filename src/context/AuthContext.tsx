@@ -19,22 +19,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const profileFetchingRef = useRef<string | null>(null);
+    useEffect(() => {
+        console.log(`[AUTH DEBUG] isLoading state changed to: ${isLoading}`);
+    }, [isLoading]);
 
     useEffect(() => {
         let mounted = true;
+        let fallbackTimer: ReturnType<typeof setTimeout>;
+        let fetchingUserId: string | null = null;
 
         const loadProfile = async (sessionUser: any) => {
             if (!sessionUser) {
                 if (mounted) {
                     setUser(null);
                     setIsLoading(false);
+                    clearTimeout(fallbackTimer);
                 }
                 return;
             }
 
-            if (profileFetchingRef.current === sessionUser.id) return;
-            profileFetchingRef.current = sessionUser.id;
+            if (fetchingUserId === sessionUser.id) return;
+            fetchingUserId = sessionUser.id;
 
             try {
                 const { data, error } = await supabase
@@ -84,6 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     console.log("loadProfile finished successfully. Unsetting isLoading.");
                     setUser(profile);
                     setIsLoading(false);
+                    clearTimeout(fallbackTimer);
                 }
             } catch (err) {
                 console.error('Error executing profile fetch:', err);
@@ -94,12 +100,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         onboardingComplete: false,
                     } as UserProfile));
                     setIsLoading(false);
+                    clearTimeout(fallbackTimer);
                 }
             } finally {
                 if (mounted) {
                     setIsLoading(false);
+                    clearTimeout(fallbackTimer);
                 }
-                profileFetchingRef.current = null;
+                fetchingUserId = null;
             }
         };
 
@@ -117,7 +125,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     console.warn("Supabase lock is stuck. Waiting for onAuthStateChange to recover...");
                     // Do not set isLoading to false here, otherwise they get booted!
                 } else {
-                    if (mounted) setIsLoading(false);
+                    if (mounted) {
+                        setIsLoading(false);
+                        clearTimeout(fallbackTimer);
+                    }
                 }
             }
         };
@@ -131,7 +142,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
 
         // Force absolute fallback to hide loading screen if Supabase completely hangs
-        const fallbackTimer = setTimeout(() => {
+        fallbackTimer = setTimeout(() => {
             if (mounted) {
                 console.warn("Auth initialization timed out 15s, forcing load to false.");
                 setIsLoading(false);
