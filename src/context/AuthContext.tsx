@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { UserProfile } from '../types';
 import { supabase } from '../lib/supabase';
@@ -19,98 +19,124 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Track active fetch to prevent duplicate simultaneous calls
-    const [isFetching, setIsFetching] = useState(false);
-
-    // Helper to fetch or initialize profile
-    const fetchOrInitProfile = async (authId: string, email?: string) => {
-        if (isFetching) return;
-        setIsFetching(true);
-
-        try {
-            const { data, error } = await supabase
-                .from('user_profiles')
-                .select('*')
-                .eq('id', authId)
-                .single();
-
-            if (data) {
-                const mappedProfile: UserProfile = {
-                    id: data.id,
-                    fullName: data.full_name || email?.split('@')[0] || 'User',
-                    onboardingComplete: data.onboarding_complete,
-                    spineRiskScore: data.spine_risk_score,
-                    riskTier: data.risk_tier as any,
-                    ageGroup: data.age_group,
-                    occupationType: data.occupation_type,
-                };
-                setUser(mappedProfile);
-            } else if (error && error.code === 'PGRST116') {
-                // No rows returned, initialize profile
-                const newProfile: UserProfile = {
-                    id: authId,
-                    fullName: email?.split('@')[0] || 'User',
-                    onboardingComplete: false,
-                };
-                setUser(newProfile);
-
-                await supabase.from('user_profiles').upsert({
-                    id: authId,
-                    full_name: newProfile.fullName,
-                    onboarding_complete: false
-                });
-            } else if (error) {
-                console.error("Unknown DB error while fetching profile:", error);
-            }
-        } catch (err) {
-            console.error('Error executing profile fetch:', err);
-        } finally {
-            setIsLoading(false);
-            setIsFetching(false);
-        }
-    };
+    const profileFetchingRef = useRef<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
 
-        // Force fallback to hide loading screen if Supabase completely hangs
-        const fallbackTimer = setTimeout(() => {
-            if (mounted && isLoading) {
-                console.warn("Auth initialization timed out, forcing load to false.");
-                setIsLoading(false);
-            }
-        }, 8000);
-
-        const init = async () => {
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (error) throw error;
-
-                if (session?.user) {
-                    await fetchOrInitProfile(session.user.id, session.user.email);
-                } else {
-                    if (mounted) setIsLoading(false);
-                }
-            } catch (error) {
-                console.error("Error getting session:", error);
-                if (mounted) setIsLoading(false);
-            }
-        };
-
-        // Delay slighty to ensure OAuth hashes are parsed by Supabase JS client
-        setTimeout(init, 100);
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("Supabase Auth Event:", event);
-            if (session?.user) {
-                await fetchOrInitProfile(session.user.id, session.user.email);
-            } else {
+        const loadProfile = async (sessionUser: any) => {
+            if (!sessionUser) {
                 if (mounted) {
                     setUser(null);
                     setIsLoading(false);
                 }
+                return;
             }
+
+            if (profileFetchingRef.current === sessionUser.id) return;
+            profileFetchingRef.current = sessionUser.id;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('id', sessionUser.id)
+                    .single();
+
+                let profile: UserProfile;
+
+                if (data) {
+                    profile = {
+                        id: data.id,
+                        fullName: data.full_name || sessionUser.email?.split('@')[0] || 'User',
+                        onboardingComplete: data.onboarding_complete,
+                        spineRiskScore: data.spine_risk_score,
+                        riskTier: data.risk_tier as any,
+                        ageGroup: data.age_group,
+                        occupationType: data.occupation_type,
+                    };
+                } else {
+                    profile = {
+                        id: sessionUser.id,
+                        fullName: sessionUser.email?.split('@')[0] || 'User',
+                        onboardingComplete: false,
+                    };
+
+                    if (error && error.code === 'PGRST116') {
+                        // Create profile silently
+                        console.log("Profile not found (406), attempting to upsert a default profile...");
+                        const { error: upsertError } = await supabase.from('user_profiles').upsert({
+                            id: sessionUser.id,
+                            full_name: profile.fullName,
+                            onboarding_complete: false
+                        });
+                        if (upsertError) {
+                            console.error("Critical: Failed to upsert profile during session init:", upsertError);
+                        } else {
+                            console.log("Successfully implicitly created user profile");
+                        }
+                    } else if (error) {
+                        console.error("Unknown DB error while fetching profile:", error);
+                    }
+                }
+
+                if (mounted) {
+                    console.log("loadProfile finished successfully. Unsetting isLoading.");
+                    setUser(profile);
+                    setIsLoading(false);
+                }
+            } catch (err) {
+                console.error('Error executing profile fetch:', err);
+                if (mounted) {
+                    setUser(prev => prev || ({
+                        id: sessionUser.id,
+                        fullName: sessionUser.email?.split('@')[0] || 'User',
+                        onboardingComplete: false,
+                    } as UserProfile));
+                    setIsLoading(false);
+                }
+            } finally {
+                if (mounted) {
+                    setIsLoading(false);
+                }
+                profileFetchingRef.current = null;
+            }
+        };
+
+        const initAuth = async () => {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    console.error("getSession error:", error);
+                    throw error;
+                }
+                await loadProfile(session?.user);
+            } catch (error: any) {
+                console.error("Error getting session:", error);
+                if (error?.message?.includes('LockManager') || error?.message?.includes('timed out')) {
+                    console.warn("Supabase lock is stuck. Waiting for onAuthStateChange to recover...");
+                    // Do not set isLoading to false here, otherwise they get booted!
+                } else {
+                    if (mounted) setIsLoading(false);
+                }
+            }
+        };
+
+        // Delay slightly to ensure OAuth hashes are parsed by Supabase JS client
+        setTimeout(initAuth, 100);
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("Supabase Auth Event:", event, session?.user?.email);
+            await loadProfile(session?.user);
         });
+
+        // Force absolute fallback to hide loading screen if Supabase completely hangs
+        const fallbackTimer = setTimeout(() => {
+            if (mounted) {
+                console.warn("Auth initialization timed out 15s, forcing load to false.");
+                setIsLoading(false);
+            }
+        }, 15000);
 
         return () => {
             mounted = false;
