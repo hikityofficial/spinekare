@@ -86,7 +86,7 @@ export default function Dashboard() {
             </AnimatePresence>
 
             {/* Main Action - Today's Routine */}
-            <div className="bg-bg-card border border-border p-8 rounded-radius-lg relative overflow-hidden group hover:border-accent-cyan/50 transition-colors">
+            <div className="bg-bg-card border border-border p-5 md:p-8 rounded-radius-lg relative overflow-hidden group hover:border-accent-cyan/50 transition-colors">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent-cyan/5 blur-[80px] rounded-full group-hover:bg-accent-cyan/10 transition-colors"></div>
 
                 <div className="relative z-10">
@@ -95,7 +95,7 @@ export default function Dashboard() {
                             <span className="inline-block px-3 py-1 bg-accent-cyan/10 text-accent-cyan font-bold text-xs uppercase tracking-widest rounded-full mb-3">
                                 Daily Assignment
                             </span>
-                            <h2 className="text-3xl font-display font-bold text-text-primary">{todayRoutine.title}</h2>
+                            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary">{todayRoutine.title}</h2>
                             <p className="text-text-secondary mt-2">
                                 {todayRoutine.exercises.length} Exercises • ~{todayRoutine.estimatedMinutes} Mins
                             </p>
@@ -112,7 +112,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Exercise Previews */}
-                    <div className="mb-8 overflow-x-auto pb-4 -mx-8 px-8 snap-x">
+                    <div className="mb-6 md:mb-8 overflow-x-auto pb-4 -mx-6 md:-mx-8 px-6 md:px-8 snap-x">
                         <div className="flex gap-4 w-max">
                             {todayRoutine.exercises.map((ex, i) => (
                                 <div key={`${ex.id}-${i}`} className="w-48 bg-bg-primary rounded-radius-md border border-border p-4 shrink-0 snap-start flex flex-col group/card hover:border-accent-cyan/40 transition-colors">

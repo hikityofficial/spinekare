@@ -53,7 +53,7 @@ export default function Auth() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,204,0.05),transparent_70%)]"></div>
 
                 <div className="w-full flex justify-between items-center relative z-10">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
                         <img src={logo} alt="SpineKare" className="h-10 w-10 rounded-md object-contain bg-white" />
                         <h1 className="text-3xl font-display font-extrabold flex items-center gap-0.5 text-text-primary tracking-tight">
                             Spine<span className="text-accent-cyan">Kare</span>
@@ -95,7 +95,7 @@ export default function Auth() {
 
                 <div className="w-full max-w-md relative z-10">
                     <div className="lg:hidden mb-12 text-center">
-                        <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center justify-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
                             <img src={logo} alt="SpineKare" className="h-10 w-10 rounded-md object-contain bg-white" />
                             <h1 className="text-4xl font-display font-extrabold flex items-center gap-0.5 tracking-tight">
                                 Spine<span className="text-accent-cyan">Kare</span>

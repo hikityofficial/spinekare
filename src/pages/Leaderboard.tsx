@@ -146,12 +146,12 @@ export default function Leaderboard() {
         <div className="max-w-4xl mx-auto space-y-8">
 
             {/* Header */}
-            <div className="flex items-center gap-4 border-b border-border pb-6">
+            <div className="flex items-start sm:items-center gap-4 border-b border-border pb-6 flex-wrap">
                 <div className="p-3 bg-accent-amber/10 text-accent-amber rounded-radius-lg">
                     <Trophy size={32} />
                 </div>
                 <div className="flex-1">
-                    <h1 className="text-3xl font-display font-bold text-text-primary">Weekly Leaderboard</h1>
+                    <h1 className="text-2xl sm:text-3xl font-display font-bold text-text-primary">Weekly Leaderboard</h1>
                     <p className="text-text-secondary">Points earned this week. Resets every Monday at midnight UTC.</p>
                 </div>
                 {/* Countdown */}

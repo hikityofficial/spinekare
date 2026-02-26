@@ -265,7 +265,7 @@ export default function RoutinePlayer() {
                                     Next: {currentExercise.category}
                                 </div>
 
-                                <h2 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-6 leading-tight">
+                                <h2 className="text-3xl md:text-5xl font-display font-bold text-text-primary mb-6 leading-tight">
                                     {currentExercise.name}
                                 </h2>
 
