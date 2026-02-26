@@ -5,7 +5,15 @@ export const ProtectedRoute = () => {
     const { isAuthenticated, user, isLoading } = useAuth();
 
     if (isLoading) {
-        return <div className="min-h-screen bg-bg-primary flex items-center justify-center text-text-secondary animate-pulse">Loading session...</div>;
+        return (
+            <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center gap-4">
+                <div className="relative w-16 h-16">
+                    <div className="absolute inset-0 border-4 border-bg-secondary rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-accent-cyan border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <p className="text-text-secondary font-bold text-sm tracking-widest uppercase animate-pulse">Loading SpineKare...</p>
+            </div>
+        );
     }
 
     if (!isAuthenticated) {
@@ -24,7 +32,15 @@ export const PublicRoute = () => {
     const { isAuthenticated, user, isLoading } = useAuth();
 
     if (isLoading) {
-        return <div className="min-h-screen bg-bg-primary flex items-center justify-center text-text-secondary animate-pulse">Loading session...</div>;
+        return (
+            <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center gap-4">
+                <div className="relative w-16 h-16">
+                    <div className="absolute inset-0 border-4 border-bg-secondary rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-accent-cyan border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <p className="text-text-secondary font-bold text-sm tracking-widest uppercase animate-pulse">Loading SpineKare...</p>
+            </div>
+        );
     }
 
     if (isAuthenticated) {

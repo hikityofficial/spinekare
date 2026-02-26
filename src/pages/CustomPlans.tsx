@@ -123,7 +123,7 @@ export default function CustomPlans() {
             {isCreating ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Left: Exercise Library Picker */}
-                    <div className="bg-bg-card border border-border rounded-radius-lg p-6 flex flex-col h-[600px]">
+                    <div className="bg-bg-card border border-border rounded-radius-lg p-4 sm:p-6 flex flex-col" style={{ minHeight: '320px', maxHeight: '75vh' }}>
                         <h2 className="text-xl font-bold font-display mb-4">Select Exercises</h2>
                         <div className="overflow-y-auto flex-1 pr-2 space-y-3 scrollbar-hide">
                             {exercises.map((ex, idx) => {
@@ -131,32 +131,32 @@ export default function CustomPlans() {
                                 const imageSrc = EXERCISE_IMAGES[idx % EXERCISE_IMAGES.length];
 
                                 return (
-                                <div key={ex.id} className="flex items-center justify-between p-3 bg-bg-secondary border border-border rounded-radius-md hover:border-accent-cyan/30 transition-colors gap-3">
-                                    <div className="flex items-center gap-3 min-w-0">
-                                        <div className="w-14 h-14 rounded-radius-md overflow-hidden border border-border bg-bg-card flex-shrink-0">
-                                            <img src={imageSrc} alt={title} className="w-full h-full object-cover" />
+                                    <div key={ex.id} className="flex items-center justify-between p-3 bg-bg-secondary border border-border rounded-radius-md hover:border-accent-cyan/30 transition-colors gap-3">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="w-14 h-14 rounded-radius-md overflow-hidden border border-border bg-bg-card flex-shrink-0">
+                                                <img src={imageSrc} alt={title} className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-extrabold text-text-primary truncate">{title}</p>
+                                                <p className="text-xs text-text-secondary">
+                                                    {Math.round(ex.durationSeconds / 60) >= 1 ? `${Math.round(ex.durationSeconds / 60)}m` : `${ex.durationSeconds}s`} • {ex.targetArea} • {ex.difficulty}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="min-w-0">
-                                            <p className="font-extrabold text-text-primary truncate">{title}</p>
-                                            <p className="text-xs text-text-secondary">
-                                                {Math.round(ex.durationSeconds / 60) >= 1 ? `${Math.round(ex.durationSeconds / 60)}m` : `${ex.durationSeconds}s`} • {ex.targetArea} • {ex.difficulty}
-                                            </p>
-                                        </div>
+                                        <button
+                                            onClick={() => handleAddExercise(ex)}
+                                            className="p-2 bg-accent-cyan/10 text-accent-cyan rounded-full hover:bg-accent-cyan hover:text-bg-primary transition-colors"
+                                        >
+                                            <Plus size={16} />
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => handleAddExercise(ex)}
-                                        className="p-2 bg-accent-cyan/10 text-accent-cyan rounded-full hover:bg-accent-cyan hover:text-bg-primary transition-colors"
-                                    >
-                                        <Plus size={16} />
-                                    </button>
-                                </div>
                                 );
                             })}
                         </div>
                     </div>
 
                     {/* Right: Plan Builder */}
-                    <div className="bg-bg-card border border-border rounded-radius-lg p-6 flex flex-col h-[600px] shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
+                    <div className="bg-bg-card border border-border rounded-radius-lg p-4 sm:p-6 flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.5)] relative" style={{ minHeight: '320px', maxHeight: '75vh' }}>
                         <button
                             onClick={() => setIsCreating(false)}
                             className="absolute top-6 right-6 text-text-secondary hover:text-text-primary"

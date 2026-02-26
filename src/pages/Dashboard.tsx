@@ -1,8 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Flame, CheckCircle, PlayCircle, ShieldAlert } from 'lucide-react';
+import { Flame, CheckCircle, PlayCircle, ShieldAlert, Sparkles } from 'lucide-react';
 import { getExerciseImage } from '../utils/exerciseImages';
+import { motion, AnimatePresence } from 'framer-motion';
+
+function getMotivationalQuote(streak: number): string {
+    if (streak >= 30) return "30 days! You're a SpineKare legend. Your discipline is truly inspiring. 👑";
+    if (streak >= 14) return "Two weeks of dedication — you're absolutely unstoppable! Keep that fire alive. 🔥";
+    if (streak >= 7) return "A whole week strong! Your spine thanks you deeply. You're building greatness. 💪";
+    if (streak >= 3) return "You're building a powerful habit. Every step forward matters. Keep going! 🌟";
+    return "Every journey starts with a single step. You just took yours — well done! 🌱";
+}
 
 export default function Dashboard() {
     const { streak, todayRoutine, todayFact, hasCompletedToday } = useApp();
@@ -19,37 +28,62 @@ export default function Dashboard() {
         <div className="space-y-6">
 
             {/* Header section with Streak & Risk */}
-            <div className="flex flex-col md:flex-row gap-4 items-stretch">
-                <div className="flex-1 bg-bg-card border border-border p-6 rounded-radius-lg flex items-center justify-between shadow-sm">
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+                <div className="flex-1 bg-bg-card border border-border p-5 rounded-radius-lg flex items-center justify-between shadow-sm">
                     <div>
-                        <h2 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-1">Current Streak</h2>
+                        <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1">Current Streak</h2>
                         <div className="flex items-center gap-2">
-                            <Flame className={`w-8 h-8 ${streak.currentStreak > 0 ? 'text-accent-amber' : 'text-text-secondary'}`} />
-                            <span className="text-3xl font-display font-bold text-text-primary">
+                            <Flame className={`w-7 h-7 ${streak.currentStreak > 0 ? 'text-accent-amber' : 'text-text-secondary'}`} />
+                            <span className="text-2xl font-display font-bold text-text-primary">
                                 {streak.currentStreak} Days
                             </span>
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-sm text-text-secondary">Total Points</p>
-                        <p className="text-2xl font-bold text-accent-cyan">{streak.totalPoints}</p>
+                        <p className="text-xs text-text-secondary">Total Points</p>
+                        <p className="text-xl font-bold text-accent-cyan">{streak.totalPoints}</p>
                     </div>
                 </div>
 
-                <div className={"flex-1 border p-6 rounded-radius-lg flex items-center justify-between " + getRiskColor(user?.riskTier)}>
+                <div className={"flex-1 border p-5 rounded-radius-lg flex items-center justify-between " + getRiskColor(user?.riskTier)}>
                     <div>
-                        <h2 className="text-sm font-bold uppercase tracking-widest mb-1 opacity-80">Your Risk Profile</h2>
+                        <h2 className="text-xs font-bold uppercase tracking-widest mb-1 opacity-80">Your Risk Profile</h2>
                         <div className="flex items-center gap-2">
-                            <ShieldAlert className="w-6 h-6" />
-                            <span className="text-xl font-bold capitalize">{user?.riskTier || 'Unknown'} Risk</span>
+                            <ShieldAlert className="w-5 h-5" />
+                            <span className="text-lg font-bold capitalize">{user?.riskTier || 'Unknown'} Risk</span>
                         </div>
-                        <p className="text-sm opacity-80 mt-1">Score: {user?.spineRiskScore}/100</p>
+                        <p className="text-xs opacity-80 mt-1">Score: {user?.spineRiskScore}/100</p>
                     </div>
-                    <button onClick={() => navigate('/onboarding')} className="text-sm underline opacity-80 hover:opacity-100 transition-opacity">
+                    <button onClick={() => navigate('/onboarding')} className="text-sm underline opacity-80 hover:opacity-100 transition-opacity shrink-0">
                         Retake
                     </button>
                 </div>
             </div>
+
+            {/* Motivational Quote — shown after completing today */}
+            <AnimatePresence>
+                {hasCompletedToday && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.4, type: 'spring', bounce: 0.3 }}
+                        className="bg-gradient-to-r from-accent-cyan/10 via-accent-green/10 to-accent-amber/10 border border-accent-cyan/30 rounded-radius-lg p-5 flex items-start gap-4"
+                    >
+                        <div className="w-10 h-10 rounded-full bg-accent-cyan/20 flex items-center justify-center shrink-0 border border-accent-cyan/30">
+                            <Sparkles size={18} className="text-accent-cyan" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-accent-cyan uppercase tracking-widest mb-1">
+                                🎉 Today's routine complete — Day {streak.currentStreak} streak!
+                            </p>
+                            <p className="text-text-primary font-medium text-base leading-relaxed italic">
+                                "{getMotivationalQuote(streak.currentStreak)}"
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Main Action - Today's Routine */}
             <div className="bg-bg-card border border-border p-8 rounded-radius-lg relative overflow-hidden group hover:border-accent-cyan/50 transition-colors">
@@ -90,7 +124,7 @@ export default function Dashboard() {
                                         />
                                     </div>
                                     <h3 className="font-bold text-text-primary text-sm truncate" title={ex.name}>{ex.name}</h3>
-                                    <div className="flex justify-between items-center mt-2 mt-auto">
+                                    <div className="flex justify-between items-center mt-auto">
                                         <span className="text-xs text-text-secondary bg-bg-secondary px-2 py-0.5 rounded-full capitalize">{ex.targetArea}</span>
                                         <span className="text-xs text-text-secondary font-mono">{Math.floor(ex.durationSeconds / 60)}:{(ex.durationSeconds % 60).toString().padStart(2, '0')}</span>
                                     </div>
@@ -102,13 +136,13 @@ export default function Dashboard() {
                     {!hasCompletedToday ? (
                         <button
                             onClick={() => navigate('/routine')}
-                            className="w-full md:w-auto py-4 px-8 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,229,204,0.2)] hover:shadow-[0_0_30px_rgba(0,229,204,0.4)]"
+                            className="w-full py-4 px-8 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,229,204,0.2)] hover:shadow-[0_0_30px_rgba(0,229,204,0.4)]"
                         >
                             <PlayCircle size={24} />
                             <span className="text-lg">Start Today's Routine</span>
                         </button>
                     ) : (
-                        <div className="w-full md:w-auto py-4 px-8 bg-bg-secondary border border-border text-text-secondary font-bold rounded-radius-lg flex items-center justify-center gap-3">
+                        <div className="w-full py-4 px-8 bg-bg-secondary border border-border text-text-secondary font-bold rounded-radius-lg flex items-center justify-center gap-3 text-center">
                             See you tomorrow for Day {todayRoutine.dayNumber + 1}!
                         </div>
                     )}

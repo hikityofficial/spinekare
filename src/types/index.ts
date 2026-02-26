@@ -51,4 +51,7 @@ export interface UserStreak {
     lastActivityDate: string; // ISO date
     streakFreezes: number;
     totalPoints: number;
+    weeklyPoints: number;    // points earned this ISO week (resets every Monday)
+    weekNumber: number;       // ISO week number (1–53)
+    weekYear: number;         // full year of that ISO week
 }

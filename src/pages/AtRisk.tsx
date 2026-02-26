@@ -95,9 +95,9 @@ export default function AtRisk() {
             <div className="grid md:grid-cols-2 gap-6">
 
                 {/* Current Status Card */}
-                <div className="bg-bg-card rounded-radius-lg border border-border p-8 flex flex-col justify-center items-center text-center">
+                <div className="bg-bg-card rounded-radius-lg border border-border p-6 sm:p-8 flex flex-col justify-center items-center text-center">
                     <div className="text-sm font-bold uppercase tracking-widest text-text-secondary mb-4">Overall Spine Score</div>
-                    <div className={`text-8xl font-display font-bold mb-4 ${getRiskColor(user?.riskTier)}`}>
+                    <div className={`text-6xl sm:text-8xl font-display font-bold mb-4 ${getRiskColor(user?.riskTier)}`}>
                         {user?.spineRiskScore || 0}
                     </div>
                     <div className={`text-xl font-bold mb-2 ${getRiskColor(user?.riskTier)} uppercase tracking-widest`}>
@@ -146,7 +146,7 @@ export default function AtRisk() {
 
             {/* Prevention Strategies */}
             <h2 className="text-2xl font-display font-bold text-text-primary mt-12 mb-6">Action Plan</h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-accent-cyan/5 border border-accent-cyan/20 p-6 rounded-radius-lg">
                     <h4 className="font-bold text-text-primary mb-2">1. Micro-Breaks</h4>
                     <p className="text-sm text-text-secondary">Stand up for 2 minutes every hour to reset disc hydration and muscular tension.</p>
@@ -184,23 +184,25 @@ export default function AtRisk() {
                                 rel="noopener noreferrer"
                                 className="block group bg-bg-card border border-border hover:border-accent-cyan/50 rounded-radius-lg p-6 transition-colors relative"
                             >
-                                {userLoc && hospital.distance !== undefined && (
-                                    <div className="absolute top-6 right-6 flex items-center gap-1 text-xs font-bold text-accent-cyan bg-accent-cyan/10 px-2 py-1 rounded">
-                                        <MapPin size={12} /> {hospital.distance.toFixed(1)} km
-                                    </div>
-                                )}
-                                <div className="flex justify-between items-start mb-4 pr-20">
-                                    <h3 className="font-bold text-lg text-text-primary group-hover:text-accent-cyan transition-colors">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
+                                    <h3 className="font-bold text-lg text-text-primary group-hover:text-accent-cyan transition-colors flex-1 min-w-0">
                                         {hospital.name}
                                     </h3>
-                                    <span className="bg-accent-amber/10 text-accent-amber text-xs font-bold px-2 py-1 rounded">
-                                        ★ {hospital.rating}
-                                    </span>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        {userLoc && hospital.distance !== undefined && (
+                                            <div className="flex items-center gap-1 text-xs font-bold text-accent-cyan bg-accent-cyan/10 px-2 py-1 rounded">
+                                                <MapPin size={12} /> {hospital.distance.toFixed(1)} km
+                                            </div>
+                                        )}
+                                        <span className="bg-accent-amber/10 text-accent-amber text-xs font-bold px-2 py-1 rounded">
+                                            ★ {hospital.rating}
+                                        </span>
+                                    </div>
                                 </div>
                                 <p className="text-sm text-text-secondary mb-4 line-clamp-2">
                                     {hospital.address}
                                 </p>
-                                <div className="flex flex-wrap gap-2 mt-4">
+                                <div className="flex flex-wrap gap-2 mt-4 overflow-hidden">
                                     {hospital.specialties.map(spec => (
                                         <span key={spec} className="text-xs border border-border px-2 py-1 rounded-full text-text-secondary">
                                             {spec}

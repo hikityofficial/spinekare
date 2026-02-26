@@ -144,7 +144,7 @@ export default function Auth() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`w-full py-3.5 mt-2 transition-colors flex items-center justify-center gap-2 rounded-radius-lg font-bold ${isLoading ? 'bg-text-secondary text-bg-primary cursor-not-allowed' : 'bg-text-primary hover:bg-white text-bg-primary'}`}
+                            className={`w-full py-3.5 mt-2 transition-colors flex items-center justify-center gap-2 rounded-radius-lg font-bold ${isLoading ? 'bg-text-secondary text-bg-primary cursor-not-allowed' : 'bg-text-primary hover:bg-black/80 text-bg-primary'}`}
                         >
                             {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')} {!isLoading && <ArrowRight size={18} />}
                         </button>

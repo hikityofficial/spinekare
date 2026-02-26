@@ -2,15 +2,15 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import {
-    Home, Award, User, AlertCircle, Info, LogOut, Flame, BookOpen, ClipboardList
+    Home, Award, User, AlertCircle, Info, LogOut, Flame, BookOpen, ClipboardList, Shield
 } from 'lucide-react';
 import SpineModel3D from '../components/SpineModel3D';
-import AdPlaceholder from '../components/AdPlaceholder';
+import ConsultationFinder from '../components/ConsultationFinder';
 import logo from '../../assets/sslogo.png';
 
 export const DashboardLayout = () => {
     const { streak } = useApp();
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -18,24 +18,52 @@ export const DashboardLayout = () => {
         navigate('/');
     };
 
+    const getRiskColor = (tier?: string) => {
+        if (tier === 'low') return 'text-accent-green';
+        if (tier === 'moderate') return 'text-accent-amber';
+        return 'text-accent-red';
+    };
+
+    // Shared navbar stats pills
+    const NavStats = () => (
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            {/* Streak */}
+            <div className="flex items-center gap-1 px-2.5 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Current streak">
+                <Flame size={14} className={streak.currentStreak > 0 ? 'text-accent-amber' : 'text-text-secondary'} />
+                <span className="font-bold text-xs tracking-wide text-text-primary">{streak.currentStreak}d</span>
+            </div>
+            {/* Risk Score */}
+            <div className="flex items-center gap-1 px-2.5 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Risk score">
+                <Shield size={14} className={getRiskColor(user?.riskTier)} />
+                <span className="font-bold text-xs tracking-wide text-text-primary">{user?.spineRiskScore ?? '—'}</span>
+            </div>
+            {/* Points */}
+            <div className="flex items-center gap-1 px-2.5 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Total points">
+                <Award size={14} className="text-accent-cyan" />
+                <span className="font-bold text-xs tracking-wide text-text-primary">{streak.totalPoints}pts</span>
+            </div>
+        </div>
+    );
+
     return (
         <div className="flex h-screen w-full bg-bg-primary text-text-primary overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-border bg-bg-secondary flex flex-col hidden md:flex">
-                <div className="p-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                        <img src={logo} alt="SpineKare" className="h-9 w-9 rounded-md object-contain bg-white" />
-                        <h1 className="text-2xl font-extrabold font-display tracking-tight flex items-center gap-0.5">
+            <aside className="w-64 border-r border-border bg-bg-secondary flex-col hidden md:flex">
+                <div className="p-4 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <img src={logo} alt="SpineKare" className="h-9 w-9 rounded-md object-contain bg-white shrink-0" />
+                        <h1 className="text-xl font-extrabold font-display tracking-tight flex items-center gap-0.5 truncate">
                             Spine<span className="text-accent-cyan">Kare</span>
                         </h1>
                     </div>
-                    <div className="flex items-center gap-1.5 text-text-primary px-3 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Your daily streak">
-                        <Flame size={16} className={streak.currentStreak > 0 ? "text-accent-amber" : "text-text-secondary"} />
-                        <span className="font-bold text-sm tracking-wide">{streak.currentStreak}</span>
-                    </div>
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] border-y border-border/50 my-2 relative">
+                {/* Stats row in sidebar */}
+                <div className="px-4 pb-3">
+                    <NavStats />
+                </div>
+
+                <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] border-y border-border/50 my-2 relative">
                     <SpineModel3D activeArea="none" />
                     <div className="absolute bottom-4 text-center w-full pointer-events-none">
                         <span className="text-xs text-text-secondary font-bold tracking-widest uppercase bg-bg-secondary/80 px-2 py-1 rounded">Interactive</span>
@@ -77,36 +105,56 @@ export const DashboardLayout = () => {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto flex flex-col">
                 {/* Mobile Header */}
-                <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-bg-secondary">
-                    <div className="flex items-center gap-2.5">
+                <header className="md:hidden flex items-center justify-between p-3 border-b border-border bg-bg-secondary sticky top-0 z-30">
+                    <div className="flex items-center gap-2">
                         <img src={logo} alt="SpineKare" className="h-8 w-8 rounded-md object-contain bg-white" />
-                        <h1 className="text-xl font-extrabold font-display tracking-tight text-text-primary">
+                        <h1 className="text-lg font-extrabold font-display tracking-tight text-text-primary">
                             Spine<span className="text-accent-cyan">Kare</span>
                         </h1>
                     </div>
-
-                    <div className="flex items-center gap-1.5 text-text-primary px-3 py-1 bg-bg-card border border-border rounded-full shadow-sm" title="Your daily streak">
-                        <Flame size={16} className={streak.currentStreak > 0 ? "text-accent-amber" : "text-text-secondary"} />
-                        <span className="font-bold text-sm tracking-wide">{streak.currentStreak}</span>
-                    </div>
+                    <NavStats />
                 </header>
 
-                <div className="p-4 md:p-8 max-w-5xl mx-auto min-h-full pb-24 md:pb-8">
+                <div className="p-4 md:p-8 max-w-5xl mx-auto w-full pb-24 md:pb-10 flex-1">
                     <Outlet />
                 </div>
+
+                {/* Footer */}
+                <footer className="border-t border-border bg-bg-secondary/50 py-3 text-center text-xs text-text-secondary">
+                    Made by{' '}
+                    <a
+                        href="https://hikity.xyz"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent-cyan font-bold hover:underline"
+                    >
+                        Hikity
+                    </a>
+                </footer>
             </main>
 
-            {/* Right Sidebar for Desktop AdSense */}
-            <aside className="w-40 xl:w-64 border-l border-border bg-bg-primary hidden lg:flex flex-col items-center p-4">
-                <AdPlaceholder type="sidebar" />
+            {/* Right Sidebar for Desktop — Consultation Finder */}
+            <aside className="w-72 border-l border-border bg-bg-primary hidden xl:flex flex-col items-center p-4">
+                <ConsultationFinder />
             </aside>
 
-            {/* Mobile Bottom Ad Banner */}
-            <div className="fixed bottom-0 left-0 w-full z-50 bg-bg-secondary border-t border-border flex md:hidden items-center justify-center">
-                <AdPlaceholder type="banner" className="h-[50px] rounded-none border-none" />
-            </div>
+            {/* Mobile Bottom Nav */}
+            <nav className="fixed bottom-0 left-0 w-full z-50 bg-bg-secondary border-t border-border flex md:hidden items-center justify-around py-2 px-1">
+                <Link to="/dashboard" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-accent-cyan transition-colors px-2 py-1">
+                    <Home size={20} /><span className="text-[10px] font-bold">Home</span>
+                </Link>
+                <Link to="/library" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-accent-cyan transition-colors px-2 py-1">
+                    <BookOpen size={20} /><span className="text-[10px] font-bold">Library</span>
+                </Link>
+                <Link to="/leaderboard" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-accent-cyan transition-colors px-2 py-1">
+                    <Award size={20} /><span className="text-[10px] font-bold">Rank</span>
+                </Link>
+                <Link to="/profile" className="flex flex-col items-center gap-0.5 text-text-secondary hover:text-accent-cyan transition-colors px-2 py-1">
+                    <User size={20} /><span className="text-[10px] font-bold">Profile</span>
+                </Link>
+            </nav>
         </div>
     );
 };

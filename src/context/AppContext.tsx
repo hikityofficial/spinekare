@@ -11,6 +11,7 @@ interface AppContextType {
     completeRoutine: () => void;
     addPoints: (points: number) => void;
     hasCompletedToday: boolean;
+    weekResetDate: Date; // Next Monday midnight (UTC)
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -23,6 +24,28 @@ const getDayOfYear = () => {
     return Math.floor(diff / oneDay);
 };
 
+/** Returns the ISO week number (1–53) for a given date */
+function getISOWeek(date: Date): { week: number; year: number } {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    // Set to nearest Thursday: current date + 4 - current day number (Mon=1)
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return { week, year: d.getUTCFullYear() };
+}
+
+/** Returns the next Monday at 00:00 UTC */
+function getNextMonday(): Date {
+    const now = new Date();
+    const day = now.getUTCDay(); // 0=Sun, 1=Mon, …
+    const daysUntilMonday = day === 0 ? 1 : 8 - day; // if Sun, next day; else next Mon
+    const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysUntilMonday));
+    return next;
+}
+
+/** Bonus points for top-3 weekly finishers */
+const WEEKLY_BONUS = [100, 75, 50]; // rank 1, 2, 3
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useAuth();
 
@@ -32,7 +55,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         longestStreak: 0,
         lastActivityDate: '',
         streakFreezes: 0,
-        totalPoints: 0
+        totalPoints: 0,
+        weeklyPoints: 0,
+        weekNumber: 0,
+        weekYear: 0,
     });
 
     const [todayRoutine, setTodayRoutine] = useState<Routine>({
@@ -54,6 +80,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const dayOfYear = getDayOfYear();
     const todayStr = new Date().toISOString().split('T')[0];
     const hasCompletedToday = streak.lastActivityDate === todayStr;
+    const weekResetDate = getNextMonday();
 
     useEffect(() => {
         const fetchDailyContent = async () => {
@@ -96,8 +123,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     title = `Day ${currentDay} — Full Corrective Program`;
                 }
 
-                // Deterministically select exercises cycling based on the current streak day
-                // This ensures variety each day while following the tier volume limits
                 for (let i = 0; i < count; i++) {
                     const index = (currentDay + i) % allExercises.length;
                     selectedExercises.push(allExercises[index]);
@@ -108,7 +133,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 );
 
                 setTodayRoutine({
-                    id: currentDay, // Fake ID based on day
+                    id: currentDay,
                     dayNumber: currentDay,
                     title: title,
                     focusArea: tier === 'low' ? 'Maintenance' : 'Correction',
@@ -127,19 +152,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             }
         };
 
-        // If we don't have the user/streak loaded yet, Wait.
         if (streak.userId !== '') {
             fetchDailyContent();
         }
     }, [user?.riskTier, streak.currentStreak, streak.userId]);
 
-    // Load initial streak data
+    // Load initial streak data & handle weekly reset + bonus
     useEffect(() => {
         if (!user) return;
 
-        // LocalStorage fallback sync for mock mode - REMOVED
-
-        // Fetch from Supabase
         const fetchStreak = async () => {
             const { data, error } = await supabase
                 .from('user_streaks')
@@ -147,25 +168,81 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 .eq('user_id', user.id)
                 .single();
 
+            const { week: currentWeek, year: currentYear } = getISOWeek(new Date());
+
             if (data) {
-                setStreak({
+                const storedWeek: number = data.week_number ?? 0;
+                const storedYear: number = data.week_year ?? 0;
+                const isNewWeek = storedWeek !== currentWeek || storedYear !== currentYear;
+
+                let bonusToAward = 0;
+
+                if (isNewWeek && data.weekly_points > 0) {
+                    // Check if they were in top 3 last week using the snapshot kept on total_points rank
+                    // We fetch the top-3 weekly_points from last week to determine rank
+                    const { data: topData } = await supabase
+                        .from('user_streaks')
+                        .select('user_id, weekly_points')
+                        .eq('week_number', storedWeek)
+                        .eq('week_year', storedYear)
+                        .order('weekly_points', { ascending: false })
+                        .limit(3);
+
+                    if (topData) {
+                        const rank = topData.findIndex((r: any) => r.user_id === user.id);
+                        if (rank >= 0 && rank < 3) {
+                            bonusToAward = WEEKLY_BONUS[rank];
+                        }
+                    }
+                }
+
+                const newTotalPoints = data.total_points + bonusToAward;
+                const newWeeklyPoints = isNewWeek ? 0 : (data.weekly_points ?? 0);
+
+                const streakObj: UserStreak = {
                     userId: data.user_id,
                     currentStreak: data.current_streak,
                     longestStreak: data.longest_streak,
-                    totalPoints: data.total_points,
+                    totalPoints: newTotalPoints,
                     lastActivityDate: data.last_completed_date ? data.last_completed_date.split('T')[0] : '',
-                    streakFreezes: 0
-                });
+                    streakFreezes: 0,
+                    weeklyPoints: newWeeklyPoints,
+                    weekNumber: currentWeek,
+                    weekYear: currentYear,
+                };
+                setStreak(streakObj);
+
+                // Persist the reset / bonus to DB
+                if (isNewWeek || bonusToAward > 0) {
+                    await supabase.from('user_streaks').upsert({
+                        user_id: user.id,
+                        current_streak: data.current_streak,
+                        longest_streak: data.longest_streak,
+                        total_points: newTotalPoints,
+                        weekly_points: 0,
+                        week_number: currentWeek,
+                        week_year: currentYear,
+                        last_completed_date: data.last_completed_date ?? null,
+                    });
+                }
             } else if (error && error.code === 'PGRST116') {
                 // Initialize default in DB
-                await supabase.from('user_streaks').insert({ user_id: user.id });
+                await supabase.from('user_streaks').insert({
+                    user_id: user.id,
+                    week_number: currentWeek,
+                    week_year: currentYear,
+                    weekly_points: 0,
+                });
                 setStreak({
                     userId: user.id,
                     currentStreak: 0,
                     longestStreak: 0,
                     totalPoints: 0,
                     lastActivityDate: '',
-                    streakFreezes: 0
+                    streakFreezes: 0,
+                    weeklyPoints: 0,
+                    weekNumber: currentWeek,
+                    weekYear: currentYear,
                 });
             }
         };
@@ -173,74 +250,66 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         fetchStreak();
     }, [user]);
 
-    // LocalStorage fallback sync for mock mode - REMOVED
-
     const completeRoutine = async () => {
         if (hasCompletedToday || !user) return;
 
-        // Optimistic UI update
-        let newStreakObj: UserStreak | null = null;
+        const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        let newStreak = streak.currentStreak;
 
-        setStreak((prev) => {
-            const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-            let newStreak = prev.currentStreak;
-
-            if (prev.lastActivityDate === yesterdayStr) {
-                newStreak += 1; // Continued streak
-            } else {
-                newStreak = 1; // Restart streak
-            }
-
-            const updated = {
-                ...prev,
-                currentStreak: newStreak,
-                longestStreak: Math.max(prev.longestStreak, newStreak),
-                lastActivityDate: todayStr,
-                totalPoints: prev.totalPoints + 100
-            };
-            newStreakObj = updated;
-            return updated;
-        });
-
-        if (newStreakObj) {
-            const s = newStreakObj as UserStreak;
-            await supabase.from('user_streaks').upsert({
-                user_id: user.id,
-                current_streak: s.currentStreak,
-                longest_streak: s.longestStreak,
-                total_points: s.totalPoints,
-                last_completed_date: new Date().toISOString()
-            });
+        if (streak.lastActivityDate === yesterdayStr) {
+            newStreak += 1;
+        } else {
+            newStreak = 1;
         }
+
+        const updated: UserStreak = {
+            ...streak,
+            currentStreak: newStreak,
+            longestStreak: Math.max(streak.longestStreak, newStreak),
+            lastActivityDate: todayStr,
+            totalPoints: streak.totalPoints + 100,
+            weeklyPoints: streak.weeklyPoints + 100,
+        };
+
+        setStreak(updated);
+
+        await supabase.from('user_streaks').upsert({
+            user_id: user.id,
+            current_streak: updated.currentStreak,
+            longest_streak: updated.longestStreak,
+            total_points: updated.totalPoints,
+            weekly_points: updated.weeklyPoints,
+            week_number: updated.weekNumber,
+            week_year: updated.weekYear,
+            last_completed_date: new Date().toISOString()
+        });
     };
 
     const addPoints = async (points: number) => {
         if (!user) return;
 
-        let newStreakObj: UserStreak | null = null;
-        setStreak((prev) => {
-            const updated = {
-                ...prev,
-                totalPoints: prev.totalPoints + points
-            };
-            newStreakObj = updated;
-            return updated;
-        });
+        const updated: UserStreak = {
+            ...streak,
+            totalPoints: streak.totalPoints + points,
+            weeklyPoints: streak.weeklyPoints + points,
+        };
 
-        if (newStreakObj) {
-            const s = newStreakObj as UserStreak;
-            await supabase.from('user_streaks').upsert({
-                user_id: user.id,
-                current_streak: s.currentStreak,
-                longest_streak: s.longestStreak,
-                total_points: s.totalPoints,
-                last_completed_date: s.lastActivityDate ? new Date(s.lastActivityDate).toISOString() : null
-            });
-        }
+        setStreak(updated);
+
+        await supabase.from('user_streaks').upsert({
+            user_id: user.id,
+            current_streak: updated.currentStreak,
+            longest_streak: updated.longestStreak,
+            total_points: updated.totalPoints,
+            weekly_points: updated.weeklyPoints,
+            week_number: updated.weekNumber,
+            week_year: updated.weekYear,
+            last_completed_date: updated.lastActivityDate ? new Date(updated.lastActivityDate).toISOString() : null
+        });
     };
 
     return (
-        <AppContext.Provider value={{ streak, todayRoutine, todayFact, completeRoutine, addPoints, hasCompletedToday }}>
+        <AppContext.Provider value={{ streak, todayRoutine, todayFact, completeRoutine, addPoints, hasCompletedToday, weekResetDate }}>
             {children}
         </AppContext.Provider>
     );

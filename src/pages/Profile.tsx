@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Flame, Shield, Award, Settings } from 'lucide-react';
+import { Flame, Shield, Award } from 'lucide-react';
 
 export default function Profile() {
     const { user } = useAuth();
@@ -25,25 +25,25 @@ export default function Profile() {
         <div className="max-w-4xl mx-auto space-y-8">
 
             {/* Header / Basic Info */}
-            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start bg-bg-card p-8 rounded-radius-lg border border-border">
-                <div className="w-32 h-32 rounded-full border-4 border-bg-secondary bg-border flex flex-col items-center justify-center text-4xl text-text-secondary uppercase shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start bg-bg-card p-6 md:p-8 rounded-radius-lg border border-border">
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-bg-secondary bg-border flex flex-col items-center justify-center text-3xl md:text-4xl text-text-secondary uppercase shadow-[0_0_30px_rgba(0,0,0,0.5)] shrink-0">
                     {user?.fullName?.substring(0, 2) || 'U'}
                 </div>
 
-                <div className="flex-1 text-center md:text-left">
-                    <h1 className="text-3xl font-display font-bold text-text-primary mb-2">{user?.fullName || 'Spine Warrior'}</h1>
-                    <p className="text-text-secondary mb-4 capitalize">
+                <div className="flex-1 text-center md:text-left min-w-0">
+                    <h1 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2 truncate">{user?.fullName || 'Spine Warrior'}</h1>
+                    <p className="text-text-secondary mb-4 text-sm capitalize truncate">
                         {user?.occupationType?.replace('Desk job (8+ hrs sitting)', 'Office Worker')} • {user?.ageGroup} • Joined recently
                     </p>
 
-                    <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                    <div className="flex flex-wrap justify-center md:justify-start gap-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Shield size={16} className={getRiskColor(user?.riskTier)} />
-                            Risk Score: <span className={getRiskColor(user?.riskTier)}>{user?.spineRiskScore}</span>
+                            Risk: <span className={getRiskColor(user?.riskTier)}>{user?.spineRiskScore}</span>
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Flame size={16} className="text-accent-amber" />
-                            Best Streak: {streak.longestStreak}
+                            Best: {streak.longestStreak}d
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Award size={16} className="text-accent-cyan" />
@@ -52,12 +52,8 @@ export default function Profile() {
                     </div>
                 </div>
 
-                <div>
-                    <button className="p-3 bg-bg-secondary hover:bg-border rounded-full text-text-secondary transition-colors">
-                        <Settings size={20} />
-                    </button>
-                </div>
             </div>
+
 
             {/* Badges Section */}
             <div>

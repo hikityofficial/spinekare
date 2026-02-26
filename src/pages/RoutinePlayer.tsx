@@ -8,6 +8,7 @@ import { Play, Pause, X, ChevronRight, Check, Info } from 'lucide-react';
 import type { Exercise } from '../types';
 import { getExerciseImage } from '../utils/exerciseImages';
 import { exerciseMeta } from '../utils/exerciseMeta';
+import { getTotalPoints } from '../utils/exercisePoints';
 
 export default function RoutinePlayer() {
     const { todayRoutine, completeRoutine, addPoints } = useApp();
@@ -93,7 +94,10 @@ export default function RoutinePlayer() {
         setIsPlaying(false);
 
         if (isCustomPlay) {
-            addPoints(activeExercises.length * 50); // 50 points per exercise config
+            // Award points based on actual exercise DB IDs
+            const exerciseIds = activeExercises.map(ex => ex.id);
+            const pts = getTotalPoints(exerciseIds);
+            addPoints(pts);
         } else {
             completeRoutine();
         }
@@ -141,7 +145,9 @@ export default function RoutinePlayer() {
     const totalDuration = isResting ? restDuration : currentExercise?.durationSeconds || 1;
     const progressPercent = ((totalDuration - timeLeft) / totalDuration) * 100;
 
-    const pointsEarned = isCustomPlay ? activeExercises.length * 50 : 100;
+    const pointsEarned = isCustomPlay
+        ? getTotalPoints(activeExercises.map(ex => ex.id))
+        : getTotalPoints(todayRoutine.exercises.map(ex => ex.id));
 
     if (isFinished) {
         return (
@@ -168,16 +174,16 @@ export default function RoutinePlayer() {
                         You earned <span className="text-accent-cyan font-bold">+{pointsEarned} Points</span>
                     </p>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="px-8 py-4 bg-bg-card hover:bg-bg-secondary border border-border rounded-radius-lg font-bold transition-colors"
+                            className="w-full sm:w-auto px-8 py-4 bg-bg-card hover:bg-bg-secondary border border-border rounded-radius-lg font-bold transition-colors"
                         >
                             Back to Dashboard
                         </button>
                         <button
                             onClick={() => navigate('/leaderboard')}
-                            className="px-8 py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary rounded-radius-lg font-bold transition-colors shadow-[0_0_20px_rgba(0,229,204,0.3)]"
+                            className="w-full sm:w-auto px-8 py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary rounded-radius-lg font-bold transition-colors shadow-[0_0_20px_rgba(0,229,204,0.3)]"
                         >
                             View Leaderboard
                         </button>
@@ -230,7 +236,20 @@ export default function RoutinePlayer() {
             </div>
 
             {/* Right Side: Exercise Controls */}
-            <div className="flex-1 flex flex-col justify-center p-6 md:p-12 h-full w-full relative">
+            <div className="flex-1 flex flex-col justify-center p-6 md:p-12 h-full w-full relative overflow-y-auto">
+                {/* Mobile exercise image — hidden on desktop where left panel shows it */}
+                {!isResting && (
+                    <div className="md:hidden w-full max-w-xs mx-auto mb-6 mt-12">
+                        <img
+                            src={getExerciseImage(currentExercise.id)}
+                            alt={currentExercise.name}
+                            className="w-full h-auto object-contain rounded-xl border border-border shadow-sm"
+                        />
+                        <p className="text-center text-xs text-accent-cyan font-bold mt-2 uppercase tracking-widest">
+                            Targeting: {currentExercise.targetArea} spine
+                        </p>
+                    </div>
+                )}
                 <div className="w-full max-w-lg mx-auto">
 
                     <AnimatePresence mode="wait">
@@ -334,12 +353,12 @@ export default function RoutinePlayer() {
                                 {/* Form Tip Reminder */}
                                 <div className="w-full text-center mb-8">
                                     <p className="text-text-secondary italic">
-                                        Tip: {exerciseMeta[currentExercise.id]?.formCues[0] || currentExercise.whatItDoes}
+                                        Tip: {exerciseMeta[currentExercise.id]?.formCues?.[0] || currentExercise.whatItDoes}
                                     </p>
                                 </div>
 
                                 {/* Controls */}
-                                <div className="flex items-center gap-6 justify-center w-full">
+                                <div className="flex items-center gap-6 justify-center w-full mt-4">
                                     <button
                                         onClick={togglePlay}
                                         className="w-20 h-20 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,229,204,0.4)]"
@@ -348,7 +367,7 @@ export default function RoutinePlayer() {
                                     </button>
                                     <button
                                         onClick={handleSkip}
-                                        className="flex items-center gap-2 text-text-secondary hover:text-text-primary font-bold px-4 py-2 rounded-full hover:bg-bg-secondary transition-colors absolute right-0 bottom-0 md:relative"
+                                        className="flex items-center gap-2 text-text-secondary hover:text-text-primary font-bold px-4 py-2 rounded-full hover:bg-bg-secondary transition-colors"
                                     >
                                         Skip <ChevronRight size={20} />
                                     </button>
