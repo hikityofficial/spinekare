@@ -391,6 +391,42 @@ export default function Home() {
                     </div>
                 </section>
 
+                {/* Reasons for Spine Care Section */}
+                <section className="mt-16 sm:mt-20">
+                    <div className="text-left mb-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan text-xs font-bold tracking-widest uppercase mb-3">
+                            Evidence-Based Care
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Reasons for Spine Care</h2>
+                        <p className="mt-2 text-text-secondary max-w-2xl">
+                            Visual evidence showing why daily spine care is essential for long-term health and mobility.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { id: 1, title: "Postural Impact", desc: "How poor posture affects your spine over time" },
+                            { id: 2, title: "Disc Degeneration", desc: "Progressive effects of neglecting spine health" },
+                            { id: 3, title: "Nerve Compression", desc: "Understanding spinal nerve pathways and pain" },
+                            { id: 4, title: "Recovery Progress", desc: "Before and after consistent spine care routines" },
+                        ].map(item => (
+                            <div
+                                key={item.id}
+                                className="group bg-bg-card border-2 border-dashed border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all"
+                            >
+                                <div className="aspect-[4/3] bg-bg-secondary flex flex-col items-center justify-center gap-3 text-text-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-20 group-hover:opacity-40 transition-opacity"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                    <span className="text-xs font-bold opacity-40 uppercase tracking-widest">Image {item.id}</span>
+                                </div>
+                                <div className="p-4">
+                                    <h3 className="font-bold text-text-primary text-sm mb-1">{item.title}</h3>
+                                    <p className="text-xs text-text-secondary">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
                 {/* Footer */}
                 <footer className="mt-16 border-t border-border pt-6 text-center text-xs text-text-secondary">
                     Made by{' '}

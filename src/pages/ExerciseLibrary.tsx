@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllExercises } from '../hooks/useAllExercises';
-import { Play, BookOpen, Video, ShieldCheck } from 'lucide-react';
+import { Play, BookOpen, Video, ShieldCheck, X, ImageIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import sse1 from '../../assets/sse1.png';
 import sse2 from '../../assets/sse2.png';
@@ -161,38 +162,108 @@ export default function ExerciseLibrary() {
 
             {/* ─── PRECAUTIONS TAB ─── */}
             {activeSection === 'Precautions' && (
-                <div className="space-y-6">
-                    <div className="flex items-start gap-3 p-4 bg-accent-amber/10 border border-accent-amber/30 rounded-radius-lg">
-                        <ShieldCheck size={20} className="text-accent-amber shrink-0 mt-0.5" />
-                        <div>
-                            <p className="font-bold text-text-primary">Important Precautions</p>
-                            <p className="text-sm text-text-secondary mt-1">
-                                Always consult your physician before starting any exercise programme. Stop immediately if you feel pain.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[
-                            { title: "Consult Your Doctor First", desc: "If you have a herniated disc, spinal stenosis, or recent surgery, get medical clearance before starting any spine exercises.", icon: "🩺" },
-                            { title: "Stop If You Feel Sharp Pain", desc: "Mild stretching discomfort is normal, but sharp, shooting, or radiating pain means stop immediately and consult a specialist.", icon: "⚠️" },
-                            { title: "Avoid Jerky Movements", desc: "All spine exercises should be performed with slow, controlled motions. Never bounce or use momentum.", icon: "🐢" },
-                            { title: "Warm Up Before Starting", desc: "Walk for 2–3 minutes or do gentle marching in place before attempting stretches to avoid muscle strain.", icon: "🔥" },
-                            { title: "Maintain Neutral Spine", desc: "During exercises, keep your spine in a natural position. Avoid over-arching or rounding your back excessively.", icon: "🧘" },
-                            { title: "Stay Hydrated", desc: "Spinal discs rely on hydration. Drink water before and after exercising to support disc health and elasticity.", icon: "💧" },
-                        ].map((item, i) => (
-                            <div
-                                key={i}
-                                className="bg-bg-card border border-border rounded-radius-lg p-5 hover:border-accent-cyan/40 transition-colors"
-                            >
-                                <div className="text-3xl mb-3">{item.icon}</div>
-                                <h4 className="font-bold text-text-primary mb-2">{item.title}</h4>
-                                <p className="text-sm text-text-secondary leading-relaxed">{item.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <PrecautionsSection />
             )}
+        </div>
+     );
+}
+
+/* ═══════════════════════════════════════════════════
+   Precautions Section — 5 clickable image placeholders
+   ═══════════════════════════════════════════════════ */
+const PRECAUTION_ITEMS = [
+    { id: 1, title: "Consult Your Doctor", caption: "Always get clearance before starting spine exercises." },
+    { id: 2, title: "Correct Posture Form", caption: "Maintain neutral spine alignment during all movements." },
+    { id: 3, title: "Avoid Overexertion", caption: "Stop immediately if you feel sharp or radiating pain." },
+    { id: 4, title: "Warm-Up Routine", caption: "Walk or march in place for 2–3 minutes before stretching." },
+    { id: 5, title: "Stay Hydrated", caption: "Drink water before and after to support disc health." },
+];
+
+function PrecautionsSection() {
+    const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+    return (
+        <div className="space-y-6">
+            {/* Warning banner */}
+            <div className="flex items-start gap-3 p-4 bg-accent-amber/10 border border-accent-amber/30 rounded-radius-lg">
+                <ShieldCheck size={20} className="text-accent-amber shrink-0 mt-0.5" />
+                <div>
+                    <p className="font-bold text-text-primary">Important Precautions</p>
+                    <p className="text-sm text-text-secondary mt-1">
+                        Always consult your physician before starting any exercise programme. Stop immediately if you feel pain.
+                    </p>
+                </div>
+            </div>
+
+            {/* Clickable image grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {PRECAUTION_ITEMS.map((item, i) => (
+                    <button
+                        key={item.id}
+                        onClick={() => setOpenIndex(i)}
+                        className="group relative aspect-[3/4] bg-bg-secondary border-2 border-dashed border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/50 transition-all hover:scale-[1.02] active:scale-95 focus:outline-none"
+                    >
+                        {/* Placeholder overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-bg-primary/80 z-10" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-text-secondary z-0">
+                            <ImageIcon size={36} className="opacity-20 group-hover:opacity-40 transition-opacity" />
+                            <span className="text-xs font-bold opacity-40 uppercase tracking-widest">Image {item.id}</span>
+                        </div>
+                        {/* Label at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
+                            <p className="text-sm font-bold text-text-primary truncate">{item.title}</p>
+                            <p className="text-[11px] text-text-secondary truncate mt-0.5">{item.caption}</p>
+                        </div>
+                    </button>
+                ))}
+            </div>
+
+            {/* Lightbox */}
+            <AnimatePresence>
+                {openIndex !== null && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+                        onClick={() => setOpenIndex(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.85, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                            className="relative max-w-lg w-full bg-bg-card rounded-radius-lg border border-border overflow-hidden shadow-2xl"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {/* Close */}
+                            <button
+                                onClick={() => setOpenIndex(null)}
+                                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-bg-secondary/80 backdrop-blur text-text-secondary hover:text-text-primary transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+
+                            {/* Image placeholder area */}
+                            <div className="aspect-[4/3] bg-bg-secondary flex flex-col items-center justify-center gap-4 text-text-secondary">
+                                <ImageIcon size={64} className="opacity-20" />
+                                <span className="text-sm font-bold opacity-40 uppercase tracking-widest">Precaution Image {PRECAUTION_ITEMS[openIndex].id}</span>
+                                <span className="text-xs opacity-30">Replace with actual image</span>
+                            </div>
+
+                            {/* Caption */}
+                            <div className="p-6">
+                                <h3 className="text-xl font-display font-bold text-text-primary mb-2">
+                                    {PRECAUTION_ITEMS[openIndex].title}
+                                </h3>
+                                <p className="text-text-secondary text-sm leading-relaxed">
+                                    {PRECAUTION_ITEMS[openIndex].caption}
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
