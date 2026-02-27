@@ -29,30 +29,28 @@ export default function RoutinePlayer() {
     const [isResting, setIsResting] = useState(false);
     const [isPrepping, setIsPrepping] = useState(true);
     const [isFinished, setIsFinished] = useState(false);
+    const [cycleElapsed, setCycleElapsed] = useState(0); // seconds since exercise started
 
     const currentExercise = activeExercises[currentIndex];
     const restDuration = 15; // 15 seconds rest between exercises
 
-    // Timer logic
+    // Main countdown timer
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
         if (isPlaying && !isPrepping && timeLeft > 0) {
             interval = setInterval(() => {
                 setTimeLeft(prev => prev - 1);
+                setCycleElapsed(prev => prev + 1);
             }, 1000);
         } else if (isPlaying && !isPrepping && timeLeft === 0) {
-            // Time is up! 
             if (!isResting) {
-                // Exercise finished, go to rest or next
                 if (currentIndex < activeExercises.length - 1) {
                     setIsResting(true);
                     setTimeLeft(restDuration);
                 } else {
-                    // Routine finished
                     handleFinish();
                 }
             } else {
-                // Rest finished, start next exercise prep
                 setIsResting(false);
                 setIsPrepping(true);
                 setCurrentIndex(prev => prev + 1);
@@ -72,6 +70,7 @@ export default function RoutinePlayer() {
 
     const startExercise = () => {
         setIsPrepping(false);
+        setCycleElapsed(0);
         setTimeLeft(activeExercises[currentIndex].durationSeconds);
         setIsPlaying(true);
     };
@@ -351,31 +350,101 @@ export default function RoutinePlayer() {
                                 exit={{ opacity: 0, scale: 1.05 }}
                                 className="flex flex-col items-center md:items-start text-center md:text-left w-full"
                             >
-                                {/* Header with Spine Model & Title */}
-                                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8 w-full">
-                                    <div className="w-24 h-24 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center relative overflow-hidden pointer-events-none">
+                                {/* Header: Spine Model + Title */}
+                                <div className="flex flex-col md:flex-row items-center md:items-start gap-4 mb-6 w-full">
+                                    <div className="w-20 h-20 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center relative overflow-hidden pointer-events-none">
                                         <div className="absolute inset-0 bg-accent-cyan/5"></div>
                                         <SpineModel3D activeArea={currentExercise.targetArea} />
                                     </div>
                                     <div>
-                                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-accent-cyan/10 text-[10px] font-bold tracking-widest text-accent-cyan uppercase mb-2">
-                                            {currentExercise.category}
+                                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-accent-cyan/10 text-[10px] font-bold tracking-widest text-accent-cyan uppercase mb-1">
+                                            {exerciseMeta[currentExercise.position]?.targetArea ?? currentExercise.category}
                                         </div>
-                                        <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary leading-tight">
-                                            {currentExercise.name}
+                                        <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary leading-tight">
+                                            {exerciseMeta[currentExercise.position]?.name ?? currentExercise.name}
                                         </h2>
                                     </div>
                                 </div>
 
+                                {/* Phase Prompt — cycles per reps rhythm */}
+                                {(() => {
+                                    const reps = exerciseMeta[currentExercise.position]?.reps ?? '';
+                                    let prompt = '';
+                                    let promptColor = 'text-accent-cyan';
+
+                                    if (reps.includes('10 sec arch')) {
+                                        // Ex 1 & 2: 10s arch → 5s straight
+                                        const phase = cycleElapsed % 15;
+                                        if (phase < 10) {
+                                            prompt = `🔽 ARCH — hold ${10 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        } else {
+                                            prompt = `🟢 STRAIGHT — hold ${15 - phase}s`;
+                                            promptColor = 'text-accent-green';
+                                        }
+                                    } else if (reps.includes('8 sec') && reps.includes('each leg')) {
+                                        // Alternating legs: 8s left, 8s right
+                                        const phase = cycleElapsed % 16;
+                                        if (phase < 8) {
+                                            prompt = `📍 LEFT LEG — ${8 - phase}s`;
+                                            promptColor = 'text-accent-cyan';
+                                        } else {
+                                            prompt = `📍 RIGHT LEG — ${16 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        }
+                                    } else if (reps.includes('8 sec') && reps.includes('each side')) {
+                                        // Alternating sides: 8s left, 8s right
+                                        const phase = cycleElapsed % 16;
+                                        if (phase < 8) {
+                                            prompt = `➡️ LEFT SIDE — ${8 - phase}s`;
+                                            promptColor = 'text-accent-cyan';
+                                        } else {
+                                            prompt = `➡️ RIGHT SIDE — ${16 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        }
+                                    } else if (reps.includes('3 sets') && reps.includes('25 sec')) {
+                                        // Ex 8: 3×25s + 15s rest
+                                        const cycleLen = 40; // 25s hold + 15s rest
+                                        const phase = cycleElapsed % cycleLen;
+                                        const setNum = Math.floor(cycleElapsed / cycleLen) + 1;
+                                        if (phase < 25) {
+                                            prompt = `SET ${Math.min(setNum, 3)}/3 — hold ${25 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        } else {
+                                            prompt = `🏳️ REST — next set in ${cycleLen - phase}s`;
+                                            promptColor = 'text-text-secondary';
+                                        }
+                                    } else if (reps.includes('4 sets') && reps.includes('20 sec')) {
+                                        // Ex 11: 4×20s + 10s rest
+                                        const cycleLen = 30; // 20s hold + 10s rest
+                                        const phase = cycleElapsed % cycleLen;
+                                        const setNum = Math.floor(cycleElapsed / cycleLen) + 1;
+                                        if (phase < 20) {
+                                            prompt = `SET ${Math.min(setNum, 4)}/4 — hold ${20 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        } else {
+                                            prompt = `🏳️ REST — next set in ${cycleLen - phase}s`;
+                                            promptColor = 'text-text-secondary';
+                                        }
+                                    } else if (reps.includes('10 seconds') && reps.includes('once per day')) {
+                                        prompt = `HOLD — ${Math.max(0, 10 - cycleElapsed)}s remaining`;
+                                        promptColor = 'text-accent-cyan';
+                                    } else {
+                                        prompt = 'Keep going — breathe steadily 💪';
+                                        promptColor = 'text-accent-green';
+                                    }
+
+                                    return (
+                                        <div className={`w-full text-center mb-4 px-4 py-3 rounded-radius-lg bg-bg-card border border-border`}>
+                                            <p className={`text-lg font-extrabold font-display tracking-wide ${promptColor}`}>{prompt}</p>
+                                        </div>
+                                    );
+                                })()}
+
                                 {/* Timer Circle */}
-                                <div className="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
-                                    {/* Background Ring */}
+                                <div className="relative w-56 h-56 mx-auto mb-6 flex items-center justify-center">
                                     <svg className="absolute inset-0 w-full h-full -rotate-90">
-                                        <circle
-                                            cx="50%" cy="50%" r="48%"
-                                            fill="none" stroke="currentColor" strokeWidth="6"
-                                            className="text-bg-secondary"
-                                        />
+                                        <circle cx="50%" cy="50%" r="48%" fill="none" stroke="currentColor" strokeWidth="6" className="text-bg-secondary" />
                                         <circle
                                             cx="50%" cy="50%" r="48%"
                                             fill="none" stroke="currentColor" strokeWidth="6"
@@ -384,25 +453,18 @@ export default function RoutinePlayer() {
                                             className="text-accent-cyan drop-shadow-[0_0_12px_rgba(0,229,204,0.6)] transition-all duration-1000 ease-linear"
                                         />
                                     </svg>
-                                    <div className="text-6xl md:text-7xl font-display font-bold text-text-primary tracking-tighter tabular-nums">
+                                    <div className="text-5xl md:text-6xl font-display font-bold text-text-primary tracking-tighter tabular-nums">
                                         {formatTime(timeLeft)}
                                     </div>
                                 </div>
 
-                                {/* Form Tip Reminder */}
-                                <div className="w-full text-center mb-8">
-                                    <p className="text-text-secondary italic">
-                                        Tip: {exerciseMeta[currentExercise.position]?.formCues?.[0] || currentExercise.whatItDoes}
-                                    </p>
-                                </div>
-
                                 {/* Controls */}
-                                <div className="flex items-center gap-6 justify-center w-full mt-4">
+                                <div className="flex items-center gap-6 justify-center w-full mb-6">
                                     <button
                                         onClick={togglePlay}
-                                        className="w-20 h-20 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,229,204,0.4)]"
+                                        className="w-16 h-16 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,229,204,0.4)]"
                                     >
-                                        {isPlaying ? <Pause size={36} /> : <Play size={36} className="ml-1" />}
+                                        {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
                                     </button>
                                     <button
                                         onClick={handleSkip}
@@ -411,6 +473,44 @@ export default function RoutinePlayer() {
                                         Skip <ChevronRight size={20} />
                                     </button>
                                 </div>
+
+                                {/* Live Instructions panel */}
+                                <div className="w-full bg-bg-card border border-border rounded-radius-lg p-4 space-y-4">
+                                    {/* Instruction */}
+                                    {exerciseMeta[currentExercise.position]?.instruction && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">How To Perform</p>
+                                            <p className="text-sm text-text-primary leading-relaxed">
+                                                {exerciseMeta[currentExercise.position].instruction}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {/* Form Cues */}
+                                    {exerciseMeta[currentExercise.position]?.formCues?.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">Form Cues</p>
+                                            <ul className="space-y-1.5">
+                                                {exerciseMeta[currentExercise.position].formCues.map((cue, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                                                        <span className="text-accent-cyan mt-0.5 shrink-0">›</span>
+                                                        {cue}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    {/* Surface Needed */}
+                                    {exerciseMeta[currentExercise.position]?.surface && (
+                                        <div className="flex items-center gap-2 pt-2 border-t border-border">
+                                            <Info size={13} className="text-accent-cyan shrink-0" />
+                                            <p className="text-xs text-text-secondary">
+                                                <span className="font-bold text-text-primary">Surface: </span>
+                                                {exerciseMeta[currentExercise.position].surface}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
                             </motion.div>
                         ) : (
                             <motion.div
