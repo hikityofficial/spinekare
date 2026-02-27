@@ -126,9 +126,10 @@ export default function CustomPlans() {
                     <div className="bg-bg-card border border-border rounded-radius-lg p-4 sm:p-6 flex flex-col" style={{ minHeight: '320px', maxHeight: '75vh' }}>
                         <h2 className="text-xl font-bold font-display mb-4">Select Exercises</h2>
                         <div className="overflow-y-auto flex-1 pr-2 space-y-3 scrollbar-hide">
-                            {exercises.map((ex, idx) => {
-                                const title = `Exercise ${String(idx + 1).padStart(2, '0')}`;
-                                const imageSrc = EXERCISE_IMAGES[idx % EXERCISE_IMAGES.length];
+                            {exercises.map((ex) => {
+                                const pos = ex.position;
+                                const title = `Exercise ${String(pos).padStart(2, '0')}`;
+                                const imageSrc = EXERCISE_IMAGES[(pos - 1) % EXERCISE_IMAGES.length];
 
                                 return (
                                     <div key={ex.id} className="flex items-center justify-between p-3 bg-bg-secondary border border-border rounded-radius-md hover:border-accent-cyan/30 transition-colors gap-3">

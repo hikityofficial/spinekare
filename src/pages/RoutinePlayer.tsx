@@ -94,9 +94,9 @@ export default function RoutinePlayer() {
         setIsPlaying(false);
 
         if (isCustomPlay) {
-            // Award points based on actual exercise DB IDs
-            const exerciseIds = activeExercises.map(ex => ex.id);
-            const pts = getTotalPoints(exerciseIds);
+            // Award points based on exercise position numbers (1-12), not raw DB IDs
+            const exercisePositions = activeExercises.map(ex => ex.position);
+            const pts = getTotalPoints(exercisePositions);
             addPoints(pts);
         } else {
             completeRoutine();
@@ -146,8 +146,8 @@ export default function RoutinePlayer() {
     const progressPercent = ((totalDuration - timeLeft) / totalDuration) * 100;
 
     const pointsEarned = isCustomPlay
-        ? getTotalPoints(activeExercises.map(ex => ex.id))
-        : getTotalPoints(todayRoutine.exercises.map(ex => ex.id));
+        ? getTotalPoints(activeExercises.map(ex => ex.position))
+        : getTotalPoints(todayRoutine.exercises.map(ex => ex.position));
 
     if (isFinished) {
         return (
