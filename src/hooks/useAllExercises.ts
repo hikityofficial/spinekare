@@ -13,16 +13,16 @@ export function useAllExercises() {
                 const { data, error } = await supabase
                     .from('exercises')
                     .select('*')
-                    .order('category')
-                    .order('name');
+                    .order('id');
 
                 if (error) {
                     throw error;
                 }
 
                 if (data) {
-                    const mapped: Exercise[] = data.map(d => ({
+                    const mapped: Exercise[] = data.map((d, idx) => ({
                         id: d.id,
+                        position: idx + 1,   // sequential 1-based position after .order('id')
                         name: d.name,
                         description: d.description,
                         targetArea: d.target_area,

@@ -92,8 +92,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             ]);
 
             if (exercisesRes.data) {
-                const allExercises = exercisesRes.data.map((ex: any) => ({
+                const allExercises = exercisesRes.data.map((ex: any, idx: number) => ({
                     id: ex.id,
+                    position: idx + 1,   // sequential 1-based position (used for images & meta)
                     name: ex.name,
                     description: ex.description,
                     targetArea: ex.target_area,

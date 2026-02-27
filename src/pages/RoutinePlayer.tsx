@@ -218,7 +218,7 @@ export default function RoutinePlayer() {
                 <div className="w-full h-full max-h-[80vh] relative z-0 flex items-center justify-center p-8">
                     {!isResting ? (
                         <img
-                            src={getExerciseImage(currentExercise.id)}
+                            src={getExerciseImage(currentExercise.position)}
                             alt={currentExercise.name}
                             className="w-full h-full object-contain drop-shadow-2xl"
                         />
@@ -241,7 +241,7 @@ export default function RoutinePlayer() {
                 {!isResting && (
                     <div className="md:hidden w-full max-w-xs mx-auto mb-6 mt-12">
                         <img
-                            src={getExerciseImage(currentExercise.id)}
+                            src={getExerciseImage(currentExercise.position)}
                             alt={currentExercise.name}
                             className="w-full h-auto object-contain rounded-xl border border-border shadow-sm"
                         />
@@ -278,34 +278,34 @@ export default function RoutinePlayer() {
                                     <div className="w-full text-left space-y-4">
                                         {/* Duration & Sets */}
                                         <div className="flex flex-wrap gap-3">
-                                            {exerciseMeta[currentExercise.id]?.duration && (
+                                            {exerciseMeta[currentExercise.position]?.duration && (
                                                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan text-xs font-bold">
-                                                    ⏱ {exerciseMeta[currentExercise.id].duration}
+                                                    ⏱ {exerciseMeta[currentExercise.position].duration}
                                                 </div>
                                             )}
-                                            {exerciseMeta[currentExercise.id]?.sets && (
+                                            {exerciseMeta[currentExercise.position]?.sets && (
                                                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-amber/10 border border-accent-amber/20 text-accent-amber text-xs font-bold">
-                                                    🔄 {exerciseMeta[currentExercise.id].sets}
+                                                    🔄 {exerciseMeta[currentExercise.position].sets}
                                                 </div>
                                             )}
                                         </div>
 
                                         {/* Age Restriction Warning */}
-                                        {exerciseMeta[currentExercise.id]?.ageRestriction && (
+                                        {exerciseMeta[currentExercise.position]?.ageRestriction && (
                                             <div className="flex items-start gap-3 bg-accent-red/10 p-4 rounded-radius-md border border-accent-red/30">
                                                 <span className="text-lg shrink-0">⚠️</span>
                                                 <p className="text-accent-red text-sm font-bold">
-                                                    {exerciseMeta[currentExercise.id].ageRestriction}
+                                                    {exerciseMeta[currentExercise.position].ageRestriction}
                                                 </p>
                                             </div>
                                         )}
 
                                         {/* Instruction */}
-                                        {exerciseMeta[currentExercise.id]?.instruction && (
+                                        {exerciseMeta[currentExercise.position]?.instruction && (
                                             <div className="bg-bg-primary p-4 rounded-radius-md border border-border">
                                                 <p className="text-sm font-bold text-text-primary mb-2">How To Perform</p>
                                                 <p className="text-text-secondary text-sm leading-relaxed">
-                                                    {exerciseMeta[currentExercise.id].instruction}
+                                                    {exerciseMeta[currentExercise.position].instruction}
                                                 </p>
                                             </div>
                                         )}
@@ -315,7 +315,7 @@ export default function RoutinePlayer() {
                                             <div>
                                                 <p className="text-sm font-bold text-text-primary mb-1">Surface Needed</p>
                                                 <p className="text-text-secondary text-sm">
-                                                    {exerciseMeta[currentExercise.id]?.surface || "Comfortable surface"}
+                                                    {exerciseMeta[currentExercise.position]?.surface || "Comfortable surface"}
                                                 </p>
                                             </div>
                                         </div>
@@ -323,7 +323,7 @@ export default function RoutinePlayer() {
                                         <div className="bg-bg-primary p-4 rounded-radius-md border border-border">
                                             <p className="text-sm font-bold text-text-primary mb-3">Form Cues</p>
                                             <ul className="text-sm text-text-secondary space-y-2 list-disc pl-5">
-                                                {(exerciseMeta[currentExercise.id]?.formCues || [currentExercise.whatItDoes]).map((cue, i) => (
+                                                {(exerciseMeta[currentExercise.position]?.formCues || [currentExercise.whatItDoes]).map((cue, i) => (
                                                     <li key={i}>{cue}</li>
                                                 ))}
                                             </ul>
@@ -387,7 +387,7 @@ export default function RoutinePlayer() {
                                 {/* Form Tip Reminder */}
                                 <div className="w-full text-center mb-8">
                                     <p className="text-text-secondary italic">
-                                        Tip: {exerciseMeta[currentExercise.id]?.formCues?.[0] || currentExercise.whatItDoes}
+                                        Tip: {exerciseMeta[currentExercise.position]?.formCues?.[0] || currentExercise.whatItDoes}
                                     </p>
                                 </div>
 

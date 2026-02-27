@@ -9,7 +9,16 @@ export default function Profile() {
     const getRiskColor = (tier?: string) => {
         if (tier === 'low') return 'text-accent-green';
         if (tier === 'moderate') return 'text-accent-amber';
-        return 'text-accent-red';
+        if (tier === 'high' || tier === 'critical') return 'text-accent-red';
+        return 'text-text-secondary';
+    };
+
+    const getRiskLabel = (tier?: string) => {
+        if (tier === 'low') return 'Low Risk';
+        if (tier === 'moderate') return 'Moderate Risk';
+        if (tier === 'high') return 'High Risk';
+        if (tier === 'critical') return 'Critical Risk';
+        return 'Unassessed';
     };
 
     const badges = [
@@ -39,7 +48,8 @@ export default function Profile() {
                     <div className="flex flex-wrap justify-center md:justify-start gap-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Shield size={16} className={getRiskColor(user?.riskTier)} />
-                            Risk: <span className={getRiskColor(user?.riskTier)}>{user?.spineRiskScore}</span>
+                            <span className={getRiskColor(user?.riskTier)}>{getRiskLabel(user?.riskTier)}</span>
+                            {user?.spineRiskScore !== undefined && <span className="text-text-secondary">· {user.spineRiskScore}/100</span>}
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Flame size={16} className="text-accent-amber" />
@@ -53,6 +63,14 @@ export default function Profile() {
                 </div>
 
             </div>
+
+            {/* Primary Risk Reason */}
+            {user?.primaryReason && (
+                <div className="bg-bg-card border border-border rounded-radius-lg p-5">
+                    <h2 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-2">Primary Risk Factor Identified</h2>
+                    <p className="text-text-primary text-sm leading-relaxed">{user.primaryReason}</p>
+                </div>
+            )}
 
 
             {/* Badges Section */}

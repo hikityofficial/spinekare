@@ -44,7 +44,7 @@ export default function ExerciseLibrary() {
 
     const allowedNumbers = CATEGORY_MAP[activeCategory];
 
-    const filteredExercises = exercises.filter((_, idx) => allowedNumbers.includes(idx + 1));
+    const filteredExercises = exercises.filter(ex => allowedNumbers.includes(ex.position));
 
     if (isLoading) {
         return <div className="p-8 text-center text-text-secondary animate-pulse">Loading Exercise Library...</div>;
@@ -102,7 +102,7 @@ export default function ExerciseLibrary() {
                     {/* Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                         {filteredExercises.map((ex) => {
-                            const exerciseNum = exercises.indexOf(ex) + 1; // original 1-based number
+                            const exerciseNum = ex.position; // Sequential 1-12, decoupled from DB id
                             const imageSrc = EXERCISE_IMAGES[(exerciseNum - 1) % EXERCISE_IMAGES.length];
                             const meta = exerciseMeta[exerciseNum];
 
@@ -135,7 +135,7 @@ export default function ExerciseLibrary() {
                                             <span className="text-[10px] font-bold text-accent-amber">{meta.sets}</span>
                                         )}
                                         {meta?.ageRestriction && (
-                                            <span className="text-[10px] font-bold text-accent-red">\u26a0 {meta.ageRestriction}</span>
+                                            <span className="text-[10px] font-bold text-accent-red">&#9888; {meta.ageRestriction}</span>
                                         )}
                                         <button
                                             onClick={() => navigate('/routine', { state: { exercises: [ex], title: `Exercise ${String(exerciseNum).padStart(2, '0')}` } })}
