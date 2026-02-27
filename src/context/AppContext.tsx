@@ -91,21 +91,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 supabase.from('spine_facts').select('*').eq('day_number', fDay).single()
             ]);
 
-            if (exercisesRes.data) {
-                const allExercises = exercisesRes.data.map((ex: any, idx: number) => ({
-                    id: ex.id,
-                    position: idx + 1,   // sequential 1-based position (used for images & meta)
-                    name: ex.name,
-                    description: ex.description,
-                    targetArea: ex.target_area,
-                    category: ex.category,
-                    durationSeconds: ex.duration_seconds,
-                    reps: ex.reps,
-                    whatItDoes: ex.what_it_does,
-                    difficulty: ex.difficulty
-                }));
+            // Build allExercises: start from LOCAL_EXERCISES (always 12),
+            // then overlay any DB data on matching entries.
+            import('../data/localExercises').then(({ LOCAL_EXERCISES }) => {
+                let allExercises = LOCAL_EXERCISES;
 
-                // Personalize Daily Routine based on Risk Tier & Streak Day
+                if (exercisesRes.data && exercisesRes.data.length > 0) {
+                    const dbMap: Record<number, any> = {};
+                    exercisesRes.data.forEach((row: any) => { dbMap[row.id] = row; });
+
+                    allExercises = LOCAL_EXERCISES.map(local => {
+                        const db = dbMap[local.id];
+                        if (!db) return local;
+                        return {
+                            ...local,
+                            name:            db.name             || local.name,
+                            description:     db.description      || local.description,
+                            whatItDoes:      db.what_it_does     || local.whatItDoes,
+                            difficulty:      db.difficulty       || local.difficulty,
+                            durationSeconds: db.duration_seconds ?? local.durationSeconds,
+                            category:        db.category         || local.category,
+                        };
+                    });
+                }
+
+                // ── Personalize Daily Routine based on Risk Tier & Streak Day ──
                 const tier = user?.riskTier || 'moderate';
                 const currentDay = streak.currentStreak + 1;
 
@@ -141,7 +151,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     estimatedMinutes: estimatedMins,
                     exercises: selectedExercises
                 });
-            }
+            }); // end import LOCAL_EXERCISES
 
             if (factRes.data) {
                 setTodayFact({
