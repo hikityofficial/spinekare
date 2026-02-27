@@ -230,7 +230,7 @@ export default function RoutinePlayer() {
                 {/* Target highlight label */}
                 {!isResting && (
                     <div className="absolute bottom-12 bg-bg-primary/80 backdrop-blur px-6 py-3 rounded-full border border-accent-cyan/30 text-accent-cyan font-bold tracking-widest uppercase text-sm">
-                        Targeting: {currentExercise.targetArea} spine
+                        {exerciseMeta[currentExercise.position]?.targetArea ?? `${currentExercise.targetArea} spine`}
                     </div>
                 )}
             </div>
@@ -266,7 +266,7 @@ export default function RoutinePlayer() {
                                 </div>
 
                                 <h2 className="text-3xl md:text-5xl font-display font-bold text-text-primary mb-6 leading-tight">
-                                    {currentExercise.name}
+                                    {exerciseMeta[currentExercise.position]?.name ?? currentExercise.name}
                                 </h2>
 
                                 <div className="w-full bg-bg-secondary rounded-radius-lg border border-border p-6 mb-8 flex flex-col items-center">

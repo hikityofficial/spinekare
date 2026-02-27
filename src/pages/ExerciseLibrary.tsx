@@ -105,6 +105,8 @@ export default function ExerciseLibrary() {
                             const exerciseNum = ex.position; // Sequential 1-12, decoupled from DB id
                             const imageSrc = EXERCISE_IMAGES[(exerciseNum - 1) % EXERCISE_IMAGES.length];
                             const meta = exerciseMeta[exerciseNum];
+                            const displayName = meta?.name ?? ex.name;
+                            const displayArea = meta?.targetArea ?? ex.targetArea;
 
                             return (
                                 <div
@@ -112,7 +114,7 @@ export default function ExerciseLibrary() {
                                     className="group bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all shadow-sm flex flex-col"
                                 >
                                     <div className="relative aspect-[4/3] bg-bg-secondary">
-                                        <img src={imageSrc} alt={`Exercise ${exerciseNum}`} className="w-full h-full object-cover" />
+                                        <img src={imageSrc} alt={displayName} className="w-full h-full object-cover" />
                                         <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-text-primary text-xs font-extrabold">
                                             {String(exerciseNum).padStart(2, '0')}
                                         </div>
@@ -122,23 +124,26 @@ export default function ExerciseLibrary() {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="p-3 flex-1 flex flex-col gap-2">
+                                    <div className="p-3 flex-1 flex flex-col gap-1.5">
+                                        {/* Exercise name */}
+                                        <p className="text-text-primary font-bold text-xs leading-tight line-clamp-2">{displayName}</p>
+                                        {/* Target area tag */}
                                         <span className="inline-block px-2 py-0.5 bg-bg-secondary border border-border text-text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full w-fit">
-                                            {ex.targetArea}
+                                            {displayArea}
                                         </span>
-                                        {meta?.instruction && (
-                                            <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
-                                                {meta.instruction}
-                                            </p>
-                                        )}
                                         {meta?.sets && (
                                             <span className="text-[10px] font-bold text-accent-amber">{meta.sets}</span>
                                         )}
                                         {meta?.ageRestriction && (
-                                            <span className="text-[10px] font-bold text-accent-red">&#9888; {meta.ageRestriction}</span>
+                                            <span className="text-[10px] font-bold text-accent-red">&#9888; Age ≤ 25 only</span>
+                                        )}
+                                        {meta?.instruction && (
+                                            <p className="text-[10px] text-text-secondary leading-relaxed line-clamp-2 mt-0.5">
+                                                {meta.instruction}
+                                            </p>
                                         )}
                                         <button
-                                            onClick={() => navigate('/routine', { state: { exercises: [ex], title: `Exercise ${String(exerciseNum).padStart(2, '0')}` } })}
+                                            onClick={() => navigate('/routine', { state: { exercises: [ex], title: displayName } })}
                                             className="mt-auto w-full flex items-center justify-center gap-1.5 py-2 bg-accent-cyan/10 hover:bg-accent-cyan text-accent-cyan hover:text-bg-primary border border-accent-cyan/30 rounded-radius-md font-bold text-xs transition-colors"
                                         >
                                             <Play size={13} fill="currentColor" /> Start
