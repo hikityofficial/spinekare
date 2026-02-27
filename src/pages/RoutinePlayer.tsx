@@ -276,11 +276,16 @@ export default function RoutinePlayer() {
                                     </div>
 
                                     <div className="w-full text-left space-y-4">
-                                        {/* Duration & Sets */}
+                                        {/* Duration, Reps & Sets badges */}
                                         <div className="flex flex-wrap gap-3">
                                             {exerciseMeta[currentExercise.position]?.duration && (
                                                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan text-xs font-bold">
                                                     ⏱ {exerciseMeta[currentExercise.position].duration}
+                                                </div>
+                                            )}
+                                            {exerciseMeta[currentExercise.position]?.reps && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green/10 border border-accent-green/20 text-accent-green text-xs font-bold">
+                                                    🔁 {exerciseMeta[currentExercise.position].reps}
                                                 </div>
                                             )}
                                             {exerciseMeta[currentExercise.position]?.sets && (

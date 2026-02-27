@@ -9,7 +9,8 @@ export interface ExerciseMeta {
     targetArea: string;
     surface: string;
     duration: string;
-    sets?: string;
+    reps?: string;      // Per-rep hold timing, e.g. "8 sec each side"
+    sets?: string;      // Set-based timing, e.g. "3 sets × 25 seconds"
     instruction: string;
     formCues: string[];
     ageRestriction?: string;
@@ -21,6 +22,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Cervical · Lumbar",
         surface: "Yoga mat (hands and knees)",
         duration: "2 minutes",
+        reps: "10 sec arch → 5 sec straight — repeat",
         instruction: "Start on hands and knees. Bend backward (arch your spine) and hold for 10 seconds, then return to a neutral straight position and hold for 5 seconds. Repeat this cycle continuously throughout the duration.",
         formCues: [
             "Hold the back bend for exactly 10 seconds each rep",
@@ -35,6 +37,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Cervical · Lumbar",
         surface: "Yoga mat",
         duration: "2 minutes",
+        reps: "10 sec arch → 5 sec straight — repeat",
         instruction: "Stand upright. Bend backward (extending your spine) and hold for 10 seconds, then straighten your body and hold for 5 seconds. Repeat in a steady, controlled rhythm throughout the duration.",
         formCues: [
             "Hold each back bend for 10 seconds",
@@ -49,6 +52,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Core",
         surface: "Yoga mat (hands and knees)",
         duration: "3 minutes",
+        reps: "8 sec each side, alternating",
         instruction: "Get into a tabletop (dog) pose on hands and knees. Extend one hand straight in front and the opposite leg straight behind simultaneously. Hold for 8 seconds, then switch to the other arm and leg. Alternate throughout the full duration.",
         formCues: [
             "Keep hips level — do not rotate your torso",
@@ -63,6 +67,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Sacral",
         surface: "Yoga mat (lying face down)",
         duration: "3 minutes",
+        reps: "8 sec each leg, alternating",
         instruction: "Lie face down flat on your stomach with legs straight. Lift one leg approximately 30 degrees off the ground, keeping the knee straight. Hold for 8 seconds, then lower it. Repeat with the other leg. Alternate throughout.",
         formCues: [
             "Keep both hips pressed flat against the mat at all times",
@@ -77,6 +82,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Sacral",
         surface: "Yoga mat (lying face up)",
         duration: "3 minutes",
+        reps: "8 sec each leg, alternating",
         instruction: "Lie flat on your back with both legs extended straight. Bring one knee up toward your chest and hold for 8 seconds. Lower it back down and repeat with the other leg. Alternate legs continuously throughout.",
         formCues: [
             "Keep your body flat while lying down before lifting",
@@ -91,6 +97,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Sacral",
         surface: "Yoga mat (lying face up)",
         duration: "2 minutes",
+        reps: "Hold both knees to chest — full 2 min",
         instruction: "Lie flat on your back with your body straight. Pull both knees up toward your chest simultaneously and hold the position. Breathe deeply and relax your lower back into the mat throughout the hold.",
         formCues: [
             "Start with both legs extended, then bring both knees up together",
@@ -105,6 +112,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Sacral",
         surface: "Yoga mat (lying face up)",
         duration: "2 minutes",
+        reps: "8 sec each side, alternating",
         instruction: "Lie on your back. Gently rotate your lower body (bent knees) to one side for a side stretch of the waist. Hold for 8 seconds on each side, then rotate to the opposite side. Alternate throughout the full duration.",
         formCues: [
             "Keep both shoulders flat and pressed on the ground",
@@ -134,6 +142,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Sacral",
         surface: "Bed or yoga mat (lying face up)",
         duration: "3 minutes",
+        reps: "8 sec each leg, alternating",
         instruction: "Lie flat on your back. Raise one leg so that both the hip (waist) and knee form 90-degree angles. Hold for 8 seconds, then lower the leg. Switch to the other leg. Alternate throughout the full duration.",
         formCues: [
             "Keep your back completely flat against the surface",
@@ -148,6 +157,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Lumbar · Sacral",
         surface: "Yoga mat or comfortable floor",
         duration: "3 minutes",
+        reps: "8 sec each side, alternating",
         instruction: "Lie or sit comfortably. Stretch your body on both sides by folding one knee at a time and stretching to that side. Hold each side for 8 seconds, then switch. Alternate between left and right throughout the full duration.",
         formCues: [
             "Fold one knee while keeping the other leg straight",
@@ -177,6 +187,7 @@ export const exerciseMeta: Record<number, ExerciseMeta> = {
         targetArea: "Cervical · Lumbar · Sacral",
         surface: "Yoga mat or comfortable floor",
         duration: "10 seconds (once daily)",
+        reps: "10 seconds — once per day only",
         ageRestriction: "Recommended only for age 25 and under",
         instruction: "Lie flat on your back. Extend both arms fully overhead and stretch both legs fully in the opposite direction, elongating your entire body. Hold the full stretch for 10 seconds. Perform this exercise only once per day.",
         formCues: [

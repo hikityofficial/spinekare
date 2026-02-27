@@ -14,7 +14,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'A gentle spinal flexion and extension exercise performed on hands and knees.',
         targetArea: 'cervical',
         category: 'Cervical',
-        durationSeconds: 120,
+        durationSeconds: 120,            // 2 minutes total
+        reps: '10s arch → 5s straight (repeat for 2 min)',
         whatItDoes: 'Mobilises the entire spine, relieves cervical and lumbar tension.',
         difficulty: 'beginner',
     },
@@ -25,7 +26,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'An upright spinal extension exercise to decompress lumbar and cervical discs.',
         targetArea: 'cervical',
         category: 'Cervical',
-        durationSeconds: 120,
+        durationSeconds: 120,            // 2 minutes total
+        reps: '10s arch → 5s straight (repeat for 2 min)',
         whatItDoes: 'Extends the spine against gravity, counteracting prolonged forward posture.',
         difficulty: 'beginner',
     },
@@ -36,7 +38,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Core stabilisation exercise extending opposite arm and leg from a tabletop position.',
         targetArea: 'core',
         category: 'Lumbar',
-        durationSeconds: 180,
+        durationSeconds: 180,            // 3 minutes total
+        reps: '8 sec each side, alternating (3 min)',
         whatItDoes: 'Builds deep core and lumbar stabiliser strength while maintaining spinal neutrality.',
         difficulty: 'beginner',
     },
@@ -47,7 +50,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying face down, alternately raising each leg 30 degrees to strengthen the lower back.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 180,
+        durationSeconds: 180,            // 3 minutes total
+        reps: '8 sec each leg, alternating (3 min)',
         whatItDoes: 'Strengthens lumbar extensors and gluteal muscles to support the lower spine.',
         difficulty: 'beginner',
     },
@@ -58,7 +62,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on back, bringing one knee at a time to the chest to stretch the lumbar spine.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 180,
+        durationSeconds: 180,            // 3 minutes total
+        reps: '8 sec each leg, alternating (3 min)',
         whatItDoes: 'Releases lumbar and sacral compression; stretches the hip flexors and lower back.',
         difficulty: 'beginner',
     },
@@ -69,7 +74,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on back, pulling both knees simultaneously to the chest.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 120,
+        durationSeconds: 120,            // 2 minutes total
+        reps: 'Hold continuously for 2 minutes',
         whatItDoes: 'Provides deep lumbar flexion stretch and decompresses the sacral region.',
         difficulty: 'beginner',
     },
@@ -80,7 +86,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on back, rotating bent knees side to side for a waist and oblique stretch.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 120,
+        durationSeconds: 120,            // 2 minutes total
+        reps: '8 sec each side, alternating (2 min)',
         whatItDoes: 'Mobilises the thoracolumbar fascia and obliques; reduces lateral spinal tension.',
         difficulty: 'beginner',
     },
@@ -91,7 +98,7 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on a bed with the head hanging off the edge to decompress the cervical spine.',
         targetArea: 'cervical',
         category: 'Cervical',
-        durationSeconds: 105, // 3 sets × 25s + rest
+        durationSeconds: 105,            // 3 sets × 25s + ~15s rest between = ~105s
         reps: '3 sets × 25 seconds',
         whatItDoes: 'Uses gravity for cervical traction, relieving disc compression and nerve pressure in the neck.',
         difficulty: 'beginner',
@@ -103,7 +110,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on back, raising one leg to 90° at both hip and knee, held for 8 seconds.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 180,
+        durationSeconds: 180,            // 3 minutes total
+        reps: '8 sec each leg, alternating (3 min)',
         whatItDoes: 'Activates hip flexors and core while decompressing lumbar discs in a supported position.',
         difficulty: 'beginner',
     },
@@ -114,7 +122,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Folding one knee at a time and stretching the full body laterally, held 8 seconds per side.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 180,
+        durationSeconds: 180,            // 3 minutes total
+        reps: '8 sec each side, alternating (3 min)',
         whatItDoes: 'Elongates the entire lateral chain — from shoulder to hip — reducing lateral spinal compression.',
         difficulty: 'beginner',
     },
@@ -125,7 +134,7 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on back with knees bent, lifting hips into a bridge position and holding.',
         targetArea: 'lumbar',
         category: 'Sacral',
-        durationSeconds: 120, // 4 sets × 20s
+        durationSeconds: 120,            // 4 sets × 20s + rest ≈ 120s
         reps: '4 sets × 20 seconds',
         whatItDoes: 'Strengthens glutes and hamstrings to stabilise the pelvis and reduce lumbar overload.',
         difficulty: 'intermediate',
@@ -137,7 +146,8 @@ export const LOCAL_EXERCISES: Exercise[] = [
         description: 'Lying on back with arms overhead, extending the entire body for 10 seconds. Age ≤ 25 only.',
         targetArea: 'full',
         category: 'Cervical',
-        durationSeconds: 10,
+        durationSeconds: 10,             // 10 seconds, once daily
+        reps: '10 seconds — once per day only',
         whatItDoes: 'Elongates the entire spine from cervical to sacral in a single decompressive stretch.',
         difficulty: 'beginner',
     },
