@@ -276,6 +276,40 @@ export default function RoutinePlayer() {
                                     </div>
 
                                     <div className="w-full text-left space-y-4">
+                                        {/* Duration & Sets */}
+                                        <div className="flex flex-wrap gap-3">
+                                            {exerciseMeta[currentExercise.id]?.duration && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan text-xs font-bold">
+                                                    ⏱ {exerciseMeta[currentExercise.id].duration}
+                                                </div>
+                                            )}
+                                            {exerciseMeta[currentExercise.id]?.sets && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-amber/10 border border-accent-amber/20 text-accent-amber text-xs font-bold">
+                                                    🔄 {exerciseMeta[currentExercise.id].sets}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Age Restriction Warning */}
+                                        {exerciseMeta[currentExercise.id]?.ageRestriction && (
+                                            <div className="flex items-start gap-3 bg-accent-red/10 p-4 rounded-radius-md border border-accent-red/30">
+                                                <span className="text-lg shrink-0">⚠️</span>
+                                                <p className="text-accent-red text-sm font-bold">
+                                                    {exerciseMeta[currentExercise.id].ageRestriction}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Instruction */}
+                                        {exerciseMeta[currentExercise.id]?.instruction && (
+                                            <div className="bg-bg-primary p-4 rounded-radius-md border border-border">
+                                                <p className="text-sm font-bold text-text-primary mb-2">How To Perform</p>
+                                                <p className="text-text-secondary text-sm leading-relaxed">
+                                                    {exerciseMeta[currentExercise.id].instruction}
+                                                </p>
+                                            </div>
+                                        )}
+
                                         <div className="flex items-start gap-3 bg-bg-primary p-4 rounded-radius-md border border-border">
                                             <Info className="text-accent-cyan mt-0.5 shrink-0" size={20} />
                                             <div>

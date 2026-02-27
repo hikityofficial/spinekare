@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllExercises } from '../hooks/useAllExercises';
-import { Play, BookOpen, Video, ShieldCheck, X, ImageIcon } from 'lucide-react';
+import { Play, BookOpen, Video, ShieldCheck, X, ImageIcon, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { exerciseMeta } from '../utils/exerciseMeta';
 
 import sse1 from '../../assets/sse1.png';
 import sse2 from '../../assets/sse2.png';
@@ -26,7 +27,7 @@ const CATEGORY_MAP: Record<string, number[]> = {
     All: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     Cervical: [1, 2, 3, 8, 12],
     Lumbar: [1, 2, 3, 12],
-    Sacral: [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12],
+    Sacral: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12],
 };
 
 const CATEGORIES = ['All', 'Cervical', 'Lumbar', 'Sacral'] as const;
@@ -103,6 +104,7 @@ export default function ExerciseLibrary() {
                         {filteredExercises.map((ex) => {
                             const exerciseNum = exercises.indexOf(ex) + 1; // original 1-based number
                             const imageSrc = EXERCISE_IMAGES[(exerciseNum - 1) % EXERCISE_IMAGES.length];
+                            const meta = exerciseMeta[exerciseNum];
 
                             return (
                                 <div
@@ -114,11 +116,27 @@ export default function ExerciseLibrary() {
                                         <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-text-primary text-xs font-extrabold">
                                             {String(exerciseNum).padStart(2, '0')}
                                         </div>
+                                        {meta?.duration && (
+                                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-[10px] font-bold flex items-center gap-1">
+                                                <Clock size={10} /> {meta.duration}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="p-3 flex-1 flex flex-col gap-2">
                                         <span className="inline-block px-2 py-0.5 bg-bg-secondary border border-border text-text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full w-fit">
                                             {ex.targetArea}
                                         </span>
+                                        {meta?.instruction && (
+                                            <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
+                                                {meta.instruction}
+                                            </p>
+                                        )}
+                                        {meta?.sets && (
+                                            <span className="text-[10px] font-bold text-accent-amber">{meta.sets}</span>
+                                        )}
+                                        {meta?.ageRestriction && (
+                                            <span className="text-[10px] font-bold text-accent-red">\u26a0 {meta.ageRestriction}</span>
+                                        )}
                                         <button
                                             onClick={() => navigate('/routine', { state: { exercises: [ex], title: `Exercise ${String(exerciseNum).padStart(2, '0')}` } })}
                                             className="mt-auto w-full flex items-center justify-center gap-1.5 py-2 bg-accent-cyan/10 hover:bg-accent-cyan text-accent-cyan hover:text-bg-primary border border-accent-cyan/30 rounded-radius-md font-bold text-xs transition-colors"

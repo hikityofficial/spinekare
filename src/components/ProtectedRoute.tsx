@@ -17,7 +17,7 @@ export const ProtectedRoute = () => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/auth" replace />;
+        return <Navigate to="/" replace />;
     }
 
     // If user is authenticated but hasn't completed onboarding, force them to onboarding
