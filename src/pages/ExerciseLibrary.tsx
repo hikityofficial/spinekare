@@ -176,110 +176,124 @@ export default function ExerciseLibrary() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+                                className="fixed inset-0 z-[70] bg-bg-primary/80 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto"
                                 onClick={() => setSelectedExercise(null)}
                             >
                                 <motion.div
-                                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                    initial={{ scale: 0.95, opacity: 0, y: 30 }}
                                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                                    className="relative max-w-2xl w-full bg-bg-card rounded-radius-lg border border-border shadow-2xl my-8 flex flex-col"
+                                    exit={{ scale: 0.95, opacity: 0, y: 30 }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    className="relative max-w-5xl w-full min-h-[70vh] max-h-[90vh] lg:h-[80vh] bg-bg-card rounded-3xl border border-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row overflow-hidden"
                                     onClick={e => e.stopPropagation()}
                                 >
-                                    {/* Close Button */}
-                                    <button
-                                        onClick={() => setSelectedExercise(null)}
-                                        className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-black/80 transition-all flex items-center justify-center"
-                                    >
-                                        <X size={20} />
-                                    </button>
-
-                                    {/* Header Image Area */}
-                                    <div className="w-full h-64 sm:h-80 bg-bg-secondary relative flex items-center justify-center border-b border-border overflow-hidden rounded-t-radius-lg">
+                                    {/* Left: Image Side */}
+                                    <div className="w-full lg:w-1/2 lg:flex-shrink-0 bg-bg-secondary relative flex flex-col items-center justify-center min-h-[250px] lg:min-h-full p-8 lg:p-16">
                                         <img 
                                             src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
                                             alt={selectedExercise.name} 
-                                            className="w-full h-full object-contain p-4" 
+                                            className="w-full h-full object-contain mix-blend-multiply opacity-95 relative z-10" 
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-bg-card to-transparent h-1/3 bottom-0" />
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
+                                        
+                                        {/* Mobile Close Button (shows only on mobile, top right over image) */}
+                                        <button
+                                            onClick={() => setSelectedExercise(null)}
+                                            className="lg:hidden absolute top-4 right-4 z-20 p-2.5 rounded-full bg-bg-card/80 backdrop-blur-md text-text-primary hover:bg-bg-card shadow-sm border border-border transition-all flex items-center justify-center"
+                                        >
+                                            <X size={20} />
+                                        </button>
                                     </div>
 
-                                    {/* Content Area */}
-                                    <div className="p-6 sm:p-8 flex-1 overflow-y-auto">
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent-cyan/10 text-accent-cyan text-xs font-bold tracking-widest uppercase rounded-full mb-3 border border-accent-cyan/20">
-                                            {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
+                                    {/* Right: Content Side */}
+                                    <div className="flex-1 flex flex-col bg-bg-card lg:overflow-hidden relative">
+                                        {/* Desktop Close Button */}
+                                        <div className="hidden lg:flex justify-end absolute top-6 right-6 z-20">
+                                            <button
+                                                onClick={() => setSelectedExercise(null)}
+                                                className="p-2.5 rounded-full bg-bg-secondary/50 text-text-secondary hover:text-text-primary hover:bg-bg-secondary border border-border transition-all"
+                                            >
+                                                <X size={22} />
+                                            </button>
                                         </div>
-                                        
-                                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary mb-6">
-                                            {exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name}
-                                        </h2>
 
-                                        <div className="space-y-6">
-                                            {/* Instructions section */}
-                                            {exerciseMeta[selectedExercise.position]?.instruction && (
-                                                <div className="bg-bg-primary p-5 rounded-radius-md border border-border">
-                                                    <p className="text-sm font-extrabold text-text-primary mb-2 flex items-center gap-2">
-                                                        <BookOpen size={16} className="text-accent-cyan" /> How To Perform
-                                                    </p>
-                                                    <p className="text-text-secondary text-sm leading-relaxed">
-                                                        {exerciseMeta[selectedExercise.position].instruction}
-                                                    </p>
+                                        <div className="p-6 md:p-10 lg:p-12 flex-1 lg:overflow-y-auto flex flex-col lg:pr-20">
+                                            {/* Subtitle / Tag */}
+                                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent-cyan/10 text-accent-cyan text-[11px] font-bold tracking-widest uppercase rounded-full mb-5 border border-accent-cyan/20 w-fit">
+                                                {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
+                                            </div>
+                                            
+                                            {/* Title */}
+                                            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-extrabold text-text-primary mb-8 leading-tight tracking-tight">
+                                                {exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name}
+                                            </h2>
+
+                                            <div className="space-y-8 flex-1">
+                                                {/* Instructions section */}
+                                                {exerciseMeta[selectedExercise.position]?.instruction && (
+                                                    <div className="space-y-3">
+                                                        <h3 className="text-xs font-extrabold text-text-secondary flex items-center gap-2 uppercase tracking-widest">
+                                                            <BookOpen size={16} className="text-accent-cyan" /> Technique
+                                                        </h3>
+                                                        <p className="text-text-primary text-[15px] md:text-base leading-relaxed font-medium">
+                                                            {exerciseMeta[selectedExercise.position].instruction}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {/* Form Cues */}
+                                                {exerciseMeta[selectedExercise.position]?.formCues && (
+                                                    <div className="bg-bg-secondary/40 p-6 rounded-2xl border border-border shadow-sm">
+                                                        <h3 className="text-xs font-extrabold text-text-secondary mb-4 uppercase tracking-widest">Clinical Form Cues</h3>
+                                                        <ul className="space-y-3">
+                                                            {exerciseMeta[selectedExercise.position].formCues.map((cue, i) => (
+                                                                <li key={i} className="flex items-start gap-3 text-[15px] text-text-primary font-medium">
+                                                                    <span className="text-accent-cyan mt-[3px] font-bold bg-accent-cyan/10 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-xs shadow-sm">✓</span>
+                                                                    <span className="leading-snug">{cue}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+
+                                                {/* Badges details */}
+                                                <div className="flex flex-wrap gap-3 pt-4">
+                                                    {exerciseMeta[selectedExercise.position]?.duration && (
+                                                        <div className="flex items-center gap-2.5 px-4 py-2 bg-bg-primary border border-border shadow-sm rounded-xl">
+                                                            <Clock size={16} className="text-accent-cyan" />
+                                                            <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].duration}</span>
+                                                        </div>
+                                                    )}
+                                                    {exerciseMeta[selectedExercise.position]?.reps && (
+                                                        <div className="flex items-center gap-2.5 px-4 py-2 bg-bg-primary border border-border shadow-sm rounded-xl">
+                                                            <span className="text-accent-green font-bold text-base leading-none">🔁</span>
+                                                            <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].reps}</span>
+                                                        </div>
+                                                    )}
+                                                    {exerciseMeta[selectedExercise.position]?.sets && (
+                                                        <div className="flex items-center gap-2.5 px-4 py-2 bg-bg-primary border border-border shadow-sm rounded-xl">
+                                                            <span className="text-accent-amber font-bold text-base leading-none">🔄</span>
+                                                            <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].sets}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
+                                            </div>
 
-                                            {/* Form Cues */}
-                                            {exerciseMeta[selectedExercise.position]?.formCues && (
-                                                <div className="bg-bg-secondary/50 p-5 rounded-radius-md border border-border">
-                                                    <p className="text-sm font-extrabold text-text-primary mb-3">Form Cues</p>
-                                                    <ul className="space-y-2">
-                                                        {exerciseMeta[selectedExercise.position].formCues.map((cue, i) => (
-                                                            <li key={i} className="flex items-start gap-3 text-sm text-text-secondary">
-                                                                <span className="text-accent-cyan mt-0.5">✓</span>
-                                                                <span>{cue}</span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
-
-                                            {/* Badges details */}
-                                            <div className="flex flex-wrap gap-4 pt-2">
-                                                {exerciseMeta[selectedExercise.position]?.duration && (
-                                                    <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-radius-md">
-                                                        <Clock size={16} className="text-accent-cyan" />
-                                                        <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].duration}</span>
-                                                    </div>
-                                                )}
-                                                {exerciseMeta[selectedExercise.position]?.reps && (
-                                                    <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-radius-md">
-                                                        <span className="text-accent-green font-bold">🔁</span>
-                                                        <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].reps}</span>
-                                                    </div>
-                                                )}
-                                                {exerciseMeta[selectedExercise.position]?.sets && (
-                                                    <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-radius-md">
-                                                        <span className="text-accent-amber font-bold">🔄</span>
-                                                        <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].sets}</span>
-                                                    </div>
-                                                )}
+                                            {/* Action Button */}
+                                            <div className="mt-10 pt-8 border-t border-border">
+                                                <button
+                                                    onClick={() => navigate('/routine', { 
+                                                        state: { 
+                                                            exercises: [selectedExercise], 
+                                                            title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
+                                                        } 
+                                                    })}
+                                                    className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-2xl transition-all shadow-[0_8px_16px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_24px_rgba(0,229,204,0.35)] hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2 tracking-wide"
+                                                >
+                                                    <Play size={20} fill="currentColor" /> Begin Exercise
+                                                </button>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    {/* Action Footer */}
-                                    <div className="p-6 bg-bg-secondary border-t border-border mt-auto">
-                                        <button
-                                            onClick={() => navigate('/routine', { 
-                                                state: { 
-                                                    exercises: [selectedExercise], 
-                                                    title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
-                                                } 
-                                            })}
-                                            className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all shadow-[0_0_20px_rgba(0,229,204,0.3)] text-lg flex items-center justify-center gap-2"
-                                        >
-                                            <Play size={20} fill="currentColor" /> Start Timer
-                                        </button>
                                     </div>
                                 </motion.div>
                             </motion.div>
