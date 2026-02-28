@@ -465,14 +465,14 @@ export default function Home() {
                                     {/* Close */}
                                     <button
                                         onClick={() => setRpLightboxIndex(null)}
-                                        className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white transition-colors flex items-center gap-1.5 font-bold focus:outline-none"
+                                        className="absolute top-4 right-4 z-20 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md text-white hover:bg-black/90 transition-all flex items-center gap-1.5 text-sm font-bold shadow-xl border border-white/10"
                                     >
-                                        <X size={20} /> Back
+                                        <X size={18} /> Back
                                     </button>
 
                                     {/* Image area */}
-                                    <div className="w-full bg-bg-secondary relative max-h-[50vh] flex items-center justify-center overflow-hidden border-b border-border">
-                                        <img src={RP_ITEMS[rpLightboxIndex].img} alt={RP_ITEMS[rpLightboxIndex].title} className="w-full h-full object-contain" />
+                                    <div className="w-full bg-bg-secondary relative max-h-[50vh] flex items-center justify-center overflow-hidden border-b border-border p-4">
+                                        <img src={RP_ITEMS[rpLightboxIndex].img} alt={RP_ITEMS[rpLightboxIndex].title} className="w-full h-full object-contain max-h-[45vh]" />
                                     </div>
 
                                     {/* Caption */}
