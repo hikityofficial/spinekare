@@ -184,11 +184,11 @@ export default function ExerciseLibrary() {
                                     animate={{ scale: 1, opacity: 1, y: 0 }}
                                     exit={{ scale: 0.95, opacity: 0, y: 30 }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    className="relative m-auto max-w-5xl w-full max-h-[90vh] lg:h-[80vh] bg-bg-card rounded-3xl border border-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row overflow-hidden"
+                                    className="relative m-auto max-w-5xl w-full max-h-[90vh] h-fit bg-bg-card rounded-3xl border border-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row overflow-hidden"
                                     onClick={e => e.stopPropagation()}
                                 >
                                     {/* Left: Image Side */}
-                                    <div className="w-full lg:w-1/2 lg:flex-shrink-0 bg-bg-secondary relative flex flex-col items-center justify-center h-[28vh] min-h-[200px] lg:h-auto lg:min-h-full p-6 lg:p-12">
+                                    <div className="w-full lg:w-2/5 lg:flex-shrink-0 bg-bg-secondary relative flex flex-col items-center justify-center p-6 lg:p-8 aspect-video lg:aspect-auto">
                                         <img 
                                             src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
                                             alt={selectedExercise.name} 
@@ -219,16 +219,16 @@ export default function ExerciseLibrary() {
 
                                         <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-12 flex flex-col lg:pr-20 w-full">
                                             {/* Subtitle / Tag */}
-                                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent-cyan/10 text-accent-cyan text-[11px] font-bold tracking-widest uppercase rounded-full mb-5 border border-accent-cyan/20 w-fit">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent-cyan/10 text-accent-cyan text-[10px] font-bold tracking-widest uppercase rounded-full mb-3 border border-accent-cyan/20 w-fit">
                                                 {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
                                             </div>
                                             
                                             {/* Title */}
-                                            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-extrabold text-text-primary mb-8 leading-tight tracking-tight">
+                                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-display font-extrabold text-text-primary mb-6 leading-tight tracking-tight">
                                                 {exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name}
                                             </h2>
 
-                                            <div className="space-y-8 flex-1">
+                                            <div className="space-y-6 flex-1">
                                                 {/* Instructions section */}
                                                 {exerciseMeta[selectedExercise.position]?.instruction && (
                                                     <div className="space-y-3">
@@ -280,7 +280,7 @@ export default function ExerciseLibrary() {
                                             </div>
 
                                             {/* Action Button */}
-                                            <div className="mt-10 pt-8 border-t border-border">
+                                            <div className="mt-6 pt-6 border-t border-border">
                                                 <button
                                                     onClick={() => navigate('/routine', { 
                                                         state: { 
@@ -288,9 +288,9 @@ export default function ExerciseLibrary() {
                                                             title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
                                                         } 
                                                     })}
-                                                    className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-2xl transition-all shadow-[0_8px_16px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_24px_rgba(0,229,204,0.35)] hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2 tracking-wide"
+                                                    className="w-full py-3.5 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-xl transition-all shadow-[0_8px_16px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_24px_rgba(0,229,204,0.35)] hover:-translate-y-0.5 text-base flex items-center justify-center gap-2 tracking-wide"
                                                 >
-                                                    <Play size={20} fill="currentColor" /> Begin Exercise
+                                                    <Play size={18} fill="currentColor" /> Begin Exercise
                                                 </button>
                                             </div>
                                         </div>
