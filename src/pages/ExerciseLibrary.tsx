@@ -263,14 +263,14 @@ function PrecautionsSection() {
                             {/* Close */}
                             <button
                                 onClick={() => setOpenIndex(null)}
-                                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-bg-secondary/80 backdrop-blur text-text-secondary hover:text-text-primary transition-colors"
+                                className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white transition-colors flex items-center gap-1.5 font-bold focus:outline-none"
                             >
-                                <X size={18} />
+                                <X size={20} /> Back
                             </button>
 
                             {/* Image area */}
-                            <div className="aspect-[4/3] bg-bg-secondary relative">
-                                <img src={PRECAUTION_ITEMS[openIndex].img} alt={PRECAUTION_ITEMS[openIndex].title} className="w-full h-full object-cover" />
+                            <div className="w-full bg-bg-secondary relative max-h-[50vh] flex items-center justify-center overflow-hidden border-b border-border">
+                                <img src={PRECAUTION_ITEMS[openIndex].img} alt={PRECAUTION_ITEMS[openIndex].title} className="w-full h-full object-contain" />
                             </div>
 
                             {/* Caption */}
