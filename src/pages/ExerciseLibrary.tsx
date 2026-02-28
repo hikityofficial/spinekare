@@ -200,11 +200,11 @@ export default function ExerciseLibrary() {
    Precautions Section — 5 clickable image placeholders
    ═══════════════════════════════════════════════════ */
 const PRECAUTION_ITEMS = [
-    { id: 1, title: "Consult Your Doctor", caption: "Always get clearance before starting spine exercises.", img: rp1 },
-    { id: 2, title: "Correct Posture Form", caption: "Maintain neutral spine alignment during all movements.", img: rp2 },
-    { id: 3, title: "Avoid Overexertion", caption: "Stop immediately if you feel sharp or radiating pain.", img: rp3 },
-    { id: 4, title: "Warm-Up Routine", caption: "Walk or march in place for 2–3 minutes before stretching.", img: rp4 },
-    { id: 5, title: "Stay Hydrated", caption: "Drink water before and after to support disc health.", img: rp5 },
+    { id: 1, title: "Maintain Posture", caption: "Keep your spine aligned neutrally throughout the day.", img: rp1 },
+    { id: 2, title: "Use a Laptop Stand", caption: "Elevate your screen to eye level to prevent neck strain.", img: rp2 },
+    { id: 3, title: "Reduce Stair Usage", caption: "Minimize climbing stairs to reduce pressure on lumbar discs.", img: rp3 },
+    { id: 4, title: "Avoid Heavy Lifting", caption: "Protect your back by avoiding heavy weights.", img: rp4 },
+    { id: 5, title: "Wear a Waist Belt", caption: "Use a lumbar support belt while traveling to prevent jolts.", img: rp5 },
 ];
 
 function PrecautionsSection() {

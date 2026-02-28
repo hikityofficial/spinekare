@@ -410,11 +410,11 @@ export default function Home() {
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {[
-                            { id: 1, title: "Prolonged Sitting", desc: "Sitting 8+ hours compresses discs", img: rp1 },
-                            { id: 2, title: "Poor Sleeping Posture", desc: "Wrong mattress strains spine", img: rp2 },
-                            { id: 3, title: "Heavy Lifting", desc: "Incorrect lifting tears muscles", img: rp3 },
-                            { id: 4, title: "Screen Neck", desc: "Looking down puts pressure on neck", img: rp4 },
-                            { id: 5, title: "Consult doctor", desc: "Get clearance before starting", img: rp5 },
+                            { id: 1, title: "Maintain Posture", desc: "Keep spine aligned neutrally", img: rp1 },
+                            { id: 2, title: "Laptop Stand", desc: "Elevate screen to eye level", img: rp2 },
+                            { id: 3, title: "Reduce Stairs", desc: "Minimize climbing to reduce disc pressure", img: rp3 },
+                            { id: 4, title: "Avoid Heavy Lifting", desc: "Protect your back from heavy weights", img: rp4 },
+                            { id: 5, title: "Waist Belt", desc: "Use support while traveling", img: rp5 },
                         ].map(item => (
                             <div
                                 key={item.id}
@@ -429,6 +429,30 @@ export default function Home() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    <div className="mt-10 bg-accent-cyan/5 border border-accent-cyan/20 rounded-radius-lg p-6 sm:p-8">
+                        <h3 className="text-xl font-display font-extrabold text-text-primary mb-5 flex items-center gap-2">
+                            <span className="text-accent-cyan">✦</span> Daily Spine Habits
+                        </h3>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Don't sit for more than 45 minutes continuously unless absolutely necessary.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Maintain proper posture whether sitting, standing, or walking.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Drink plenty of water to keep your spinal discs hydrated and healthy.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Exercise for a minimum of 30 minutes every day to strengthen core muscles.</span>
+                            </li>
+                        </ul>
                     </div>
                 </section>
 
