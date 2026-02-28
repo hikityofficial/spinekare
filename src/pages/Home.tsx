@@ -24,6 +24,14 @@ import rp5 from '../../assets/rp5.png';
 import video1 from '../../assets/grok-video-5af2fbd2-7619-4dad-a019-5221617876b7.mp4';
 import video2 from '../../assets/grok-video-84dec387-9089-4c5b-afa7-ca44e85f80a6.mp4';
 
+const RP_ITEMS = [
+    { id: 1, title: "Maintain Posture", desc: "Keep spine aligned neutrally", fullDesc: "Keep your spine aligned neutrally throughout the day, whether sitting, standing, or walking, to avoid uneven strain on your discs.", img: rp1 },
+    { id: 2, title: "Laptop Stand", desc: "Elevate screen to eye level", fullDesc: "Elevate your screen to eye level using a laptop stand. This prevents 'Screen Neck' and chronic cervical tension.", img: rp2 },
+    { id: 3, title: "Reduce Stairs", desc: "Minimize climbing to reduce disc pressure", fullDesc: "Minimize climbing stairs unnecessarily, especially if you already experience lower back pain, as it increases pressure on the lumbar discs.", img: rp3 },
+    { id: 4, title: "Avoid Heavy Lifting", desc: "Protect your back from heavy weights", fullDesc: "Protect your back by avoiding heavy weights. If you must lift, always bend at the knees and keep the weight close to your body.", img: rp4 },
+    { id: 5, title: "Waist Belt", desc: "Use support while traveling", fullDesc: "Use a lumbar support waist belt while traveling on bumpy roads or for long distances to prevent sudden jolts to your spine.", img: rp5 },
+];
+
 export default function Home() {
     const navigate = useNavigate();
     const listRef = useRef<HTMLDivElement | null>(null);
@@ -34,8 +42,9 @@ export default function Home() {
     const [popupStep, setPopupStep] = useState(0);
     const [canContinue, setCanContinue] = useState(false);
 
-    // Lightbox state
+    // Lightbox states
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const [rpLightboxIndex, setRpLightboxIndex] = useState<number | null>(null);
 
     useEffect(() => {
         const hasSeenPopup = localStorage.getItem('spinekare_seen_intro_popup');
@@ -60,9 +69,18 @@ export default function Home() {
     // Close lightbox on Escape
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setLightboxIndex(null);
-            if (e.key === 'ArrowRight' && lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.min(i + 1, exerciseImages.length - 1) : null);
-            if (e.key === 'ArrowLeft' && lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null);
+            if (e.key === 'Escape') {
+                setLightboxIndex(null);
+                setRpLightboxIndex(null);
+            }
+            if (e.key === 'ArrowRight') {
+                if (lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.min(i + 1, exerciseImages.length - 1) : null);
+                if (rpLightboxIndex !== null) setRpLightboxIndex(i => i !== null ? Math.min(i + 1, RP_ITEMS.length - 1) : null);
+            }
+            if (e.key === 'ArrowLeft') {
+                if (lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null);
+                if (rpLightboxIndex !== null) setRpLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null);
+            }
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
@@ -409,27 +427,83 @@ export default function Home() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        {[
-                            { id: 1, title: "Maintain Posture", desc: "Keep spine aligned neutrally", img: rp1 },
-                            { id: 2, title: "Laptop Stand", desc: "Elevate screen to eye level", img: rp2 },
-                            { id: 3, title: "Reduce Stairs", desc: "Minimize climbing to reduce disc pressure", img: rp3 },
-                            { id: 4, title: "Avoid Heavy Lifting", desc: "Protect your back from heavy weights", img: rp4 },
-                            { id: 5, title: "Waist Belt", desc: "Use support while traveling", img: rp5 },
-                        ].map(item => (
-                            <div
+                        {RP_ITEMS.map((item, idx) => (
+                            <button
                                 key={item.id}
-                                className="group bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all"
+                                onClick={() => setRpLightboxIndex(idx)}
+                                className="group relative bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all text-left focus:outline-none flex flex-col items-start"
                             >
-                                <div className="aspect-[4/3] bg-bg-secondary relative">
+                                <div className="w-full aspect-[4/3] bg-bg-secondary relative">
                                     <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 </div>
-                                <div className="p-4">
+                                <div className="p-4 w-full">
                                     <h3 className="font-bold text-text-primary text-sm mb-1">{item.title}</h3>
-                                    <p className="text-xs text-text-secondary">{item.desc}</p>
+                                    <p className="text-xs text-text-secondary line-clamp-2">{item.desc}</p>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
+
+                    {/* RP Lightbox */}
+                    <AnimatePresence>
+                        {rpLightboxIndex !== null && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+                                onClick={() => setRpLightboxIndex(null)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.85, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.85, opacity: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    className="relative max-w-lg w-full bg-bg-card rounded-radius-lg border border-border overflow-hidden shadow-2xl"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    {/* Close */}
+                                    <button
+                                        onClick={() => setRpLightboxIndex(null)}
+                                        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-bg-secondary/80 backdrop-blur text-text-secondary hover:text-text-primary transition-colors focus:outline-none"
+                                    >
+                                        <X size={18} />
+                                    </button>
+
+                                    {/* Image area */}
+                                    <div className="aspect-[4/3] bg-bg-secondary relative">
+                                        <img src={RP_ITEMS[rpLightboxIndex].img} alt={RP_ITEMS[rpLightboxIndex].title} className="w-full h-full object-cover" />
+                                    </div>
+
+                                    {/* Caption */}
+                                    <div className="p-6 text-left">
+                                        <h3 className="text-xl font-display font-bold text-text-primary mb-2">
+                                            {RP_ITEMS[rpLightboxIndex].title}
+                                        </h3>
+                                        <p className="text-text-secondary text-sm leading-relaxed">
+                                            {RP_ITEMS[rpLightboxIndex].fullDesc}
+                                        </p>
+                                    </div>
+
+                                    {/* Navigation arrows (only visible if hovering inner div or always) */}
+                                    <button
+                                        onClick={() => setRpLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null)}
+                                        disabled={rpLightboxIndex === 0}
+                                        className="absolute left-3 top-[37.5%] -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors disabled:opacity-0 focus:outline-none"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => setRpLightboxIndex(i => i !== null ? Math.min(i + 1, RP_ITEMS.length - 1) : null)}
+                                        disabled={rpLightboxIndex === RP_ITEMS.length - 1}
+                                        className="absolute right-3 top-[37.5%] -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors disabled:opacity-0 focus:outline-none"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <div className="mt-10 bg-accent-cyan/5 border border-accent-cyan/20 rounded-radius-lg p-6 sm:p-8">
                         <h3 className="text-xl font-display font-extrabold text-text-primary mb-5 flex items-center gap-2">
