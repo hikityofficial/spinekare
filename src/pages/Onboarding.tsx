@@ -14,7 +14,7 @@ const questions: { id: keyof RiskInput; title: string; options: string[] }[] = [
     {
         id: 'ageGroup',
         title: 'How old are you?',
-        options: ['Under 35', '35–50', '50–65', '65+'],
+        options: ['Under 20', '20–35', '35–50', '50–65', '65+'],
     },
     {
         id: 'gender',

@@ -28,8 +28,8 @@ export interface RiskResult {
 // ─── Tooltip reasons shown during the quiz ───────────────────────────────────
 export const OPTION_TOOLTIPS: Record<string, Record<string, string>> = {
     ageGroup: {
-        'Under 35':  'Younger spines are more resilient and recover faster.',
-        '35–50':     'Disc degeneration accelerates significantly after 35.',
+        'Under 20':  'Young spines are highly resilient, but early habits define long-term health.',
+        '20–35':     'Younger spines are generally resilient, but sustained sitting causes early wear.',
         '50–65':     'Bone density starts declining; facet joints wear down.',
         '65+':       'Highest risk of stenosis, osteoporosis, and compression fractures.',
     },
@@ -83,7 +83,8 @@ export function calculateSpineRisk(data: RiskInput): RiskResult {
 
     // A. Demographics
     const agePoints: Record<string, number> = {
-        'Under 35': 0,
+        'Under 20': 0,
+        '20–35':    0,
         '35–50':    10,
         '50–65':    15,
         '65+':      20,
