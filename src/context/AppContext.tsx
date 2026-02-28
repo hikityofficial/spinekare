@@ -77,8 +77,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         dayNumber: 0
     });
 
+    // Ensures we get YYYY-MM-DD strictly in the user's local timezone
+    const getLocalDateString = (d: Date = new Date()) => {
+        const offset = d.getTimezoneOffset() * 60000;
+        return new Date(d.getTime() - offset).toISOString().split('T')[0];
+    };
+
     const dayOfYear = getDayOfYear();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateString();
     const hasCompletedToday = streak.lastActivityDate === todayStr;
     const weekResetDate = getNextMonday();
 
@@ -215,7 +221,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     currentStreak: data.current_streak,
                     longestStreak: data.longest_streak,
                     totalPoints: newTotalPoints,
-                    lastActivityDate: data.last_completed_date ? data.last_completed_date.split('T')[0] : '',
+                    lastActivityDate: data.last_completed_date ? getLocalDateString(new Date(data.last_completed_date)) : '',
                     streakFreezes: 0,
                     weeklyPoints: newWeeklyPoints,
                     weekNumber: currentWeek,
@@ -264,7 +270,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const completeRoutine = async () => {
         if (hasCompletedToday || !user) return;
 
-        const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const yesterdayStr = getLocalDateString(new Date(Date.now() - 86400000));
         let newStreak = streak.currentStreak;
 
         if (streak.lastActivityDate === yesterdayStr) {
