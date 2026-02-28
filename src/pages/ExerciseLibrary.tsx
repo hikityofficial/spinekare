@@ -4,6 +4,7 @@ import { useAllExercises } from '../hooks/useAllExercises';
 import { Play, BookOpen, Video, ShieldCheck, X, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exerciseMeta } from '../utils/exerciseMeta';
+import type { Exercise } from '../types';
 
 import sse1 from '../../assets/sse1.png';
 import sse2 from '../../assets/sse2.png';
@@ -46,6 +47,7 @@ export default function ExerciseLibrary() {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState<Category>('All');
     const [activeSection, setActiveSection] = useState<SectionTab>('Exercises');
+    const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
     const allowedNumbers = CATEGORY_MAP[activeCategory];
 
@@ -114,47 +116,51 @@ export default function ExerciseLibrary() {
                             const displayArea = meta?.targetArea ?? ex.targetArea;
 
                             return (
-                                <div
+                                <button
                                     key={ex.id}
-                                    className="group bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all shadow-sm flex flex-col"
+                                    onClick={() => setSelectedExercise(ex)}
+                                    className="group relative bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all shadow-sm flex flex-col text-left focus:outline-none"
                                 >
-                                    <div className="relative aspect-[4/3] bg-bg-secondary">
-                                        <img src={imageSrc} alt={displayName} className="w-full h-full object-cover" />
-                                        <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-text-primary text-xs font-extrabold">
+                                    <div className="w-full relative aspect-[4/3] bg-bg-secondary">
+                                        <img src={imageSrc} alt={displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-text-primary text-xs font-extrabold z-10">
                                             {String(exerciseNum).padStart(2, '0')}
                                         </div>
                                         {meta?.duration && (
-                                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-[10px] font-bold flex items-center gap-1">
+                                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-[10px] font-bold flex items-center gap-1 z-10">
                                                 <Clock size={10} /> {meta.duration}
                                             </div>
                                         )}
+                                        {/* Overlay gradient on hover */}
+                                        <div className="absolute inset-0 bg-accent-cyan/0 group-hover:bg-accent-cyan/10 transition-colors duration-300 z-0"></div>
                                     </div>
-                                    <div className="p-3 flex-1 flex flex-col gap-1.5">
+                                    <div className="p-4 flex-1 flex flex-col gap-2 w-full">
                                         {/* Exercise name */}
-                                        <p className="text-text-primary font-bold text-xs leading-tight line-clamp-2">{displayName}</p>
-                                        {/* Target area tag */}
-                                        <span className="inline-block px-2 py-0.5 bg-bg-secondary border border-border text-text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full w-fit">
-                                            {displayArea}
-                                        </span>
-                                        {meta?.sets && (
-                                            <span className="text-[10px] font-bold text-accent-amber">{meta.sets}</span>
-                                        )}
+                                        <p className="text-text-primary font-bold text-sm leading-tight line-clamp-2">{displayName}</p>
+                                        
+                                        <div className="flex flex-wrap gap-1.5 mt-auto">
+                                            {/* Target area tag */}
+                                            <span className="inline-flex px-2 py-0.5 bg-bg-secondary border border-border text-text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full">
+                                                {displayArea}
+                                            </span>
+                                            {meta?.sets && (
+                                                <span className="inline-flex px-2 py-0.5 bg-accent-amber/10 border border-accent-amber/20 text-accent-amber font-bold text-[10px] rounded-full">
+                                                    {meta.sets}
+                                                </span>
+                                            )}
+                                        </div>
+                                        
                                         {meta?.ageRestriction && (
-                                            <span className="text-[10px] font-bold text-accent-red">&#9888; Age ≤ 25 only</span>
+                                            <span className="text-[10px] font-bold text-accent-red mt-1 flex items-center gap-1">
+                                                <ShieldCheck size={12} /> Age ≤ 25 only
+                                            </span>
                                         )}
-                                        {meta?.instruction && (
-                                            <p className="text-[10px] text-text-secondary leading-relaxed line-clamp-2 mt-0.5">
-                                                {meta.instruction}
-                                            </p>
-                                        )}
-                                        <button
-                                            onClick={() => navigate('/routine', { state: { exercises: [ex], title: displayName } })}
-                                            className="mt-auto w-full flex items-center justify-center gap-1.5 py-2 bg-accent-cyan/10 hover:bg-accent-cyan text-accent-cyan hover:text-bg-primary border border-accent-cyan/30 rounded-radius-md font-bold text-xs transition-colors"
-                                        >
-                                            <Play size={13} fill="currentColor" /> Start
-                                        </button>
+                                        
+                                        <p className="text-xs text-text-secondary leading-relaxed line-clamp-2 mt-1">
+                                            Click to view instructions
+                                        </p>
                                     </div>
-                                </div>
+                                </button>
                             );
                         })}
                     </div>
@@ -162,6 +168,123 @@ export default function ExerciseLibrary() {
                     {filteredExercises.length === 0 && (
                         <div className="text-center py-16 text-text-secondary">No exercises in this category.</div>
                     )}
+
+                    {/* Exercise Instruction Modal */}
+                    <AnimatePresence>
+                        {selectedExercise && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+                                onClick={() => setSelectedExercise(null)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    className="relative max-w-2xl w-full bg-bg-card rounded-radius-lg border border-border shadow-2xl my-8 flex flex-col"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    {/* Close Button */}
+                                    <button
+                                        onClick={() => setSelectedExercise(null)}
+                                        className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-black/80 transition-all flex items-center justify-center"
+                                    >
+                                        <X size={20} />
+                                    </button>
+
+                                    {/* Header Image Area */}
+                                    <div className="w-full h-64 sm:h-80 bg-bg-secondary relative flex items-center justify-center border-b border-border overflow-hidden rounded-t-radius-lg">
+                                        <img 
+                                            src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
+                                            alt={selectedExercise.name} 
+                                            className="w-full h-full object-contain p-4" 
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-bg-card to-transparent h-1/3 bottom-0" />
+                                    </div>
+
+                                    {/* Content Area */}
+                                    <div className="p-6 sm:p-8 flex-1 overflow-y-auto">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent-cyan/10 text-accent-cyan text-xs font-bold tracking-widest uppercase rounded-full mb-3 border border-accent-cyan/20">
+                                            {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
+                                        </div>
+                                        
+                                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary mb-6">
+                                            {exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name}
+                                        </h2>
+
+                                        <div className="space-y-6">
+                                            {/* Instructions section */}
+                                            {exerciseMeta[selectedExercise.position]?.instruction && (
+                                                <div className="bg-bg-primary p-5 rounded-radius-md border border-border">
+                                                    <p className="text-sm font-extrabold text-text-primary mb-2 flex items-center gap-2">
+                                                        <BookOpen size={16} className="text-accent-cyan" /> How To Perform
+                                                    </p>
+                                                    <p className="text-text-secondary text-sm leading-relaxed">
+                                                        {exerciseMeta[selectedExercise.position].instruction}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Form Cues */}
+                                            {exerciseMeta[selectedExercise.position]?.formCues && (
+                                                <div className="bg-bg-secondary/50 p-5 rounded-radius-md border border-border">
+                                                    <p className="text-sm font-extrabold text-text-primary mb-3">Form Cues</p>
+                                                    <ul className="space-y-2">
+                                                        {exerciseMeta[selectedExercise.position].formCues.map((cue, i) => (
+                                                            <li key={i} className="flex items-start gap-3 text-sm text-text-secondary">
+                                                                <span className="text-accent-cyan mt-0.5">✓</span>
+                                                                <span>{cue}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Badges details */}
+                                            <div className="flex flex-wrap gap-4 pt-2">
+                                                {exerciseMeta[selectedExercise.position]?.duration && (
+                                                    <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-radius-md">
+                                                        <Clock size={16} className="text-accent-cyan" />
+                                                        <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].duration}</span>
+                                                    </div>
+                                                )}
+                                                {exerciseMeta[selectedExercise.position]?.reps && (
+                                                    <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-radius-md">
+                                                        <span className="text-accent-green font-bold">🔁</span>
+                                                        <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].reps}</span>
+                                                    </div>
+                                                )}
+                                                {exerciseMeta[selectedExercise.position]?.sets && (
+                                                    <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-radius-md">
+                                                        <span className="text-accent-amber font-bold">🔄</span>
+                                                        <span className="text-sm font-bold text-text-primary">{exerciseMeta[selectedExercise.position].sets}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Footer */}
+                                    <div className="p-6 bg-bg-secondary border-t border-border mt-auto">
+                                        <button
+                                            onClick={() => navigate('/routine', { 
+                                                state: { 
+                                                    exercises: [selectedExercise], 
+                                                    title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
+                                                } 
+                                            })}
+                                            className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all shadow-[0_0_20px_rgba(0,229,204,0.3)] text-lg flex items-center justify-center gap-2"
+                                        >
+                                            <Play size={20} fill="currentColor" /> Start Timer
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </>
             )}
 

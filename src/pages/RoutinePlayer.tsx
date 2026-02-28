@@ -24,10 +24,10 @@ export default function RoutinePlayer() {
     const activeTitle = isCustomPlay ? customTitle : todayRoutine.title;
 
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(isCustomPlay); // Auto-play if launched directly from library
+    const [timeLeft, setTimeLeft] = useState(() => activeExercises[0]?.durationSeconds || 0);
     const [isResting, setIsResting] = useState(false);
-    const [isPrepping, setIsPrepping] = useState(true);
+    const [isPrepping, setIsPrepping] = useState(!isCustomPlay); // Skip prep screen if custom play
     const [isFinished, setIsFinished] = useState(false);
     const [cycleElapsed, setCycleElapsed] = useState(0); // seconds since exercise started
 
@@ -60,13 +60,14 @@ export default function RoutinePlayer() {
         return () => clearInterval(interval);
     }, [isPlaying, isPrepping, timeLeft, isResting, currentIndex, activeExercises]);
 
-    // Handle Initial Start - No longer auto-starts
+    // Handle Initial Start - No longer auto-starts for routines
     useEffect(() => {
-        if (currentExercise && isPrepping && currentIndex === 0 && !isFinished) {
+        // Only assign initial time if it wasn't statically assigned in state
+        if (currentExercise && isPrepping && currentIndex === 0 && !isFinished && timeLeft === 0) {
             setTimeLeft(currentExercise.durationSeconds);
             setIsPlaying(false);
         }
-    }, [currentExercise, isPrepping, currentIndex, isFinished]);
+    }, [currentExercise, isPrepping, currentIndex, isFinished, timeLeft]);
 
     const startExercise = () => {
         setIsPrepping(false);
