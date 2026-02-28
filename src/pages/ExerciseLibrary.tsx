@@ -176,7 +176,7 @@ export default function ExerciseLibrary() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-[70] bg-bg-primary/80 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto"
+                                className="fixed inset-0 z-[70] bg-bg-primary/80 backdrop-blur-lg flex p-4 sm:p-6 lg:p-8 overflow-y-auto"
                                 onClick={() => setSelectedExercise(null)}
                             >
                                 <motion.div
@@ -184,11 +184,11 @@ export default function ExerciseLibrary() {
                                     animate={{ scale: 1, opacity: 1, y: 0 }}
                                     exit={{ scale: 0.95, opacity: 0, y: 30 }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    className="relative max-w-5xl w-full min-h-[70vh] max-h-[90vh] lg:h-[80vh] bg-bg-card rounded-3xl border border-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row overflow-hidden"
+                                    className="relative m-auto max-w-5xl w-full max-h-[90vh] lg:h-[80vh] bg-bg-card rounded-3xl border border-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row overflow-hidden"
                                     onClick={e => e.stopPropagation()}
                                 >
                                     {/* Left: Image Side */}
-                                    <div className="w-full lg:w-1/2 lg:flex-shrink-0 bg-bg-secondary relative flex flex-col items-center justify-center min-h-[250px] lg:min-h-full p-8 lg:p-16">
+                                    <div className="w-full lg:w-1/2 lg:flex-shrink-0 bg-bg-secondary relative flex flex-col items-center justify-center h-[28vh] min-h-[200px] lg:h-auto lg:min-h-full p-6 lg:p-12">
                                         <img 
                                             src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
                                             alt={selectedExercise.name} 
@@ -206,7 +206,7 @@ export default function ExerciseLibrary() {
                                     </div>
 
                                     {/* Right: Content Side */}
-                                    <div className="flex-1 flex flex-col bg-bg-card lg:overflow-hidden relative">
+                                    <div className="flex-1 flex flex-col bg-bg-card relative min-h-0 w-full">
                                         {/* Desktop Close Button */}
                                         <div className="hidden lg:flex justify-end absolute top-6 right-6 z-20">
                                             <button
@@ -217,7 +217,7 @@ export default function ExerciseLibrary() {
                                             </button>
                                         </div>
 
-                                        <div className="p-6 md:p-10 lg:p-12 flex-1 lg:overflow-y-auto flex flex-col lg:pr-20">
+                                        <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-12 flex flex-col lg:pr-20 w-full">
                                             {/* Subtitle / Tag */}
                                             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent-cyan/10 text-accent-cyan text-[11px] font-bold tracking-widest uppercase rounded-full mb-5 border border-accent-cyan/20 w-fit">
                                                 {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
