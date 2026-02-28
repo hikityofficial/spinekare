@@ -16,6 +16,11 @@ import sse9 from '../../assets/sse9.png';
 import sse10 from '../../assets/sse10.png';
 import sse11 from '../../assets/sse11.png';
 import sse12 from '../../assets/sse12.png';
+import rp1 from '../../assets/rp1.png';
+import rp2 from '../../assets/rp2.png';
+import rp3 from '../../assets/rp3.png';
+import rp4 from '../../assets/rp4.png';
+import rp5 from '../../assets/rp5.png';
 import video1 from '../../assets/grok-video-5af2fbd2-7619-4dad-a019-5221617876b7.mp4';
 import video2 from '../../assets/grok-video-84dec387-9089-4c5b-afa7-ca44e85f80a6.mp4';
 
@@ -391,32 +396,32 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Reasons for Spine Issues */}
+                {/* Reasons and Precautions */}
                 <section className="mt-16 sm:mt-20">
                     <div className="text-left mb-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs font-bold tracking-widest uppercase mb-3">
                             Know the Risks
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Reasons for Spine Issues</h2>
+                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Reasons and Precautions</h2>
                         <p className="mt-2 text-text-secondary max-w-2xl">
-                            Understanding what causes spine problems helps you take preventive action before it's too late.
+                            Understanding what causes spine problems and taking precautions helps you prevent issues before they start.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {[
-                            { id: 1, title: "Prolonged Sitting", desc: "Sitting 8+ hours daily compresses spinal discs and weakens core muscles" },
-                            { id: 2, title: "Poor Sleeping Posture", desc: "Wrong mattress or sleep position strains the cervical and lumbar spine" },
-                            { id: 3, title: "Heavy Lifting", desc: "Incorrect lifting technique causes herniated discs and muscle tears" },
-                            { id: 4, title: "Screen Neck Syndrome", desc: "Looking down at phones puts up to 27 kg of pressure on your neck" },
+                            { id: 1, title: "Prolonged Sitting", desc: "Sitting 8+ hours compresses discs", img: rp1 },
+                            { id: 2, title: "Poor Sleeping Posture", desc: "Wrong mattress strains spine", img: rp2 },
+                            { id: 3, title: "Heavy Lifting", desc: "Incorrect lifting tears muscles", img: rp3 },
+                            { id: 4, title: "Screen Neck", desc: "Looking down puts pressure on neck", img: rp4 },
+                            { id: 5, title: "Consult doctor", desc: "Get clearance before starting", img: rp5 },
                         ].map(item => (
                             <div
                                 key={item.id}
-                                className="group bg-bg-card border-2 border-dashed border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all"
+                                className="group bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all"
                             >
-                                <div className="aspect-[4/3] bg-bg-secondary flex flex-col items-center justify-center gap-3 text-text-secondary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-20 group-hover:opacity-40 transition-opacity"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                                    <span className="text-xs font-bold opacity-40 uppercase tracking-widest">Image {item.id}</span>
+                                <div className="aspect-[4/3] bg-bg-secondary relative">
+                                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 </div>
                                 <div className="p-4">
                                     <h3 className="font-bold text-text-primary text-sm mb-1">{item.title}</h3>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllExercises } from '../hooks/useAllExercises';
-import { Play, BookOpen, Video, ShieldCheck, X, ImageIcon, Clock } from 'lucide-react';
+import { Play, BookOpen, Video, ShieldCheck, X, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exerciseMeta } from '../utils/exerciseMeta';
 
@@ -17,6 +17,11 @@ import sse9 from '../../assets/sse9.png';
 import sse10 from '../../assets/sse10.png';
 import sse11 from '../../assets/sse11.png';
 import sse12 from '../../assets/sse12.png';
+import rp1 from '../../assets/rp1.png';
+import rp2 from '../../assets/rp2.png';
+import rp3 from '../../assets/rp3.png';
+import rp4 from '../../assets/rp4.png';
+import rp5 from '../../assets/rp5.png';
 import video1 from '../../assets/grok-video-5af2fbd2-7619-4dad-a019-5221617876b7.mp4';
 import video2 from '../../assets/grok-video-84dec387-9089-4c5b-afa7-ca44e85f80a6.mp4';
 
@@ -195,11 +200,11 @@ export default function ExerciseLibrary() {
    Precautions Section — 5 clickable image placeholders
    ═══════════════════════════════════════════════════ */
 const PRECAUTION_ITEMS = [
-    { id: 1, title: "Consult Your Doctor", caption: "Always get clearance before starting spine exercises." },
-    { id: 2, title: "Correct Posture Form", caption: "Maintain neutral spine alignment during all movements." },
-    { id: 3, title: "Avoid Overexertion", caption: "Stop immediately if you feel sharp or radiating pain." },
-    { id: 4, title: "Warm-Up Routine", caption: "Walk or march in place for 2–3 minutes before stretching." },
-    { id: 5, title: "Stay Hydrated", caption: "Drink water before and after to support disc health." },
+    { id: 1, title: "Consult Your Doctor", caption: "Always get clearance before starting spine exercises.", img: rp1 },
+    { id: 2, title: "Correct Posture Form", caption: "Maintain neutral spine alignment during all movements.", img: rp2 },
+    { id: 3, title: "Avoid Overexertion", caption: "Stop immediately if you feel sharp or radiating pain.", img: rp3 },
+    { id: 4, title: "Warm-Up Routine", caption: "Walk or march in place for 2–3 minutes before stretching.", img: rp4 },
+    { id: 5, title: "Stay Hydrated", caption: "Drink water before and after to support disc health.", img: rp5 },
 ];
 
 function PrecautionsSection() {
@@ -224,14 +229,10 @@ function PrecautionsSection() {
                     <button
                         key={item.id}
                         onClick={() => setOpenIndex(i)}
-                        className="group relative aspect-[3/4] bg-bg-secondary border-2 border-dashed border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/50 transition-all hover:scale-[1.02] active:scale-95 focus:outline-none"
+                        className="group relative aspect-[3/4] bg-bg-secondary border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/50 transition-all hover:scale-[1.02] active:scale-95 focus:outline-none"
                     >
-                        {/* Placeholder overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-bg-primary/80 z-10" />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-text-secondary z-0">
-                            <ImageIcon size={36} className="opacity-20 group-hover:opacity-40 transition-opacity" />
-                            <span className="text-xs font-bold opacity-40 uppercase tracking-widest">Image {item.id}</span>
-                        </div>
+                        <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/40 to-transparent z-10" />
                         {/* Label at bottom */}
                         <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
                             <p className="text-sm font-bold text-text-primary truncate">{item.title}</p>
@@ -267,11 +268,9 @@ function PrecautionsSection() {
                                 <X size={18} />
                             </button>
 
-                            {/* Image placeholder area */}
-                            <div className="aspect-[4/3] bg-bg-secondary flex flex-col items-center justify-center gap-4 text-text-secondary">
-                                <ImageIcon size={64} className="opacity-20" />
-                                <span className="text-sm font-bold opacity-40 uppercase tracking-widest">Precaution Image {PRECAUTION_ITEMS[openIndex].id}</span>
-                                <span className="text-xs opacity-30">Replace with actual image</span>
+                            {/* Image area */}
+                            <div className="aspect-[4/3] bg-bg-secondary relative">
+                                <img src={PRECAUTION_ITEMS[openIndex].img} alt={PRECAUTION_ITEMS[openIndex].title} className="w-full h-full object-cover" />
                             </div>
 
                             {/* Caption */}
