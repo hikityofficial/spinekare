@@ -446,15 +446,15 @@ export default function Home() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+                                className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex justify-center items-start pt-4 sm:pt-6 md:pt-10 px-4"
                                 onClick={() => setRpLightboxIndex(null)}
                             >
                                 <motion.div
-                                    initial={{ scale: 0.85, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0.85, opacity: 0 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                                    className="relative max-w-lg w-full bg-bg-card rounded-radius-lg border border-border overflow-hidden shadow-2xl"
+                                    initial={{ y: "-100%", opacity: 0.5 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: "-100%", opacity: 0 }}
+                                    transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
+                                    className="relative max-w-lg w-full bg-bg-card rounded-radius-lg border border-border overflow-hidden shadow-2xl mt-safe"
                                     onClick={e => e.stopPropagation()}
                                 >
                                     {/* Close */}

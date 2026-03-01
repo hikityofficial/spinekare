@@ -413,7 +413,7 @@ function PrecautionsSection() {
             {/* Pure Image Lightbox */}
             <AnimatePresence>
                 {openIndex !== null && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-8">
+                    <div className="fixed inset-0 z-[100] flex justify-center items-start pt-4 sm:pt-6 md:pt-10 px-4">
                         {/* Dimmed Backdrop */}
                         <motion.div 
                             initial={{ opacity: 0 }}
@@ -425,11 +425,11 @@ function PrecautionsSection() {
 
                         {/* Lightbox Image Container */}
                         <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-3xl flex items-center justify-center z-10"
+                            initial={{ y: "-100%", opacity: 0.5 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "-100%", opacity: 0 }}
+                            transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
+                            className="relative w-full max-w-3xl flex items-center justify-center z-10 mt-safe"
                             onClick={e => e.stopPropagation()}
                         >
                             {/* Close Button */}
