@@ -380,11 +380,7 @@ function PrecautionsSection() {
                         className="group relative aspect-[3/4] bg-bg-secondary border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/50 transition-all hover:scale-[1.02] active:scale-95 focus:outline-none text-left"
                     >
                         <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/40 to-transparent z-10" />
-                        {/* Label at bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
-                            <p className="text-sm font-bold text-text-primary truncate">{item.title}</p>
-                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10" />
                     </button>
                 ))}
             </div>
