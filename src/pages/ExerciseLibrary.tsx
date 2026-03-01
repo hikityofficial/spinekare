@@ -415,42 +415,68 @@ function PrecautionsSection() {
                 </ul>
             </div>
 
-            {/* Simple Centered Lightbox */}
+            {/* Exercise-style Top Anchored Lightbox */}
             <AnimatePresence>
                 {openIndex !== null && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-8">
+                    <div className="fixed inset-0 z-[100] flex justify-center items-start pt-4 sm:pt-6 md:pt-10 px-4">
                         {/* Dimmed Backdrop */}
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setOpenIndex(null)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         />
 
-                        {/* Lightbox Image Container */}
+                        {/* Card Content */}
                         <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-4xl bg-bg-secondary rounded-2xl sm:rounded-3xl shadow-2xl flex items-center justify-center z-10 overflow-hidden p-2 sm:p-4 border border-border"
+                            initial={{ y: "-100%", opacity: 0.5 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "-100%", opacity: 0 }}
+                            transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
+                            className="relative w-full sm:max-w-3xl lg:max-w-4xl bg-bg-card rounded-3xl sm:rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row border border-border z-10 overflow-hidden max-h-[90vh] sm:max-h-[85vh] mt-safe"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Close Button */}
-                            <button
-                                onClick={() => setOpenIndex(null)}
-                                className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-bg-primary/90 backdrop-blur text-text-primary hover:bg-bg-card shadow-lg border border-border transition-transform active:scale-95"
-                            >
-                                <X size={20} />
-                            </button>
+                            {/* Image Header Block */}
+                            <div className="w-full md:w-[45%] lg:w-2/5 relative bg-bg-secondary shrink-0 overflow-hidden flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-border min-h-[220px]">
+                                <img 
+                                    src={PRECAUTION_ITEMS[openIndex].img} 
+                                    alt={PRECAUTION_ITEMS[openIndex].title} 
+                                    className="w-full h-full object-contain mix-blend-multiply relative z-10 max-h-[35vh]" 
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
+                                
+                                {/* Mobile Close Button */}
+                                <button
+                                    onClick={() => setOpenIndex(null)}
+                                    className="md:hidden absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-card/90 backdrop-blur text-text-primary hover:bg-bg-primary shadow-lg border border-border flex items-center justify-center transition-transform active:scale-95"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
 
-                            {/* Image Uncropped */}
-                            <img 
-                                src={PRECAUTION_ITEMS[openIndex].img} 
-                                alt={PRECAUTION_ITEMS[openIndex].title} 
-                                className="w-full h-auto max-h-[80vh] object-contain mix-blend-multiply relative z-10" 
-                            />
+                            {/* Details Block */}
+                            <div className="flex-1 flex flex-col overflow-hidden relative bg-bg-card">
+                                {/* Desktop Close Button */}
+                                <button
+                                    onClick={() => setOpenIndex(null)}
+                                    className="hidden md:flex absolute top-6 right-6 z-20 p-2.5 rounded-full bg-bg-secondary hover:bg-border text-text-secondary hover:text-text-primary transition-all items-center justify-center cursor-pointer active:scale-95"
+                                >
+                                    <X size={22} />
+                                </button>
+
+                                <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-6 w-full">
+                                    <div className="md:pr-14">
+                                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-text-primary leading-tight tracking-tight mb-2">
+                                            {PRECAUTION_ITEMS[openIndex].title}
+                                        </h2>
+                                        <p className="text-[13px] font-bold text-accent-cyan mb-4">{PRECAUTION_ITEMS[openIndex].desc}</p>
+                                        <p className="text-sm sm:text-base text-text-secondary leading-relaxed bg-bg-secondary/40 p-5 rounded-2xl border border-border">
+                                            {PRECAUTION_ITEMS[openIndex].fullDesc}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 )}

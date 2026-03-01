@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Flame, CheckCircle, PlayCircle, ShieldAlert, Sparkles } from 'lucide-react';
 import { getExerciseImage } from '../utils/exerciseImages';
 import { motion, AnimatePresence } from 'framer-motion';
+import { exerciseMeta } from '../utils/exerciseMeta';
 
 function getMotivationalQuote(streak: number): string {
     if (streak >= 30) return "30 days! You're a SpineKare legend. Your discipline is truly inspiring. 👑";
@@ -123,10 +124,12 @@ export default function Dashboard() {
                                             className="h-full w-full object-contain group-hover/card:scale-105 transition-transform"
                                         />
                                     </div>
-                                    <h3 className="font-bold text-text-primary text-sm truncate" title={ex.name}>{ex.name}</h3>
+                                    <h3 className="font-bold text-text-primary text-sm truncate" title={ex.name}>{exerciseMeta[ex.position]?.name ?? ex.name}</h3>
                                     <div className="flex justify-between items-center mt-auto">
-                                        <span className="text-xs text-text-secondary bg-bg-secondary px-2 py-0.5 rounded-full capitalize">{ex.targetArea}</span>
-                                        <span className="text-xs text-text-secondary font-mono">{Math.floor(ex.durationSeconds / 60)}:{(ex.durationSeconds % 60).toString().padStart(2, '0')}</span>
+                                        <span className="text-xs text-text-secondary bg-bg-secondary px-2 py-0.5 rounded-full capitalize">{exerciseMeta[ex.position]?.targetArea ?? ex.targetArea}</span>
+                                        <span className="text-[11px] text-text-primary font-bold bg-accent-cyan/10 px-2 py-0.5 rounded-full border border-accent-cyan/20">
+                                            {exerciseMeta[ex.position]?.duration ?? `${Math.floor(ex.durationSeconds / 60)}:${(ex.durationSeconds % 60).toString().padStart(2, '0')}`}
+                                        </span>
                                     </div>
                                 </div>
                             ))}
