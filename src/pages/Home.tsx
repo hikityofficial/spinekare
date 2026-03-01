@@ -470,15 +470,7 @@ export default function Home() {
                                         <img src={RP_ITEMS[rpLightboxIndex].img} alt={RP_ITEMS[rpLightboxIndex].title} className="w-full h-full object-contain max-h-[45vh]" />
                                     </div>
 
-                                    {/* Caption */}
-                                    <div className="p-6 text-left">
-                                        <h3 className="text-xl font-display font-bold text-text-primary mb-2">
-                                            {RP_ITEMS[rpLightboxIndex].title}
-                                        </h3>
-                                        <p className="text-text-secondary text-sm leading-relaxed">
-                                            {RP_ITEMS[rpLightboxIndex].fullDesc}
-                                        </p>
-                                    </div>
+                                    {/* No Caption - Pure Image Viewer */}
 
                                     {/* Navigation arrows (only visible if hovering inner div or always) */}
                                     <button
