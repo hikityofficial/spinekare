@@ -384,7 +384,6 @@ function PrecautionsSection() {
                         {/* Label at bottom */}
                         <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
                             <p className="text-sm font-bold text-text-primary truncate">{item.title}</p>
-                            <p className="text-[11px] text-text-secondary truncate mt-0.5">{item.desc}</p>
                         </div>
                     </button>
                 ))}
@@ -465,16 +464,10 @@ function PrecautionsSection() {
                                     <X size={22} />
                                 </button>
 
-                                <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-6 w-full">
-                                    <div className="md:pr-14">
-                                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-text-primary leading-tight tracking-tight mb-2">
-                                            {PRECAUTION_ITEMS[openIndex].title}
-                                        </h2>
-                                        <p className="text-[13px] font-bold text-accent-cyan mb-4">{PRECAUTION_ITEMS[openIndex].desc}</p>
-                                        <p className="text-sm sm:text-base text-text-secondary leading-relaxed bg-bg-secondary/40 p-5 rounded-2xl border border-border">
-                                            {PRECAUTION_ITEMS[openIndex].fullDesc}
-                                        </p>
-                                    </div>
+                                <div className="flex-1 overflow-y-auto p-6 md:p-8 flex items-center w-full">
+                                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-text-primary leading-tight tracking-tight text-center md:text-left w-full">
+                                        {PRECAUTION_ITEMS[openIndex].title}
+                                    </h2>
                                 </div>
                             </div>
                         </motion.div>

@@ -25,6 +25,23 @@ export default function Dashboard() {
         return 'text-accent-red bg-accent-red/10 border-accent-red/30';
     };
 
+    // Calculate real-time minutes based on exerciseMeta text duration (e.g., "1 MIN", "30 SECS")
+    const calculatedMinutes = Math.max(1, Math.round(todayRoutine.exercises.reduce((acc, ex) => {
+        const metaDuration = exerciseMeta[ex.position]?.duration;
+        let seconds = ex.durationSeconds; // Fallback
+        if (metaDuration) {
+            if (metaDuration.includes('MIN') && metaDuration.includes('SEC')) {
+                const parts = metaDuration.split(' ');
+                seconds = parseInt(parts[0]) * 60 + parseInt(parts[2]);
+            } else if (metaDuration.includes('MIN')) {
+                seconds = parseInt(metaDuration) * 60;
+            } else if (metaDuration.includes('SEC')) {
+                seconds = parseInt(metaDuration);
+            }
+        }
+        return acc + seconds;
+    }, 0) / 60));
+
     return (
         <div className="space-y-6">
 
@@ -98,7 +115,7 @@ export default function Dashboard() {
                             </span>
                             <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary">{todayRoutine.title}</h2>
                             <p className="text-text-secondary mt-2">
-                                {todayRoutine.exercises.length} Exercises • ~{todayRoutine.estimatedMinutes} Mins
+                                {todayRoutine.exercises.length} Exercises • ~{calculatedMinutes} Mins
                             </p>
                         </div>
 
