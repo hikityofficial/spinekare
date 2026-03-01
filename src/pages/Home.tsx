@@ -431,15 +431,10 @@ export default function Home() {
                             <button
                                 key={item.id}
                                 onClick={() => setRpLightboxIndex(idx)}
-                                className="group relative bg-bg-card border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all text-left focus:outline-none flex flex-col items-start"
+                                className="group relative aspect-[3/4] bg-bg-secondary border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all text-left focus:outline-none"
                             >
-                                <div className="w-full aspect-[4/3] bg-bg-secondary relative">
-                                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                </div>
-                                <div className="p-4 w-full">
-                                    <h3 className="font-bold text-text-primary text-sm mb-1">{item.title}</h3>
-                                    <p className="text-xs text-text-secondary line-clamp-2">{item.desc}</p>
-                                </div>
+                                <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10" />
                             </button>
                         ))}
                     </div>
