@@ -182,7 +182,7 @@ export default function ExerciseLibrary() {
                     {/* Exercise Instruction Modal - Top Anchored Card */}
                     <AnimatePresence>
                         {selectedExercise && (
-                            <div className="fixed inset-0 z-[100] flex justify-center items-start pt-0 sm:pt-0">
+                            <div className="fixed inset-0 z-[100] flex justify-center items-start pt-4 sm:pt-6 md:pt-10 px-4">
                                 {/* Dimmed Backdrop */}
                                 <motion.div 
                                     initial={{ opacity: 0 }}
@@ -192,13 +192,13 @@ export default function ExerciseLibrary() {
                                     className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                                 />
 
-                                {/* Card Content (Anchored flush to top, floating bottom) */}
+                                {/* Card Content */}
                                 <motion.div
                                     initial={{ y: "-100%", opacity: 0.5 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: "-100%", opacity: 0 }}
                                     transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
-                                    className="relative w-full sm:max-w-3xl lg:max-w-4xl bg-bg-card rounded-b-3xl sm:rounded-b-[2.5rem] shadow-2xl flex flex-col md:flex-row border-b border-x border-border z-10 overflow-hidden max-h-[90vh] sm:max-h-[85vh]"
+                                    className="relative w-full sm:max-w-3xl lg:max-w-4xl bg-bg-card rounded-3xl sm:rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row border border-border z-10 overflow-hidden max-h-[90vh] sm:max-h-[85vh] mt-safe"
                                     onClick={e => e.stopPropagation()}
                                 >
                                     {/* Image Header Block (Top on mobile, Left on desktop) */}
@@ -393,45 +393,60 @@ function PrecautionsSection() {
             {/* Lightbox */}
             <AnimatePresence>
                 {openIndex !== null && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
-                        onClick={() => setOpenIndex(null)}
-                    >
+                    <div className="fixed inset-0 z-[100] flex justify-center items-start pt-4 sm:pt-6 md:pt-10 px-4">
+                        {/* Dimmed Backdrop */}
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setOpenIndex(null)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+
+                        {/* Card Content (Anchored flush to top on mobile/tablet) */}
                         <motion.div
-                            initial={{ scale: 0.85, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.85, opacity: 0 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                            className="relative max-w-lg w-full bg-bg-card rounded-radius-lg border border-border overflow-hidden shadow-2xl"
+                            initial={{ y: "-100%", opacity: 0.5 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "-100%", opacity: 0 }}
+                            transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
+                            className="relative w-full sm:max-w-2xl lg:max-w-3xl bg-bg-card rounded-3xl sm:rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row border border-border z-10 overflow-hidden max-h-[90vh] sm:max-h-[85vh] mt-safe"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Close */}
-                            <button
-                                onClick={() => setOpenIndex(null)}
-                                className="absolute top-4 right-4 z-20 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md text-white hover:bg-black/90 transition-all flex items-center gap-1.5 text-sm font-bold shadow-xl border border-white/10"
-                            >
-                                <X size={18} /> Back
-                            </button>
-
-                            {/* Image area */}
-                            <div className="w-full bg-bg-secondary relative max-h-[50vh] flex items-center justify-center overflow-hidden border-b border-border p-4">
-                                <img src={PRECAUTION_ITEMS[openIndex].img} alt={PRECAUTION_ITEMS[openIndex].title} className="w-full h-full object-contain max-h-[45vh]" />
+                            {/* Image area (Left on desktop, Top on mobile) */}
+                            <div className="w-full md:w-[45%] relative bg-bg-secondary shrink-0 overflow-hidden flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-border min-h-[220px]">
+                                <img src={PRECAUTION_ITEMS[openIndex].img} alt={PRECAUTION_ITEMS[openIndex].title} className="w-full h-full object-contain relative z-10 max-h-[35vh]" />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
+                                
+                                {/* Mobile Close */}
+                                <button
+                                    onClick={() => setOpenIndex(null)}
+                                    className="md:hidden absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-card/90 backdrop-blur text-text-primary hover:bg-bg-primary shadow-lg border border-border flex items-center justify-center transition-transform active:scale-95"
+                                >
+                                    <X size={20} />
+                                </button>
                             </div>
 
-                            {/* Caption */}
-                            <div className="p-6">
-                                <h3 className="text-xl font-display font-bold text-text-primary mb-2">
-                                    {PRECAUTION_ITEMS[openIndex].title}
-                                </h3>
-                                <p className="text-text-secondary text-sm leading-relaxed">
-                                    {PRECAUTION_ITEMS[openIndex].caption}
-                                </p>
+                            {/* Text Content Area */}
+                            <div className="flex-1 flex flex-col overflow-hidden relative bg-bg-card">
+                                {/* Desktop Close */}
+                                <button
+                                    onClick={() => setOpenIndex(null)}
+                                    className="hidden md:flex absolute top-6 right-6 z-20 p-2.5 rounded-full bg-bg-secondary hover:bg-border text-text-secondary hover:text-text-primary transition-all items-center justify-center cursor-pointer active:scale-95"
+                                >
+                                    <X size={22} />
+                                </button>
+
+                                <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col justify-center">
+                                    <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary leading-tight mb-4">
+                                        {PRECAUTION_ITEMS[openIndex].title}
+                                    </h3>
+                                    <p className="text-[15px] sm:text-base text-text-primary leading-relaxed bg-bg-secondary/40 p-5 rounded-2xl border border-border">
+                                        {PRECAUTION_ITEMS[openIndex].caption}
+                                    </p>
+                                </div>
                             </div>
                         </motion.div>
-                    </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
         </div>
