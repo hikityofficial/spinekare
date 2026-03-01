@@ -348,11 +348,11 @@ export default function ExerciseLibrary() {
    Precautions Section — 5 clickable image placeholders
    ═══════════════════════════════════════════════════ */
 const PRECAUTION_ITEMS = [
-    { id: 1, title: "Maintain Posture", caption: "Keep your spine aligned neutrally throughout the day.", img: rp1 },
-    { id: 2, title: "Use a Laptop Stand", caption: "Elevate your screen to eye level to prevent neck strain.", img: rp2 },
-    { id: 3, title: "Reduce Stair Usage", caption: "Minimize climbing stairs to reduce pressure on lumbar discs.", img: rp3 },
-    { id: 4, title: "Avoid Heavy Lifting", caption: "Protect your back by avoiding heavy weights.", img: rp4 },
-    { id: 5, title: "Wear a Waist Belt", caption: "Use a lumbar support belt while traveling to prevent jolts.", img: rp5 },
+    { id: 1, title: "Maintain Posture", desc: "Keep spine aligned neutrally", fullDesc: "Keep your spine aligned neutrally throughout the day, whether sitting, standing, or walking, to avoid uneven strain on your discs.", img: rp1 },
+    { id: 2, title: "Laptop Stand", desc: "Elevate screen to eye level", fullDesc: "Elevate your screen to eye level using a laptop stand. This prevents 'Screen Neck' and chronic cervical tension.", img: rp2 },
+    { id: 3, title: "Reduce Stairs", desc: "Minimize climbing", fullDesc: "Minimize climbing stairs unnecessarily, especially if you already experience lower back pain, as it increases pressure on the lumbar discs.", img: rp3 },
+    { id: 4, title: "Avoid Heavy Lifting", desc: "Protect your back", fullDesc: "Protect your back by avoiding heavy weights. If you must lift, always bend at the knees and keep the weight close to your body.", img: rp4 },
+    { id: 5, title: "Waist Belt", desc: "Use support while traveling", fullDesc: "Use a lumbar support waist belt while traveling on bumpy roads or for long distances to prevent sudden jolts to your spine.", img: rp5 },
 ];
 
 function PrecautionsSection() {
@@ -372,19 +372,20 @@ function PrecautionsSection() {
             </div>
 
             {/* Image grid with text below */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
                 {PRECAUTION_ITEMS.map((item, i) => (
-                    <div key={item.id} className="flex flex-col gap-3">
+                    <div key={item.id} className="flex flex-col gap-4 bg-bg-card p-4 rounded-3xl border border-border shadow-sm">
                         <button
                             onClick={() => setOpenIndex(i)}
-                            className="group relative aspect-square bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent-cyan/50 transition-all hover:shadow-md active:scale-95 focus:outline-none shadow-sm"
+                            className="group relative aspect-video sm:aspect-square bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent-cyan/50 transition-all hover:shadow-md active:scale-95 focus:outline-none shadow-sm"
                         >
                             <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
                             <div className="absolute inset-0 bg-accent-cyan/0 group-hover:bg-accent-cyan/10 transition-colors duration-300 z-10" />
                         </button>
-                        <div className="px-1 text-center sm:text-left">
-                            <p className="text-sm sm:text-base font-bold text-text-primary leading-tight">{item.title}</p>
-                            <p className="text-[12px] sm:text-sm text-text-secondary mt-1.5 leading-snug">{item.caption}</p>
+                        <div className="px-2 text-left flex flex-col flex-1">
+                            <h3 className="text-[17px] font-display font-extrabold text-text-primary leading-tight">{item.title}</h3>
+                            <p className="text-[13px] font-bold text-accent-cyan mt-1 mb-2">{item.desc}</p>
+                            <p className="text-[14px] text-text-secondary leading-relaxed">{item.fullDesc}</p>
                         </div>
                     </div>
                 ))}
