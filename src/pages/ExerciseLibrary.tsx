@@ -371,24 +371,48 @@ function PrecautionsSection() {
                 </div>
             </div>
 
-            {/* Image grid with text below */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
+            {/* Clickable Image Grid (Overlay Text) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {PRECAUTION_ITEMS.map((item, i) => (
-                    <div key={item.id} className="flex flex-col gap-4 bg-bg-card p-4 rounded-3xl border border-border shadow-sm">
-                        <button
-                            onClick={() => setOpenIndex(i)}
-                            className="group relative aspect-video sm:aspect-square bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent-cyan/50 transition-all hover:shadow-md active:scale-95 focus:outline-none shadow-sm"
-                        >
-                            <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
-                            <div className="absolute inset-0 bg-accent-cyan/0 group-hover:bg-accent-cyan/10 transition-colors duration-300 z-10" />
-                        </button>
-                        <div className="px-2 text-left flex flex-col flex-1">
-                            <h3 className="text-[17px] font-display font-extrabold text-text-primary leading-tight">{item.title}</h3>
-                            <p className="text-[13px] font-bold text-accent-cyan mt-1 mb-2">{item.desc}</p>
-                            <p className="text-[14px] text-text-secondary leading-relaxed">{item.fullDesc}</p>
+                    <button
+                        key={item.id}
+                        onClick={() => setOpenIndex(i)}
+                        className="group relative aspect-[3/4] bg-bg-secondary border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/50 transition-all hover:scale-[1.02] active:scale-95 focus:outline-none text-left"
+                    >
+                        <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/40 to-transparent z-10" />
+                        {/* Label at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
+                            <p className="text-sm font-bold text-text-primary truncate">{item.title}</p>
+                            <p className="text-[11px] text-text-secondary truncate mt-0.5">{item.desc}</p>
                         </div>
-                    </div>
+                    </button>
                 ))}
+            </div>
+
+            {/* Daily Spine Habits */}
+            <div className="mt-8 bg-accent-cyan/5 border border-accent-cyan/20 rounded-radius-lg p-6 sm:p-8">
+                <h3 className="text-xl font-display font-extrabold text-text-primary mb-5 flex items-center gap-2">
+                    <span className="text-accent-cyan">✦</span> Daily Spine Habits
+                </h3>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <li className="flex items-start gap-3 text-text-secondary">
+                        <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                        <span>Don't sit for more than 45 minutes continuously unless absolutely necessary.</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-text-secondary">
+                        <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                        <span>Maintain proper posture whether sitting, standing, or walking.</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-text-secondary">
+                        <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                        <span>Drink plenty of water to keep your spinal discs hydrated and healthy.</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-text-secondary">
+                        <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                        <span>Exercise for a minimum of 30 minutes every day to strengthen core muscles.</span>
+                    </li>
+                </ul>
             </div>
 
             {/* Simple Centered Lightbox */}
