@@ -179,62 +179,58 @@ export default function ExerciseLibrary() {
                         <div className="text-center py-16 text-text-secondary">No exercises in this category.</div>
                     )}
 
-                    {/* Exercise Instruction Modal */}
+                    {/* Exercise Instruction Drawer / Sheet */}
                     <AnimatePresence>
                         {selectedExercise && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-6"
-                                onClick={() => setSelectedExercise(null)}
-                            >
+                            <div className="fixed inset-0 z-[100] flex justify-end">
+                                {/* Dimmed Backdrop */}
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setSelectedExercise(null)}
+                                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                />
+
+                                {/* Drawer Content Panel (Desktop Right-aligned, Mobile Full) */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: "100%" }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: "100%" }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    // Mobile: Bottom sheet (rounded top, anchors to bottom). Desktop: Centered card (rounded all around). Max-H prevents it overflowing the screen.
-                                    className="relative w-full sm:max-w-4xl lg:max-w-5xl bg-bg-card rounded-t-3xl sm:rounded-3xl border-0 sm:border border-border shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[90vh] md:max-h-[85vh]"
+                                    initial={{ x: "100%", opacity: 0.5 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ x: "100%", opacity: 0 }}
+                                    transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
+                                    className="relative w-full md:w-[480px] lg:w-[540px] h-full bg-bg-card shadow-[-10px_0_40px_rgba(0,0,0,0.15)] flex flex-col pointer-events-auto border-l border-border"
                                     onClick={e => e.stopPropagation()}
                                 >
-                                    {/* Left (Desktop) / Top (Mobile): Image Header */}
-                                    <div className="w-full md:w-[45%] lg:w-2/5 shrink-0 bg-bg-secondary relative flex items-center justify-center p-6 sm:p-10 border-b md:border-b-0 md:border-r border-border min-h-[250px] md:min-h-0">
-                                        <img 
-                                            src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
-                                            alt={selectedExercise.name} 
-                                            className="w-full h-full object-contain mix-blend-multiply relative z-10 max-h-[40vh] md:max-h-none" 
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
-                                        
-                                        {/* Floating Area Tag (Inside image on mobile/desktop) */}
-                                        <div className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-3 py-1.5 bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-[10px] font-bold tracking-widest uppercase rounded-full shadow-sm">
-                                            {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
+                                    {/* Scrollable Container */}
+                                    <div className="flex-1 overflow-y-auto flex flex-col overflow-x-hidden">
+                                        {/* Image Header Block */}
+                                        <div className="w-full relative bg-bg-secondary shrink-0 overflow-hidden flex items-center justify-center p-6 border-b border-border aspect-[4/3] md:aspect-auto md:h-[35vh]">
+                                            <img 
+                                                src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
+                                                alt={selectedExercise.name} 
+                                                className="w-full h-full object-contain mix-blend-multiply relative z-10" 
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
+                                            
+                                            {/* Tag */}
+                                            <div className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-3 py-1.5 bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-xs font-bold tracking-widest uppercase rounded-full shadow-sm">
+                                                {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
+                                            </div>
+
+                                            {/* Close Button Inside Drawer */}
+                                            <button
+                                                onClick={() => setSelectedExercise(null)}
+                                                className="absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-card/90 backdrop-blur text-text-primary hover:bg-bg-primary shadow-lg border border-border flex items-center justify-center transition-transform active:scale-95"
+                                            >
+                                                <X size={20} />
+                                            </button>
                                         </div>
 
-                                        {/* Mobile Close Button (floating over image) */}
-                                        <button
-                                            onClick={() => setSelectedExercise(null)}
-                                            className="md:hidden absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-card/90 backdrop-blur text-text-primary hover:bg-bg-primary shadow-sm border border-border flex items-center justify-center"
-                                        >
-                                            <X size={18} />
-                                        </button>
-                                    </div>
-
-                                    {/* Right (Desktop) / Bottom (Mobile): Scrollable Content */}
-                                    <div className="flex flex-col flex-1 bg-bg-card overflow-hidden relative">
-                                        {/* Desktop Close Button */}
-                                        <button
-                                            onClick={() => setSelectedExercise(null)}
-                                            className="hidden md:flex absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-secondary hover:bg-border text-text-secondary hover:text-text-primary transition-colors items-center justify-center"
-                                        >
-                                            <X size={20} />
-                                        </button>
-
-                                        <div className="flex-1 overflow-y-auto p-6 sm:p-8 md:p-10 w-full flex flex-col gap-6">
-                                            {/* Title & Timing */}
-                                            <div className="md:pr-12">
-                                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-text-primary mb-4 leading-tight tracking-tight">
+                                        {/* Content Block */}
+                                        <div className="p-6 md:p-8 flex flex-col gap-6">
+                                            {/* Header */}
+                                            <div>
+                                                <h2 className="text-3xl font-display font-extrabold text-text-primary leading-tight tracking-tight mb-4">
                                                     {exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name}
                                                 </h2>
                                                 <div className="flex flex-wrap gap-2.5">
@@ -261,11 +257,11 @@ export default function ExerciseLibrary() {
 
                                             {/* Instructions */}
                                             {exerciseMeta[selectedExercise.position]?.instruction && (
-                                                <div className="bg-bg-primary border border-border shadow-sm p-5 rounded-2xl">
+                                                <div className="bg-bg-primary border border-border shadow-sm p-5 sm:p-6 rounded-2xl">
                                                     <h3 className="text-xs font-extrabold text-text-secondary flex items-center gap-2 uppercase tracking-widest mb-3">
                                                         <BookOpen size={16} className="text-accent-cyan" /> Technique
                                                     </h3>
-                                                    <p className="text-text-primary text-[15px] sm:text-base leading-relaxed font-medium">
+                                                    <p className="text-text-primary text-[15px] leading-relaxed font-medium">
                                                         {exerciseMeta[selectedExercise.position].instruction}
                                                     </p>
                                                 </div>
@@ -273,12 +269,12 @@ export default function ExerciseLibrary() {
 
                                             {/* Form Cues */}
                                             {exerciseMeta[selectedExercise.position]?.formCues && (
-                                                <div className="bg-bg-secondary/50 p-5 rounded-2xl border border-border">
-                                                    <h3 className="text-xs font-extrabold text-text-secondary mb-3 uppercase tracking-widest">Clinical Form Cues</h3>
+                                                <div className="bg-bg-secondary/40 border border-border p-5 sm:p-6 rounded-2xl">
+                                                    <h3 className="text-[11px] sm:text-xs font-extrabold text-text-secondary mb-3 uppercase tracking-widest">Clinical Form Cues</h3>
                                                     <ul className="space-y-3">
                                                         {exerciseMeta[selectedExercise.position].formCues.map((cue, i) => (
-                                                            <li key={i} className="flex items-start gap-3 text-[15px] sm:text-base text-text-primary font-medium">
-                                                                <span className="text-accent-cyan mt-[3px] font-bold bg-accent-cyan/10 rounded-full w-5 h-5 flex items-center justify-center shrink-0 text-xs shadow-sm">✓</span>
+                                                            <li key={i} className="flex items-start gap-3 text-sm sm:text-[15px] text-text-primary font-medium">
+                                                                <span className="text-accent-cyan mt-[2px] sm:mt-[3px] font-bold bg-accent-cyan/10 rounded-full w-5 h-5 flex items-center justify-center shrink-0 text-[10px] sm:text-xs shadow-sm">✓</span>
                                                                 <span className="leading-snug">{cue}</span>
                                                             </li>
                                                         ))}
@@ -286,24 +282,24 @@ export default function ExerciseLibrary() {
                                                 </div>
                                             )}
                                         </div>
+                                    </div>
 
-                                        {/* Action Button Strip */}
-                                        <div className="p-5 sm:p-6 md:px-10 border-t border-border bg-bg-card">
-                                            <button
-                                                onClick={() => navigate('/routine', { 
-                                                    state: { 
-                                                        exercises: [selectedExercise], 
-                                                        title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
-                                                    } 
-                                                })}
-                                                className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-xl transition-all shadow-[0_4px_12px_rgba(0,229,204,0.2)] hover:shadow-[0_8px_20px_rgba(0,229,204,0.3)] hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base md:text-lg tracking-wide"
-                                            >
-                                                <Play size={20} fill="currentColor" /> Begin Form Practice
-                                            </button>
-                                        </div>
+                                    {/* Pinned Bottom Button */}
+                                    <div className="shrink-0 p-5 md:p-6 border-t border-border bg-bg-card pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                                        <button
+                                            onClick={() => navigate('/routine', { 
+                                                state: { 
+                                                    exercises: [selectedExercise], 
+                                                    title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
+                                                } 
+                                            })}
+                                            className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-2xl transition-all shadow-[0_8px_16px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_24px_rgba(0,229,204,0.35)] hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base md:text-lg tracking-wide active:scale-95"
+                                        >
+                                            <Play size={20} fill="currentColor" /> Begin Form Practice
+                                        </button>
                                     </div>
                                 </motion.div>
-                            </motion.div>
+                            </div>
                         )}
                     </AnimatePresence>
                 </>
