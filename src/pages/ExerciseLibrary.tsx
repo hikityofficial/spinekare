@@ -179,10 +179,10 @@ export default function ExerciseLibrary() {
                         <div className="text-center py-16 text-text-secondary">No exercises in this category.</div>
                     )}
 
-                    {/* Exercise Instruction Drawer / Sheet */}
+                    {/* Exercise Instruction Modal - Top Anchored Card */}
                     <AnimatePresence>
                         {selectedExercise && (
-                            <div className="fixed inset-0 z-[100] flex justify-end">
+                            <div className="fixed inset-0 z-[100] flex justify-center items-start pt-0 sm:pt-0">
                                 {/* Dimmed Backdrop */}
                                 <motion.div 
                                     initial={{ opacity: 0 }}
@@ -192,45 +192,53 @@ export default function ExerciseLibrary() {
                                     className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                                 />
 
-                                {/* Drawer Content Panel (Desktop Right-aligned, Mobile Full) */}
+                                {/* Card Content (Anchored flush to top, floating bottom) */}
                                 <motion.div
-                                    initial={{ x: "100%", opacity: 0.5 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: "100%", opacity: 0 }}
+                                    initial={{ y: "-100%", opacity: 0.5 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: "-100%", opacity: 0 }}
                                     transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
-                                    className="relative w-full md:w-[480px] lg:w-[540px] h-full bg-bg-card shadow-[-10px_0_40px_rgba(0,0,0,0.15)] flex flex-col pointer-events-auto border-l border-border"
+                                    className="relative w-full sm:max-w-3xl lg:max-w-4xl bg-bg-card rounded-b-3xl sm:rounded-b-[2.5rem] shadow-2xl flex flex-col md:flex-row border-b border-x border-border z-10 overflow-hidden max-h-[90vh] sm:max-h-[85vh]"
                                     onClick={e => e.stopPropagation()}
                                 >
-                                    {/* Scrollable Container */}
-                                    <div className="flex-1 overflow-y-auto flex flex-col overflow-x-hidden">
-                                        {/* Image Header Block */}
-                                        <div className="w-full relative bg-bg-secondary shrink-0 overflow-hidden flex items-center justify-center p-6 border-b border-border aspect-[4/3] md:aspect-auto md:h-[35vh]">
-                                            <img 
-                                                src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
-                                                alt={selectedExercise.name} 
-                                                className="w-full h-full object-contain mix-blend-multiply relative z-10" 
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
-                                            
-                                            {/* Tag */}
-                                            <div className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-3 py-1.5 bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-xs font-bold tracking-widest uppercase rounded-full shadow-sm">
-                                                {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
-                                            </div>
-
-                                            {/* Close Button Inside Drawer */}
-                                            <button
-                                                onClick={() => setSelectedExercise(null)}
-                                                className="absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-card/90 backdrop-blur text-text-primary hover:bg-bg-primary shadow-lg border border-border flex items-center justify-center transition-transform active:scale-95"
-                                            >
-                                                <X size={20} />
-                                            </button>
+                                    {/* Image Header Block (Top on mobile, Left on desktop) */}
+                                    <div className="w-full md:w-[45%] lg:w-2/5 relative bg-bg-secondary shrink-0 overflow-hidden flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-border min-h-[220px]">
+                                        <img 
+                                            src={EXERCISE_IMAGES[(selectedExercise.position - 1) % EXERCISE_IMAGES.length]} 
+                                            alt={selectedExercise.name} 
+                                            className="w-full h-full object-contain mix-blend-multiply relative z-10 max-h-[35vh]" 
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-accent-cyan/10 to-transparent pointer-events-none" />
+                                        
+                                        {/* Tag */}
+                                        <div className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 px-3 py-1.5 bg-bg-card/90 backdrop-blur border border-border text-accent-cyan text-[10px] font-bold tracking-widest uppercase rounded-full shadow-sm">
+                                            {exerciseMeta[selectedExercise.position]?.targetArea ?? selectedExercise.targetArea} Spine
                                         </div>
 
-                                        {/* Content Block */}
-                                        <div className="p-6 md:p-8 flex flex-col gap-6">
+                                        {/* Mobile Close Button */}
+                                        <button
+                                            onClick={() => setSelectedExercise(null)}
+                                            className="md:hidden absolute top-5 right-5 z-20 p-2.5 rounded-full bg-bg-card/90 backdrop-blur text-text-primary hover:bg-bg-primary shadow-lg border border-border flex items-center justify-center transition-transform active:scale-95"
+                                        >
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+
+                                    {/* Scrolling Details Block */}
+                                    <div className="flex-1 flex flex-col overflow-hidden relative bg-bg-card">
+                                        {/* Desktop Close Button */}
+                                        <button
+                                            onClick={() => setSelectedExercise(null)}
+                                            className="hidden md:flex absolute top-6 right-6 z-20 p-2.5 rounded-full bg-bg-secondary hover:bg-border text-text-secondary hover:text-text-primary transition-all items-center justify-center cursor-pointer active:scale-95"
+                                        >
+                                            <X size={22} />
+                                        </button>
+
+                                        {/* Scrollable Text Area */}
+                                        <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-6 w-full">
                                             {/* Header */}
-                                            <div>
-                                                <h2 className="text-3xl font-display font-extrabold text-text-primary leading-tight tracking-tight mb-4">
+                                            <div className="md:pr-14">
+                                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-text-primary leading-tight tracking-tight mb-4">
                                                     {exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name}
                                                 </h2>
                                                 <div className="flex flex-wrap gap-2.5">
@@ -257,8 +265,8 @@ export default function ExerciseLibrary() {
 
                                             {/* Instructions */}
                                             {exerciseMeta[selectedExercise.position]?.instruction && (
-                                                <div className="bg-bg-primary border border-border shadow-sm p-5 sm:p-6 rounded-2xl">
-                                                    <h3 className="text-xs font-extrabold text-text-secondary flex items-center gap-2 uppercase tracking-widest mb-3">
+                                                <div className="bg-bg-primary border border-border shadow-sm p-5 md:p-6 rounded-2xl">
+                                                    <h3 className="text-[11px] sm:text-xs font-extrabold text-text-secondary flex items-center gap-2 uppercase tracking-widest mb-3">
                                                         <BookOpen size={16} className="text-accent-cyan" /> Technique
                                                     </h3>
                                                     <p className="text-text-primary text-[15px] leading-relaxed font-medium">
@@ -269,11 +277,11 @@ export default function ExerciseLibrary() {
 
                                             {/* Form Cues */}
                                             {exerciseMeta[selectedExercise.position]?.formCues && (
-                                                <div className="bg-bg-secondary/40 border border-border p-5 sm:p-6 rounded-2xl">
+                                                <div className="bg-bg-secondary/40 border border-border p-5 md:p-6 rounded-2xl">
                                                     <h3 className="text-[11px] sm:text-xs font-extrabold text-text-secondary mb-3 uppercase tracking-widest">Clinical Form Cues</h3>
                                                     <ul className="space-y-3">
                                                         {exerciseMeta[selectedExercise.position].formCues.map((cue, i) => (
-                                                            <li key={i} className="flex items-start gap-3 text-sm sm:text-[15px] text-text-primary font-medium">
+                                                            <li key={i} className="flex items-start gap-3 text-[14px] sm:text-[15px] text-text-primary font-medium">
                                                                 <span className="text-accent-cyan mt-[2px] sm:mt-[3px] font-bold bg-accent-cyan/10 rounded-full w-5 h-5 flex items-center justify-center shrink-0 text-[10px] sm:text-xs shadow-sm">✓</span>
                                                                 <span className="leading-snug">{cue}</span>
                                                             </li>
@@ -282,21 +290,21 @@ export default function ExerciseLibrary() {
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Pinned Bottom Button */}
-                                    <div className="shrink-0 p-5 md:p-6 border-t border-border bg-bg-card pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-                                        <button
-                                            onClick={() => navigate('/routine', { 
-                                                state: { 
-                                                    exercises: [selectedExercise], 
-                                                    title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
-                                                } 
-                                            })}
-                                            className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-2xl transition-all shadow-[0_8px_16px_rgba(0,229,204,0.25)] hover:shadow-[0_12px_24px_rgba(0,229,204,0.35)] hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base md:text-lg tracking-wide active:scale-95"
-                                        >
-                                            <Play size={20} fill="currentColor" /> Begin Form Practice
-                                        </button>
+                                        {/* Action Button */}
+                                        <div className="shrink-0 p-5 md:p-6 border-t border-border bg-bg-card">
+                                            <button
+                                                onClick={() => navigate('/routine', { 
+                                                    state: { 
+                                                        exercises: [selectedExercise], 
+                                                        title: exerciseMeta[selectedExercise.position]?.name ?? selectedExercise.name 
+                                                    } 
+                                                })}
+                                                className="w-full py-4 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-extrabold rounded-2xl transition-all shadow-[0_4px_16px_rgba(0,229,204,0.2)] hover:shadow-[0_8px_24px_rgba(0,229,204,0.3)] hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base md:text-lg tracking-wide active:scale-95"
+                                            >
+                                                <Play size={20} fill="currentColor" /> Begin Form Practice
+                                            </button>
+                                        </div>
                                     </div>
                                 </motion.div>
                             </div>
