@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         let mounted = true;
+        let bypassSuccessful = false;
         let fallbackTimer: ReturnType<typeof setTimeout>;
         let fetchingUserId: string | null = null;
 
@@ -128,6 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         const parsed = JSON.parse(rawStorageStr);
                         if (parsed && parsed.user) {
                             // We have a stored user! Skip waiting for the lock and load profile immediately
+                            bypassSuccessful = true;
                             await loadProfile(parsed.user);
 
                             // Inform the strict UI loader that we are done booting
@@ -172,6 +174,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log("Supabase Auth Event:", event, session?.user?.email);
+            if (event === 'INITIAL_SESSION' && !session && bypassSuccessful) {
+                console.log("Ignoring null INITIAL_SESSION because cache bypass was successful.");
+                return;
+            }
+            if (event === 'SIGNED_OUT') {
+                bypassSuccessful = false;
+            }
             await loadProfile(session?.user);
         });
 
