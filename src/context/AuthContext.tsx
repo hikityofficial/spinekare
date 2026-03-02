@@ -106,6 +106,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         }
                     } else if (error) {
                         console.error("Unknown DB error while fetching profile:", error);
+                        // CRITICAL FIX: If DB failed (e.g., ISP blocked), DO NOT OVERWRITE with dummy profile if we have cache
+                        if (cachedProfile) {
+                            console.log("Restoring cached profile due to DB error.");
+                            profile = cachedProfile;
+                        }
                     }
                 }
 
