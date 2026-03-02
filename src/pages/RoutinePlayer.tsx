@@ -23,7 +23,23 @@ export default function RoutinePlayer() {
     const activeExercises = isCustomPlay ? customExercises : todayRoutine.exercises;
     const activeTitle = isCustomPlay ? customTitle : todayRoutine.title;
 
-    const [currentIndex, setCurrentIndex] = useState(0);
+    // Attempt to parse saved state from local storage
+    const todayStr = new Date().toISOString().split('T')[0];
+    const savedStateStr = localStorage.getItem('spinekare_routine_progress');
+    let initialIndex = 0;
+
+    if (savedStateStr) {
+        try {
+            const savedState = JSON.parse(savedStateStr);
+            if (savedState.date === todayStr && !isCustomPlay) {
+                initialIndex = savedState.currentIndex;
+            }
+        } catch (e) {
+            console.error("Failed to parse saved routine state", e);
+        }
+    }
+
+    const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [isPlaying, setIsPlaying] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
     const [isResting, setIsResting] = useState(false);
@@ -47,6 +63,15 @@ export default function RoutinePlayer() {
                 if (currentIndex < activeExercises.length - 1) {
                     setIsResting(true);
                     setTimeLeft(restDuration);
+
+                    // Save progress
+                    if (!isCustomPlay) {
+                        const todayStr = new Date().toISOString().split('T')[0];
+                        localStorage.setItem('spinekare_routine_progress', JSON.stringify({
+                            date: todayStr,
+                            currentIndex: currentIndex + 1
+                        }));
+                    }
                 } else {
                     // Routine finished
                     handleFinish();
@@ -92,6 +117,9 @@ export default function RoutinePlayer() {
     const handleFinish = () => {
         setIsFinished(true);
         setIsPlaying(false);
+
+        // Clear saved progress
+        localStorage.removeItem('spinekare_routine_progress');
 
         if (isCustomPlay) {
             // Award points based on actual exercise DB IDs

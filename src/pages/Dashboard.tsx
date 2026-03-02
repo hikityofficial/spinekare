@@ -24,6 +24,22 @@ export default function Dashboard() {
         return 'text-accent-red bg-accent-red/10 border-accent-red/30';
     };
 
+    // Check for saved routine progress
+    const todayStr = new Date().toISOString().split('T')[0];
+    const savedStateStr = localStorage.getItem('spinekare_routine_progress');
+    let savedIndex = 0;
+    if (savedStateStr) {
+        try {
+            const savedState = JSON.parse(savedStateStr);
+            if (savedState.date === todayStr) {
+                savedIndex = savedState.currentIndex;
+            }
+        } catch (e) {
+            console.error("Error parsing saved routine progress", e);
+        }
+    }
+    const hasSavedProgress = savedIndex > 0 && savedIndex < todayRoutine.exercises.length;
+
     return (
         <div className="space-y-6">
 
@@ -136,10 +152,18 @@ export default function Dashboard() {
                     {!hasCompletedToday ? (
                         <button
                             onClick={() => navigate('/routine')}
-                            className="w-full py-4 px-8 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,229,204,0.2)] hover:shadow-[0_0_30px_rgba(0,229,204,0.4)]"
+                            className="w-full py-4 px-8 bg-accent-cyan hover:bg-accent-cyan-dim text-bg-primary font-bold rounded-radius-lg transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,229,204,0.2)] hover:shadow-[0_0_30px_rgba(0,229,204,0.4)] relative overflow-hidden"
                         >
-                            <PlayCircle size={24} />
-                            <span className="text-lg">Start Today's Routine</span>
+                            {hasSavedProgress && (
+                                <div
+                                    className="absolute left-0 top-0 bottom-0 bg-white/20 transition-all duration-500"
+                                    style={{ width: `${(savedIndex / todayRoutine.exercises.length) * 100}%` }}
+                                ></div>
+                            )}
+                            <PlayCircle size={24} className="relative z-10" />
+                            <span className="text-lg relative z-10">
+                                {hasSavedProgress ? `Resume Routine (${savedIndex}/${todayRoutine.exercises.length})` : "Start Today's Routine"}
+                            </span>
                         </button>
                     ) : (
                         <div className="w-full py-4 px-8 bg-bg-secondary border border-border text-text-secondary font-bold rounded-radius-lg flex items-center justify-center gap-3 text-center">

@@ -196,15 +196,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     }
                 }
 
+                // Streak Reset Logic: If last completed date is older than yesterday, reset current streak to 0
+                let computedCurrentStreak = data.current_streak;
+                const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                const todayStr = new Date().toISOString().split('T')[0];
+                const lastCompletedStr = data.last_completed_date ? data.last_completed_date.split('T')[0] : null;
+
+                if (lastCompletedStr && lastCompletedStr !== todayStr && lastCompletedStr !== yesterdayStr) {
+                    computedCurrentStreak = 0; // Streak broken because they missed yesterday
+                }
+
                 const newTotalPoints = data.total_points + bonusToAward;
                 const newWeeklyPoints = isNewWeek ? 0 : (data.weekly_points ?? 0);
 
                 const streakObj: UserStreak = {
                     userId: data.user_id,
-                    currentStreak: data.current_streak,
+                    currentStreak: computedCurrentStreak,
                     longestStreak: data.longest_streak,
                     totalPoints: newTotalPoints,
-                    lastActivityDate: data.last_completed_date ? data.last_completed_date.split('T')[0] : '',
+                    lastActivityDate: lastCompletedStr || '',
                     streakFreezes: 0,
                     weeklyPoints: newWeeklyPoints,
                     weekNumber: currentWeek,
@@ -212,14 +222,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 };
                 setStreak(streakObj);
 
-                // Persist the reset / bonus to DB
-                if (isNewWeek || bonusToAward > 0) {
+                // Persist the reset / bonus / streak break to DB
+                if (isNewWeek || bonusToAward > 0 || computedCurrentStreak !== data.current_streak) {
                     await supabase.from('user_streaks').upsert({
                         user_id: user.id,
-                        current_streak: data.current_streak,
+                        current_streak: computedCurrentStreak,
                         longest_streak: data.longest_streak,
                         total_points: newTotalPoints,
-                        weekly_points: 0,
+                        weekly_points: newWeeklyPoints,
                         week_number: currentWeek,
                         week_year: currentYear,
                         last_completed_date: data.last_completed_date ?? null,
@@ -258,7 +268,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
         if (streak.lastActivityDate === yesterdayStr) {
             newStreak += 1;
-        } else {
+        } else if (streak.lastActivityDate !== todayStr) {
             newStreak = 1;
         }
 

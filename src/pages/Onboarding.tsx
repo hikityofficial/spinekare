@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +20,13 @@ export default function Onboarding() {
     const [isCalculating, setIsCalculating] = useState(false);
     const { updateProfile } = useAuth();
     const navigate = useNavigate();
+
+    // Ensure a fresh state if user navigates back to /onboarding to retake
+    useEffect(() => {
+        setStep(0);
+        setAnswers({});
+        setIsCalculating(false);
+    }, []);
 
     const handleSelect = (questionId: string, option: string) => {
         const newAnswers = { ...answers, [questionId]: option };
