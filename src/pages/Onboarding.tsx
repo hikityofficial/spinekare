@@ -91,6 +91,7 @@ export default function Onboarding() {
                     gender: finalAnswers.gender,
                     ageGroup: finalAnswers.ageGroup,
                     occupationType: finalAnswers.occupationType,
+                    isWeightlifter: finalAnswers.isWeightlifter,
                     exerciseFrequency: finalAnswers.exerciseFrequency,
                     painLevel: finalAnswers.painLevel,
                     postureAwareness: finalAnswers.postureAwareness,

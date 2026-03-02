@@ -6,7 +6,7 @@ export interface UserProfile {
     gender?: string;
     ageGroup?: string;
     occupationType?: string;
-    isWeightlifter?: boolean;
+    isWeightlifter?: string;
     exerciseFrequency?: string;
     painLevel?: string;
     postureAwareness?: string;
