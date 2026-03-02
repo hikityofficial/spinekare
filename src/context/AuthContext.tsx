@@ -42,6 +42,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (fetchingUserId === sessionUser.id) return;
             fetchingUserId = sessionUser.id;
 
+            let cachedProfile: UserProfile | null = null;
+            try {
+                const cached = localStorage.getItem(`spinekare-profile-${sessionUser.id}`);
+                if (cached) cachedProfile = JSON.parse(cached);
+            } catch (e) { }
+
+            // Pre-load cached profile instantly to prevent dashboard flicker
+            if (cachedProfile && mounted) {
+                setUser(cachedProfile);
+                setIsLoading(false);
+                clearTimeout(fallbackTimer);
+            }
+
             try {
                 const { data, error } = await supabase
                     .from('user_profiles')
@@ -68,6 +81,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         postureAwareness: data.posture_awareness,
                         sleepPosition: data.sleep_position,
                     };
+                    try {
+                        localStorage.setItem(`spinekare-profile-${sessionUser.id}`, JSON.stringify(profile));
+                    } catch (e) { }
                 } else {
                     profile = {
                         id: sessionUser.id,
@@ -102,7 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             } catch (err) {
                 console.error('Error executing profile fetch:', err);
                 if (mounted) {
-                    setUser(prev => prev || ({
+                    setUser(prev => prev || cachedProfile || ({
                         id: sessionUser.id,
                         fullName: sessionUser.email?.split('@')[0] || 'User',
                         onboardingComplete: false,
@@ -251,6 +267,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Optimistic update
         const newProfile = { ...user, ...data };
         setUser(newProfile);
+
+        try {
+            localStorage.setItem(`spinekare-profile-${user.id}`, JSON.stringify(newProfile));
+        } catch (e) { }
 
         // Map to DB snake_case structure
         const dbData: Record<string, unknown> = {
