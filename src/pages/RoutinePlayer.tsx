@@ -40,26 +40,26 @@ export default function RoutinePlayer() {
     }
 
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(isCustomPlay); // Auto-play if launched directly from library
+    const [timeLeft, setTimeLeft] = useState(() => activeExercises[initialIndex]?.durationSeconds || 0);
     const [isResting, setIsResting] = useState(false);
-    const [isPrepping, setIsPrepping] = useState(true);
+    const [isPrepping, setIsPrepping] = useState(!isCustomPlay); // Skip prep screen if custom play
     const [isFinished, setIsFinished] = useState(false);
+    const [cycleElapsed, setCycleElapsed] = useState(0); // seconds since exercise started
 
     const currentExercise = activeExercises[currentIndex];
     const restDuration = 15; // 15 seconds rest between exercises
 
-    // Timer logic
+    // Main countdown timer
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
         if (isPlaying && !isPrepping && timeLeft > 0) {
             interval = setInterval(() => {
                 setTimeLeft(prev => prev - 1);
+                setCycleElapsed(prev => prev + 1);
             }, 1000);
         } else if (isPlaying && !isPrepping && timeLeft === 0) {
-            // Time is up! 
             if (!isResting) {
-                // Exercise finished, go to rest or next
                 if (currentIndex < activeExercises.length - 1) {
                     setIsResting(true);
                     setTimeLeft(restDuration);
@@ -73,11 +73,9 @@ export default function RoutinePlayer() {
                         }));
                     }
                 } else {
-                    // Routine finished
                     handleFinish();
                 }
             } else {
-                // Rest finished, start next exercise prep
                 setIsResting(false);
                 setIsPrepping(true);
                 setCurrentIndex(prev => prev + 1);
@@ -87,16 +85,18 @@ export default function RoutinePlayer() {
         return () => clearInterval(interval);
     }, [isPlaying, isPrepping, timeLeft, isResting, currentIndex, activeExercises]);
 
-    // Handle Initial Start - No longer auto-starts
+    // Handle Initial Start - No longer auto-starts for routines
     useEffect(() => {
-        if (currentExercise && isPrepping && currentIndex === 0 && !isFinished) {
+        // Only assign initial time if it wasn't statically assigned in state
+        if (currentExercise && isPrepping && currentIndex === 0 && !isFinished && timeLeft === 0) {
             setTimeLeft(currentExercise.durationSeconds);
             setIsPlaying(false);
         }
-    }, [currentExercise, isPrepping, currentIndex, isFinished]);
+    }, [currentExercise, isPrepping, currentIndex, isFinished, timeLeft]);
 
     const startExercise = () => {
         setIsPrepping(false);
+        setCycleElapsed(0);
         setTimeLeft(activeExercises[currentIndex].durationSeconds);
         setIsPlaying(true);
     };
@@ -122,9 +122,9 @@ export default function RoutinePlayer() {
         localStorage.removeItem('spinekare_routine_progress');
 
         if (isCustomPlay) {
-            // Award points based on actual exercise DB IDs
-            const exerciseIds = activeExercises.map(ex => ex.id);
-            const pts = getTotalPoints(exerciseIds);
+            // Award points based on exercise position numbers (1-12), not raw DB IDs
+            const exercisePositions = activeExercises.map(ex => ex.position);
+            const pts = getTotalPoints(exercisePositions);
             addPoints(pts);
         } else {
             completeRoutine();
@@ -174,8 +174,8 @@ export default function RoutinePlayer() {
     const progressPercent = ((totalDuration - timeLeft) / totalDuration) * 100;
 
     const pointsEarned = isCustomPlay
-        ? getTotalPoints(activeExercises.map(ex => ex.id))
-        : getTotalPoints(todayRoutine.exercises.map(ex => ex.id));
+        ? getTotalPoints(activeExercises.map(ex => ex.position))
+        : getTotalPoints(todayRoutine.exercises.map(ex => ex.position));
 
     if (isFinished) {
         return (
@@ -246,7 +246,7 @@ export default function RoutinePlayer() {
                 <div className="w-full h-full max-h-[80vh] relative z-0 flex items-center justify-center p-8">
                     {!isResting ? (
                         <img
-                            src={getExerciseImage(currentExercise.id)}
+                            src={getExerciseImage(currentExercise.position)}
                             alt={currentExercise.name}
                             className="w-full h-full object-contain drop-shadow-2xl"
                         />
@@ -258,7 +258,7 @@ export default function RoutinePlayer() {
                 {/* Target highlight label */}
                 {!isResting && (
                     <div className="absolute bottom-12 bg-bg-primary/80 backdrop-blur px-6 py-3 rounded-full border border-accent-cyan/30 text-accent-cyan font-bold tracking-widest uppercase text-sm">
-                        Targeting: {currentExercise.targetArea} spine
+                        {exerciseMeta[currentExercise.position]?.targetArea ?? `${currentExercise.targetArea} spine`}
                     </div>
                 )}
             </div>
@@ -269,7 +269,7 @@ export default function RoutinePlayer() {
                 {!isResting && (
                     <div className="md:hidden w-full max-w-xs mx-auto mb-6 mt-12">
                         <img
-                            src={getExerciseImage(currentExercise.id)}
+                            src={getExerciseImage(currentExercise.position)}
                             alt={currentExercise.name}
                             className="w-full h-auto object-contain rounded-xl border border-border shadow-sm"
                         />
@@ -293,8 +293,8 @@ export default function RoutinePlayer() {
                                     Next: {currentExercise.category}
                                 </div>
 
-                                <h2 className="text-4xl md:text-5xl font-display font-bold text-text-primary mb-6 leading-tight">
-                                    {currentExercise.name}
+                                <h2 className="text-3xl md:text-5xl font-display font-bold text-text-primary mb-6 leading-tight">
+                                    {exerciseMeta[currentExercise.position]?.name ?? currentExercise.name}
                                 </h2>
 
                                 <div className="w-full bg-bg-secondary rounded-radius-lg border border-border p-6 mb-8 flex flex-col items-center">
@@ -304,12 +304,51 @@ export default function RoutinePlayer() {
                                     </div>
 
                                     <div className="w-full text-left space-y-4">
+                                        {/* Duration, Reps & Sets badges */}
+                                        <div className="flex flex-wrap gap-3">
+                                            {exerciseMeta[currentExercise.position]?.duration && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan text-xs font-bold">
+                                                    ⏱ {exerciseMeta[currentExercise.position].duration}
+                                                </div>
+                                            )}
+                                            {exerciseMeta[currentExercise.position]?.reps && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green/10 border border-accent-green/20 text-accent-green text-xs font-bold">
+                                                    🔁 {exerciseMeta[currentExercise.position].reps}
+                                                </div>
+                                            )}
+                                            {exerciseMeta[currentExercise.position]?.sets && (
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-amber/10 border border-accent-amber/20 text-accent-amber text-xs font-bold">
+                                                    🔄 {exerciseMeta[currentExercise.position].sets}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Age Restriction Warning */}
+                                        {exerciseMeta[currentExercise.position]?.ageRestriction && (
+                                            <div className="flex items-start gap-3 bg-accent-red/10 p-4 rounded-radius-md border border-accent-red/30">
+                                                <span className="text-lg shrink-0">⚠️</span>
+                                                <p className="text-accent-red text-sm font-bold">
+                                                    {exerciseMeta[currentExercise.position].ageRestriction}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Instruction */}
+                                        {exerciseMeta[currentExercise.position]?.instruction && (
+                                            <div className="bg-bg-primary p-4 rounded-radius-md border border-border">
+                                                <p className="text-sm font-bold text-text-primary mb-2">How To Perform</p>
+                                                <p className="text-text-secondary text-sm leading-relaxed">
+                                                    {exerciseMeta[currentExercise.position].instruction}
+                                                </p>
+                                            </div>
+                                        )}
+
                                         <div className="flex items-start gap-3 bg-bg-primary p-4 rounded-radius-md border border-border">
                                             <Info className="text-accent-cyan mt-0.5 shrink-0" size={20} />
                                             <div>
                                                 <p className="text-sm font-bold text-text-primary mb-1">Surface Needed</p>
                                                 <p className="text-text-secondary text-sm">
-                                                    {exerciseMeta[currentExercise.id]?.surface || "Comfortable surface"}
+                                                    {exerciseMeta[currentExercise.position]?.surface || "Comfortable surface"}
                                                 </p>
                                             </div>
                                         </div>
@@ -317,7 +356,7 @@ export default function RoutinePlayer() {
                                         <div className="bg-bg-primary p-4 rounded-radius-md border border-border">
                                             <p className="text-sm font-bold text-text-primary mb-3">Form Cues</p>
                                             <ul className="text-sm text-text-secondary space-y-2 list-disc pl-5">
-                                                {(exerciseMeta[currentExercise.id]?.formCues || [currentExercise.whatItDoes]).map((cue, i) => (
+                                                {(exerciseMeta[currentExercise.position]?.formCues || [currentExercise.whatItDoes]).map((cue, i) => (
                                                     <li key={i}>{cue}</li>
                                                 ))}
                                             </ul>
@@ -340,31 +379,101 @@ export default function RoutinePlayer() {
                                 exit={{ opacity: 0, scale: 1.05 }}
                                 className="flex flex-col items-center md:items-start text-center md:text-left w-full"
                             >
-                                {/* Header with Spine Model & Title */}
-                                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8 w-full">
-                                    <div className="w-24 h-24 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center relative overflow-hidden pointer-events-none">
+                                {/* Header: Spine Model + Title */}
+                                <div className="flex flex-col md:flex-row items-center md:items-start gap-4 mb-6 w-full">
+                                    <div className="w-20 h-20 shrink-0 bg-bg-secondary rounded-xl border border-border flex items-center justify-center relative overflow-hidden pointer-events-none">
                                         <div className="absolute inset-0 bg-accent-cyan/5"></div>
                                         <SpineModel3D activeArea={currentExercise.targetArea} />
                                     </div>
                                     <div>
-                                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-accent-cyan/10 text-[10px] font-bold tracking-widest text-accent-cyan uppercase mb-2">
-                                            {currentExercise.category}
+                                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-accent-cyan/10 text-[10px] font-bold tracking-widest text-accent-cyan uppercase mb-1">
+                                            {exerciseMeta[currentExercise.position]?.targetArea ?? currentExercise.category}
                                         </div>
-                                        <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary leading-tight">
-                                            {currentExercise.name}
+                                        <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary leading-tight">
+                                            {exerciseMeta[currentExercise.position]?.name ?? currentExercise.name}
                                         </h2>
                                     </div>
                                 </div>
 
+                                {/* Phase Prompt — cycles per reps rhythm */}
+                                {(() => {
+                                    const reps = exerciseMeta[currentExercise.position]?.reps ?? '';
+                                    let prompt = '';
+                                    let promptColor = 'text-accent-cyan';
+
+                                    if (reps.includes('10 sec arch')) {
+                                        // Ex 1 & 2: 10s arch → 5s straight
+                                        const phase = cycleElapsed % 15;
+                                        if (phase < 10) {
+                                            prompt = `🔽 ARCH — hold ${10 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        } else {
+                                            prompt = `🟢 STRAIGHT — hold ${15 - phase}s`;
+                                            promptColor = 'text-accent-green';
+                                        }
+                                    } else if (reps.includes('8 sec') && reps.includes('each leg')) {
+                                        // Alternating legs: 8s left, 8s right
+                                        const phase = cycleElapsed % 16;
+                                        if (phase < 8) {
+                                            prompt = `📍 LEFT LEG — ${8 - phase}s`;
+                                            promptColor = 'text-accent-cyan';
+                                        } else {
+                                            prompt = `📍 RIGHT LEG — ${16 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        }
+                                    } else if (reps.includes('8 sec') && reps.includes('each side')) {
+                                        // Alternating sides: 8s left, 8s right
+                                        const phase = cycleElapsed % 16;
+                                        if (phase < 8) {
+                                            prompt = `➡️ LEFT SIDE — ${8 - phase}s`;
+                                            promptColor = 'text-accent-cyan';
+                                        } else {
+                                            prompt = `➡️ RIGHT SIDE — ${16 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        }
+                                    } else if (reps.includes('3 sets') && reps.includes('25 sec')) {
+                                        // Ex 8: 3×25s + 15s rest
+                                        const cycleLen = 40; // 25s hold + 15s rest
+                                        const phase = cycleElapsed % cycleLen;
+                                        const setNum = Math.floor(cycleElapsed / cycleLen) + 1;
+                                        if (phase < 25) {
+                                            prompt = `SET ${Math.min(setNum, 3)}/3 — hold ${25 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        } else {
+                                            prompt = `🏳️ REST — next set in ${cycleLen - phase}s`;
+                                            promptColor = 'text-text-secondary';
+                                        }
+                                    } else if (reps.includes('4 sets') && reps.includes('20 sec')) {
+                                        // Ex 11: 4×20s + 10s rest
+                                        const cycleLen = 30; // 20s hold + 10s rest
+                                        const phase = cycleElapsed % cycleLen;
+                                        const setNum = Math.floor(cycleElapsed / cycleLen) + 1;
+                                        if (phase < 20) {
+                                            prompt = `SET ${Math.min(setNum, 4)}/4 — hold ${20 - phase}s`;
+                                            promptColor = 'text-accent-amber';
+                                        } else {
+                                            prompt = `🏳️ REST — next set in ${cycleLen - phase}s`;
+                                            promptColor = 'text-text-secondary';
+                                        }
+                                    } else if (reps.includes('10 seconds') && reps.includes('once per day')) {
+                                        prompt = `HOLD — ${Math.max(0, 10 - cycleElapsed)}s remaining`;
+                                        promptColor = 'text-accent-cyan';
+                                    } else {
+                                        prompt = 'Keep going — breathe steadily 💪';
+                                        promptColor = 'text-accent-green';
+                                    }
+
+                                    return (
+                                        <div className={`w-full text-center mb-4 px-4 py-3 rounded-radius-lg bg-bg-card border border-border`}>
+                                            <p className={`text-lg font-extrabold font-display tracking-wide ${promptColor}`}>{prompt}</p>
+                                        </div>
+                                    );
+                                })()}
+
                                 {/* Timer Circle */}
-                                <div className="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
-                                    {/* Background Ring */}
+                                <div className="relative w-56 h-56 mx-auto mb-6 flex items-center justify-center">
                                     <svg className="absolute inset-0 w-full h-full -rotate-90">
-                                        <circle
-                                            cx="50%" cy="50%" r="48%"
-                                            fill="none" stroke="currentColor" strokeWidth="6"
-                                            className="text-bg-secondary"
-                                        />
+                                        <circle cx="50%" cy="50%" r="48%" fill="none" stroke="currentColor" strokeWidth="6" className="text-bg-secondary" />
                                         <circle
                                             cx="50%" cy="50%" r="48%"
                                             fill="none" stroke="currentColor" strokeWidth="6"
@@ -373,25 +482,18 @@ export default function RoutinePlayer() {
                                             className="text-accent-cyan drop-shadow-[0_0_12px_rgba(0,229,204,0.6)] transition-all duration-1000 ease-linear"
                                         />
                                     </svg>
-                                    <div className="text-6xl md:text-7xl font-display font-bold text-text-primary tracking-tighter tabular-nums">
+                                    <div className="text-5xl md:text-6xl font-display font-bold text-text-primary tracking-tighter tabular-nums">
                                         {formatTime(timeLeft)}
                                     </div>
                                 </div>
 
-                                {/* Form Tip Reminder */}
-                                <div className="w-full text-center mb-8">
-                                    <p className="text-text-secondary italic">
-                                        Tip: {exerciseMeta[currentExercise.id]?.formCues?.[0] || currentExercise.whatItDoes}
-                                    </p>
-                                </div>
-
                                 {/* Controls */}
-                                <div className="flex items-center gap-6 justify-center w-full mt-4">
+                                <div className="flex items-center gap-6 justify-center w-full mb-6">
                                     <button
                                         onClick={togglePlay}
-                                        className="w-20 h-20 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,229,204,0.4)]"
+                                        className="w-16 h-16 bg-accent-cyan text-bg-primary rounded-full flex items-center justify-center hover:bg-accent-cyan-dim transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,229,204,0.4)]"
                                     >
-                                        {isPlaying ? <Pause size={36} /> : <Play size={36} className="ml-1" />}
+                                        {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
                                     </button>
                                     <button
                                         onClick={handleSkip}
@@ -400,6 +502,44 @@ export default function RoutinePlayer() {
                                         Skip <ChevronRight size={20} />
                                     </button>
                                 </div>
+
+                                {/* Live Instructions panel */}
+                                <div className="w-full bg-bg-card border border-border rounded-radius-lg p-4 space-y-4">
+                                    {/* Instruction */}
+                                    {exerciseMeta[currentExercise.position]?.instruction && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">How To Perform</p>
+                                            <p className="text-sm text-text-primary leading-relaxed">
+                                                {exerciseMeta[currentExercise.position].instruction}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {/* Form Cues */}
+                                    {exerciseMeta[currentExercise.position]?.formCues?.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">Form Cues</p>
+                                            <ul className="space-y-1.5">
+                                                {exerciseMeta[currentExercise.position].formCues.map((cue, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                                                        <span className="text-accent-cyan mt-0.5 shrink-0">›</span>
+                                                        {cue}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    {/* Surface Needed */}
+                                    {exerciseMeta[currentExercise.position]?.surface && (
+                                        <div className="flex items-center gap-2 pt-2 border-t border-border">
+                                            <Info size={13} className="text-accent-cyan shrink-0" />
+                                            <p className="text-xs text-text-secondary">
+                                                <span className="font-bold text-text-primary">Surface: </span>
+                                                {exerciseMeta[currentExercise.position].surface}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
                             </motion.div>
                         ) : (
                             <motion.div

@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Flame, Shield, Award } from 'lucide-react';
+import { Flame, Shield, Award, ClipboardList, AlertCircle, Info, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Profile() {
     const { user } = useAuth();
@@ -9,7 +10,16 @@ export default function Profile() {
     const getRiskColor = (tier?: string) => {
         if (tier === 'low') return 'text-accent-green';
         if (tier === 'moderate') return 'text-accent-amber';
-        return 'text-accent-red';
+        if (tier === 'high' || tier === 'critical') return 'text-accent-red';
+        return 'text-text-secondary';
+    };
+
+    const getRiskLabel = (tier?: string) => {
+        if (tier === 'low') return 'Low Risk';
+        if (tier === 'moderate') return 'Moderate Risk';
+        if (tier === 'high') return 'High Risk';
+        if (tier === 'critical') return 'Critical Risk';
+        return 'Unassessed';
     };
 
     const badges = [
@@ -39,7 +49,8 @@ export default function Profile() {
                     <div className="flex flex-wrap justify-center md:justify-start gap-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Shield size={16} className={getRiskColor(user?.riskTier)} />
-                            Risk: <span className={getRiskColor(user?.riskTier)}>{user?.spineRiskScore}</span>
+                            <span className={getRiskColor(user?.riskTier)}>{getRiskLabel(user?.riskTier)}</span>
+                            {user?.spineRiskScore !== undefined && <span className="text-text-secondary">· {user.spineRiskScore}/100</span>}
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-bg-secondary text-sm font-bold border border-border">
                             <Flame size={16} className="text-accent-amber" />
@@ -53,6 +64,14 @@ export default function Profile() {
                 </div>
 
             </div>
+
+            {/* Primary Risk Reason */}
+            {user?.primaryReason && (
+                <div className="bg-bg-card border border-border rounded-radius-lg p-5">
+                    <h2 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-2">Primary Risk Factor Identified</h2>
+                    <p className="text-text-primary text-sm leading-relaxed">{user.primaryReason}</p>
+                </div>
+            )}
 
 
             {/* Badges Section */}
@@ -75,6 +94,42 @@ export default function Profile() {
                             <p className="text-xs text-text-secondary">{badge.desc}</p>
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* Quick Links (Crucial for Mobile Navigation) */}
+            <div className="pt-4 md:hidden">
+                <h2 className="text-xl font-display font-bold text-text-primary mb-4">Quick Links</h2>
+                <div className="bg-bg-card border border-border rounded-radius-lg overflow-hidden divide-y divide-border">
+                    <Link to="/plans" className="flex items-center justify-between p-4 hover:bg-bg-secondary transition-colors group">
+                        <div className="flex items-center gap-3 text-text-primary">
+                            <div className="p-2 bg-accent-cyan/10 text-accent-cyan rounded-md group-hover:bg-accent-cyan group-hover:text-bg-primary transition-colors">
+                                <ClipboardList size={20} />
+                            </div>
+                            <span className="font-bold">My Plans</span>
+                        </div>
+                        <ChevronRight size={20} className="text-text-secondary group-hover:text-text-primary transition-colors" />
+                    </Link>
+                    
+                    <Link to="/spine-facts" className="flex items-center justify-between p-4 hover:bg-bg-secondary transition-colors group">
+                        <div className="flex items-center gap-3 text-text-primary">
+                            <div className="p-2 bg-accent-amber/10 text-accent-amber rounded-md group-hover:bg-accent-amber group-hover:text-bg-primary transition-colors">
+                                <Info size={20} />
+                            </div>
+                            <span className="font-bold">Spine Facts</span>
+                        </div>
+                        <ChevronRight size={20} className="text-text-secondary group-hover:text-text-primary transition-colors" />
+                    </Link>
+                    
+                    <Link to="/at-risk" className="flex items-center justify-between p-4 hover:bg-bg-secondary transition-colors group">
+                        <div className="flex items-center gap-3 text-text-primary">
+                            <div className="p-2 bg-accent-red/10 text-accent-red rounded-md group-hover:bg-accent-red group-hover:text-bg-primary transition-colors">
+                                <AlertCircle size={20} />
+                            </div>
+                            <span className="font-bold">Are You At Risk?</span>
+                        </div>
+                        <ChevronRight size={20} className="text-text-secondary group-hover:text-text-primary transition-colors" />
+                    </Link>
                 </div>
             </div>
 

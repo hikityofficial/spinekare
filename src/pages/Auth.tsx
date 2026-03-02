@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, ArrowRight, Play } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Play, Eye, EyeOff } from 'lucide-react';
 import logo from '../../assets/sslogo.png';
 
 export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const { login, signup } = useAuth();
     const navigate = useNavigate();
 
@@ -52,7 +53,7 @@ export default function Auth() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,204,0.05),transparent_70%)]"></div>
 
                 <div className="w-full flex justify-between items-center relative z-10">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
                         <img src={logo} alt="SpineKare" className="h-10 w-10 rounded-md object-contain bg-white" />
                         <h1 className="text-3xl font-display font-extrabold flex items-center gap-0.5 text-text-primary tracking-tight">
                             Spine<span className="text-accent-cyan">Kare</span>
@@ -94,7 +95,7 @@ export default function Auth() {
 
                 <div className="w-full max-w-md relative z-10">
                     <div className="lg:hidden mb-12 text-center">
-                        <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center justify-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
                             <img src={logo} alt="SpineKare" className="h-10 w-10 rounded-md object-contain bg-white" />
                             <h1 className="text-4xl font-display font-extrabold flex items-center gap-0.5 tracking-tight">
                                 Spine<span className="text-accent-cyan">Kare</span>
@@ -131,14 +132,24 @@ export default function Auth() {
 
                         <div>
                             <label className="block text-sm font-bold text-text-secondary mb-1">Password</label>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-bg-secondary border border-border rounded-radius-lg px-4 py-3 text-text-primary focus:outline-none focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan transition-colors"
-                                placeholder="••••••••"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-bg-secondary border border-border rounded-radius-lg px-4 py-3 pr-12 text-text-primary focus:outline-none focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan transition-colors"
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors p-1"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         <button

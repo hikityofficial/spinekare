@@ -41,7 +41,7 @@ export default function Facts() {
                         <BookOpen size={32} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-display font-bold text-text-primary">Spine Facts Archive</h1>
+                        <h1 className="text-2xl sm:text-3xl font-display font-bold text-text-primary">Spine Facts Archive</h1>
                         <p className="text-text-secondary">Discover fascinating insights about human bio-mechanics.</p>
                     </div>
                 </div>

@@ -77,8 +77,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         dayNumber: 0
     });
 
+    // Ensures we get YYYY-MM-DD strictly in the user's local timezone
+    const getLocalDateString = (d: Date = new Date()) => {
+        const offset = d.getTimezoneOffset() * 60000;
+        return new Date(d.getTime() - offset).toISOString().split('T')[0];
+    };
+
     const dayOfYear = getDayOfYear();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateString();
     const hasCompletedToday = streak.lastActivityDate === todayStr;
     const weekResetDate = getNextMonday();
 
@@ -91,20 +97,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 supabase.from('spine_facts').select('*').eq('day_number', fDay).single()
             ]);
 
-            if (exercisesRes.data) {
-                const allExercises = exercisesRes.data.map((ex: any) => ({
-                    id: ex.id,
-                    name: ex.name,
-                    description: ex.description,
-                    targetArea: ex.target_area,
-                    category: ex.category,
-                    durationSeconds: ex.duration_seconds,
-                    reps: ex.reps,
-                    whatItDoes: ex.what_it_does,
-                    difficulty: ex.difficulty
-                }));
+            // Build allExercises: start from LOCAL_EXERCISES (always 12),
+            // then overlay any DB data on matching entries.
+            import('../data/localExercises').then(({ LOCAL_EXERCISES }) => {
+                let allExercises = LOCAL_EXERCISES;
 
-                // Personalize Daily Routine based on Risk Tier & Streak Day
+                if (exercisesRes.data && exercisesRes.data.length > 0) {
+                    const dbMap: Record<number, any> = {};
+                    exercisesRes.data.forEach((row: any) => { dbMap[row.id] = row; });
+
+                    allExercises = LOCAL_EXERCISES.map(local => {
+                        const db = dbMap[local.id];
+                        if (!db) return local;
+                        return {
+                            ...local,
+                            name: db.name || local.name,
+                            description: db.description || local.description,
+                            whatItDoes: db.what_it_does || local.whatItDoes,
+                            difficulty: db.difficulty || local.difficulty,
+                            durationSeconds: db.duration_seconds ?? local.durationSeconds,
+                            category: db.category || local.category,
+                        };
+                    });
+                }
+
+                // ── Personalize Daily Routine based on Risk Tier & Streak Day ──
                 const tier = user?.riskTier || 'moderate';
                 const currentDay = streak.currentStreak + 1;
 
@@ -140,7 +157,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     estimatedMinutes: estimatedMins,
                     exercises: selectedExercises
                 });
-            }
+            }); // end import LOCAL_EXERCISES
 
             if (factRes.data) {
                 setTodayFact({
@@ -263,7 +280,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const completeRoutine = async () => {
         if (hasCompletedToday || !user) return;
 
-        const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const yesterdayStr = getLocalDateString(new Date(Date.now() - 86400000));
         let newStreak = streak.currentStreak;
 
         if (streak.lastActivityDate === yesterdayStr) {

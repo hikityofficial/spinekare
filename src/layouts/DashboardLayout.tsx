@@ -21,7 +21,8 @@ export const DashboardLayout = () => {
     const getRiskColor = (tier?: string) => {
         if (tier === 'low') return 'text-accent-green';
         if (tier === 'moderate') return 'text-accent-amber';
-        return 'text-accent-red';
+        if (tier === 'high' || tier === 'critical') return 'text-accent-red';
+        return 'text-text-secondary';
     };
 
     // Shared navbar stats pills

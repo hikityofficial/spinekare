@@ -57,8 +57,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         onboardingComplete: data.onboarding_complete,
                         spineRiskScore: data.spine_risk_score,
                         riskTier: data.risk_tier as any,
+                        primaryReason: data.primary_reason,
+                        gender: data.gender,
                         ageGroup: data.age_group,
                         occupationType: data.occupation_type,
+                        exerciseFrequency: data.exercise_frequency,
+                        painLevel: data.pain_level,
+                        postureAwareness: data.posture_awareness,
+                        sleepPosition: data.sleep_position,
                     };
                 } else {
                     profile = {
@@ -202,15 +208,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(newProfile);
 
         // Map to DB snake_case structure
-        const dbData = {
+        const dbData: Record<string, unknown> = {
             id: user.id,
-            full_name: newProfile.fullName,
+            full_name:           newProfile.fullName,
             onboarding_complete: newProfile.onboardingComplete,
-            spine_risk_score: newProfile.spineRiskScore,
-            risk_tier: newProfile.riskTier,
-            age_group: newProfile.ageGroup,
-            occupation_type: newProfile.occupationType,
+            spine_risk_score:    newProfile.spineRiskScore,
+            risk_tier:           newProfile.riskTier,
+            primary_reason:      newProfile.primaryReason,
+            gender:              newProfile.gender,
+            age_group:           newProfile.ageGroup,
+            occupation_type:     newProfile.occupationType,
+            exercise_frequency:  newProfile.exerciseFrequency,
+            pain_level:          newProfile.painLevel,
+            posture_awareness:   newProfile.postureAwareness,
+            sleep_position:      newProfile.sleepPosition,
         };
+        // Strip undefined values so we don't overwrite existing DB data with nulls
+        Object.keys(dbData).forEach(k => dbData[k] === undefined && delete dbData[k]);
+
 
         const { error } = await supabase.from('user_profiles').upsert(dbData);
         if (error) {

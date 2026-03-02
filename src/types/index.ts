@@ -1,8 +1,9 @@
-export type RiskTier = 'low' | 'moderate' | 'high';
+export type RiskTier = 'low' | 'moderate' | 'high' | 'critical';
 
 export interface UserProfile {
     id: string;
     fullName?: string;
+    gender?: string;
     ageGroup?: string;
     occupationType?: string;
     isWeightlifter?: boolean;
@@ -12,11 +13,13 @@ export interface UserProfile {
     sleepPosition?: string;
     spineRiskScore?: number;
     riskTier?: RiskTier;
+    primaryReason?: string;
     onboardingComplete: boolean;
 }
 
 export interface Exercise {
     id: number;
+    position: number;       // Sequential 1-based number after sorting by id (used for images & meta)
     name: string;
     description: string;
     targetArea: 'cervical' | 'thoracic' | 'lumbar' | 'core' | 'full';

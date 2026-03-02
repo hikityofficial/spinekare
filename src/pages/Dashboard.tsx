@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Flame, CheckCircle, PlayCircle, ShieldAlert, Sparkles } from 'lucide-react';
 import { getExerciseImage } from '../utils/exerciseImages';
 import { motion, AnimatePresence } from 'framer-motion';
+import { exerciseMeta } from '../utils/exerciseMeta';
 
 function getMotivationalQuote(streak: number): string {
     if (streak >= 30) return "30 days! You're a SpineKare legend. Your discipline is truly inspiring. 👑";
@@ -39,6 +40,23 @@ export default function Dashboard() {
         }
     }
     const hasSavedProgress = savedIndex > 0 && savedIndex < todayRoutine.exercises.length;
+
+    // Calculate real-time minutes based on exerciseMeta text duration (e.g., "1 MIN", "30 SECS")
+    const calculatedMinutes = Math.max(1, Math.round(todayRoutine.exercises.reduce((acc, ex) => {
+        const metaDuration = exerciseMeta[ex.position]?.duration;
+        let seconds = ex.durationSeconds; // Fallback
+        if (metaDuration) {
+            if (metaDuration.includes('MIN') && metaDuration.includes('SEC')) {
+                const parts = metaDuration.split(' ');
+                seconds = parseInt(parts[0]) * 60 + parseInt(parts[2]);
+            } else if (metaDuration.includes('MIN')) {
+                seconds = parseInt(metaDuration) * 60;
+            } else if (metaDuration.includes('SEC')) {
+                seconds = parseInt(metaDuration);
+            }
+        }
+        return acc + seconds;
+    }, 0) / 60));
 
     return (
         <div className="space-y-6">
@@ -102,7 +120,7 @@ export default function Dashboard() {
             </AnimatePresence>
 
             {/* Main Action - Today's Routine */}
-            <div className="bg-bg-card border border-border p-8 rounded-radius-lg relative overflow-hidden group hover:border-accent-cyan/50 transition-colors">
+            <div className="bg-bg-card border border-border p-5 md:p-8 rounded-radius-lg relative overflow-hidden group hover:border-accent-cyan/50 transition-colors">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent-cyan/5 blur-[80px] rounded-full group-hover:bg-accent-cyan/10 transition-colors"></div>
 
                 <div className="relative z-10">
@@ -111,9 +129,9 @@ export default function Dashboard() {
                             <span className="inline-block px-3 py-1 bg-accent-cyan/10 text-accent-cyan font-bold text-xs uppercase tracking-widest rounded-full mb-3">
                                 Daily Assignment
                             </span>
-                            <h2 className="text-3xl font-display font-bold text-text-primary">{todayRoutine.title}</h2>
+                            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary">{todayRoutine.title}</h2>
                             <p className="text-text-secondary mt-2">
-                                {todayRoutine.exercises.length} Exercises • ~{todayRoutine.estimatedMinutes} Mins
+                                {todayRoutine.exercises.length} Exercises • ~{calculatedMinutes} Mins
                             </p>
                         </div>
 
@@ -128,7 +146,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Exercise Previews */}
-                    <div className="mb-8 overflow-x-auto pb-4 -mx-8 px-8 snap-x">
+                    <div className="mb-6 md:mb-8 overflow-x-auto pb-4 -mx-6 md:-mx-8 px-6 md:px-8 snap-x">
                         <div className="flex gap-4 w-max">
                             {todayRoutine.exercises.map((ex, i) => (
                                 <div key={`${ex.id}-${i}`} className="w-48 bg-bg-primary rounded-radius-md border border-border p-4 shrink-0 snap-start flex flex-col group/card hover:border-accent-cyan/40 transition-colors">
@@ -139,10 +157,12 @@ export default function Dashboard() {
                                             className="h-full w-full object-contain group-hover/card:scale-105 transition-transform"
                                         />
                                     </div>
-                                    <h3 className="font-bold text-text-primary text-sm truncate" title={ex.name}>{ex.name}</h3>
+                                    <h3 className="font-bold text-text-primary text-sm truncate" title={ex.name}>{exerciseMeta[ex.position]?.name ?? ex.name}</h3>
                                     <div className="flex justify-between items-center mt-auto">
-                                        <span className="text-xs text-text-secondary bg-bg-secondary px-2 py-0.5 rounded-full capitalize">{ex.targetArea}</span>
-                                        <span className="text-xs text-text-secondary font-mono">{Math.floor(ex.durationSeconds / 60)}:{(ex.durationSeconds % 60).toString().padStart(2, '0')}</span>
+                                        <span className="text-xs text-text-secondary bg-bg-secondary px-2 py-0.5 rounded-full capitalize">{exerciseMeta[ex.position]?.targetArea ?? ex.targetArea}</span>
+                                        <span className="text-[11px] text-text-primary font-bold bg-accent-cyan/10 px-2 py-0.5 rounded-full border border-accent-cyan/20">
+                                            {exerciseMeta[ex.position]?.duration ?? `${Math.floor(ex.durationSeconds / 60)}:${(ex.durationSeconds % 60).toString().padStart(2, '0')}`}
+                                        </span>
                                     </div>
                                 </div>
                             ))}

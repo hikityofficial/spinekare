@@ -16,8 +16,21 @@ import sse9 from '../../assets/sse9.png';
 import sse10 from '../../assets/sse10.png';
 import sse11 from '../../assets/sse11.png';
 import sse12 from '../../assets/sse12.png';
+import rp1 from '../../assets/rp1.png';
+import rp2 from '../../assets/rp2.png';
+import rp3 from '../../assets/rp3.png';
+import rp4 from '../../assets/rp4.png';
+import rp5 from '../../assets/rp5.png';
 import video1 from '../../assets/grok-video-5af2fbd2-7619-4dad-a019-5221617876b7.mp4';
 import video2 from '../../assets/grok-video-84dec387-9089-4c5b-afa7-ca44e85f80a6.mp4';
+
+const RP_ITEMS = [
+    { id: 1, title: "Maintain Posture", desc: "Keep spine aligned neutrally", fullDesc: "Keep your spine aligned neutrally throughout the day, whether sitting, standing, or walking, to avoid uneven strain on your discs.", img: rp1 },
+    { id: 2, title: "Laptop Stand", desc: "Elevate screen to eye level", fullDesc: "Elevate your screen to eye level using a laptop stand. This prevents 'Screen Neck' and chronic cervical tension.", img: rp2 },
+    { id: 3, title: "Reduce Stairs", desc: "Minimize climbing to reduce disc pressure", fullDesc: "Minimize climbing stairs unnecessarily, especially if you already experience lower back pain, as it increases pressure on the lumbar discs.", img: rp3 },
+    { id: 4, title: "Avoid Heavy Lifting", desc: "Protect your back from heavy weights", fullDesc: "Protect your back by avoiding heavy weights. If you must lift, always bend at the knees and keep the weight close to your body.", img: rp4 },
+    { id: 5, title: "Waist Belt", desc: "Use support while traveling", fullDesc: "Use a lumbar support waist belt while traveling on bumpy roads or for long distances to prevent sudden jolts to your spine.", img: rp5 },
+];
 
 export default function Home() {
     const navigate = useNavigate();
@@ -29,8 +42,9 @@ export default function Home() {
     const [popupStep, setPopupStep] = useState(0);
     const [canContinue, setCanContinue] = useState(false);
 
-    // Lightbox state
+    // Lightbox states
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const [rpLightboxIndex, setRpLightboxIndex] = useState<number | null>(null);
 
     useEffect(() => {
         const hasSeenPopup = localStorage.getItem('spinekare_seen_intro_popup');
@@ -55,9 +69,18 @@ export default function Home() {
     // Close lightbox on Escape
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setLightboxIndex(null);
-            if (e.key === 'ArrowRight' && lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.min(i + 1, exerciseImages.length - 1) : null);
-            if (e.key === 'ArrowLeft' && lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null);
+            if (e.key === 'Escape') {
+                setLightboxIndex(null);
+                setRpLightboxIndex(null);
+            }
+            if (e.key === 'ArrowRight') {
+                if (lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.min(i + 1, exerciseImages.length - 1) : null);
+                if (rpLightboxIndex !== null) setRpLightboxIndex(i => i !== null ? Math.min(i + 1, RP_ITEMS.length - 1) : null);
+            }
+            if (e.key === 'ArrowLeft') {
+                if (lightboxIndex !== null) setLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null);
+                if (rpLightboxIndex !== null) setRpLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null);
+            }
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
@@ -388,6 +411,109 @@ export default function Home() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </section>
+
+                {/* Reasons and Precautions */}
+                <section className="mt-16 sm:mt-20">
+                    <div className="text-left mb-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs font-bold tracking-widest uppercase mb-3">
+                            Know the Risks
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-text-primary">Reasons and Precautions</h2>
+                        <p className="mt-2 text-text-secondary max-w-2xl">
+                            Understanding what causes spine problems and taking precautions helps you prevent issues before they start.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        {RP_ITEMS.map((item, idx) => (
+                            <button
+                                key={item.id}
+                                onClick={() => setRpLightboxIndex(idx)}
+                                className="group relative aspect-[3/4] bg-bg-secondary border border-border rounded-radius-lg overflow-hidden hover:border-accent-cyan/40 transition-all text-left focus:outline-none"
+                            >
+                                <img src={item.img} alt={item.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10" />
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* RP Lightbox */}
+                    <AnimatePresence>
+                        {rpLightboxIndex !== null && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex justify-center items-start pt-4 sm:pt-6 md:pt-10 px-4"
+                                onClick={() => setRpLightboxIndex(null)}
+                            >
+                                <motion.div
+                                    initial={{ y: "-100%", opacity: 0.5 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: "-100%", opacity: 0 }}
+                                    transition={{ type: 'spring', damping: 28, stiffness: 350, mass: 0.8 }}
+                                    className="relative max-w-lg w-full bg-bg-card rounded-radius-lg border border-border overflow-hidden shadow-2xl mt-safe"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    {/* Close */}
+                                    <button
+                                        onClick={() => setRpLightboxIndex(null)}
+                                        className="absolute top-4 right-4 z-20 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md text-white hover:bg-black/90 transition-all flex items-center gap-1.5 text-sm font-bold shadow-xl border border-white/10"
+                                    >
+                                        <X size={18} /> Back
+                                    </button>
+
+                                    {/* Image area */}
+                                    <div className="w-full bg-bg-secondary relative max-h-[50vh] flex items-center justify-center overflow-hidden border-b border-border p-4">
+                                        <img src={RP_ITEMS[rpLightboxIndex].img} alt={RP_ITEMS[rpLightboxIndex].title} className="w-full h-full object-contain max-h-[45vh]" />
+                                    </div>
+
+                                    {/* No Caption - Pure Image Viewer */}
+
+                                    {/* Navigation arrows (only visible if hovering inner div or always) */}
+                                    <button
+                                        onClick={() => setRpLightboxIndex(i => i !== null ? Math.max(i - 1, 0) : null)}
+                                        disabled={rpLightboxIndex === 0}
+                                        className="absolute left-3 top-[37.5%] -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors disabled:opacity-0 focus:outline-none"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => setRpLightboxIndex(i => i !== null ? Math.min(i + 1, RP_ITEMS.length - 1) : null)}
+                                        disabled={rpLightboxIndex === RP_ITEMS.length - 1}
+                                        className="absolute right-3 top-[37.5%] -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors disabled:opacity-0 focus:outline-none"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <div className="mt-10 bg-accent-cyan/5 border border-accent-cyan/20 rounded-radius-lg p-6 sm:p-8">
+                        <h3 className="text-xl font-display font-extrabold text-text-primary mb-5 flex items-center gap-2">
+                            <span className="text-accent-cyan">✦</span> Daily Spine Habits
+                        </h3>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Don't sit for more than 45 minutes continuously unless absolutely necessary.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Maintain proper posture whether sitting, standing, or walking.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Drink plenty of water to keep your spinal discs hydrated and healthy.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-text-secondary">
+                                <span className="text-accent-cyan bg-accent-cyan/10 p-1 rounded-full mt-0.5">✓</span>
+                                <span>Exercise for a minimum of 30 minutes every day to strengthen core muscles.</span>
+                            </li>
+                        </ul>
                     </div>
                 </section>
 
