@@ -151,10 +151,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Force absolute fallback to hide loading screen if Supabase completely hangs
         fallbackTimer = setTimeout(() => {
             if (mounted) {
-                console.warn("Auth initialization timed out 15s, forcing load to false.");
+                console.warn("Auth initialization timed out 45s, forcing load to false.");
                 setIsLoading(false);
             }
-        }, 15000);
+        }, 45000);
 
         return () => {
             mounted = false;
