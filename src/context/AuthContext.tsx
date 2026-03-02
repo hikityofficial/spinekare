@@ -164,13 +164,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password?: string) => {
         if (!password) {
-            const { error } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + '/dashboard'
+                    redirectTo: window.location.origin + '/dashboard',
+                    skipBrowserRedirect: true
                 }
             });
             if (error) throw error;
+            if (data?.url) {
+                window.location.href = data.url;
+            }
             return;
         }
 
@@ -180,13 +184,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const signup = async (email: string, password?: string) => {
         if (!password) {
-            const { error } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + '/dashboard'
+                    redirectTo: window.location.origin + '/dashboard',
+                    skipBrowserRedirect: true
                 }
             });
             if (error) throw error;
+            if (data?.url) {
+                window.location.href = data.url;
+            }
             return;
         }
 
@@ -210,18 +218,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Map to DB snake_case structure
         const dbData: Record<string, unknown> = {
             id: user.id,
-            full_name:           newProfile.fullName,
+            full_name: newProfile.fullName,
             onboarding_complete: newProfile.onboardingComplete,
-            spine_risk_score:    newProfile.spineRiskScore,
-            risk_tier:           newProfile.riskTier,
-            primary_reason:      newProfile.primaryReason,
-            gender:              newProfile.gender,
-            age_group:           newProfile.ageGroup,
-            occupation_type:     newProfile.occupationType,
-            exercise_frequency:  newProfile.exerciseFrequency,
-            pain_level:          newProfile.painLevel,
-            posture_awareness:   newProfile.postureAwareness,
-            sleep_position:      newProfile.sleepPosition,
+            spine_risk_score: newProfile.spineRiskScore,
+            risk_tier: newProfile.riskTier,
+            primary_reason: newProfile.primaryReason,
+            gender: newProfile.gender,
+            age_group: newProfile.ageGroup,
+            occupation_type: newProfile.occupationType,
+            exercise_frequency: newProfile.exerciseFrequency,
+            pain_level: newProfile.painLevel,
+            posture_awareness: newProfile.postureAwareness,
+            sleep_position: newProfile.sleepPosition,
         };
         // Strip undefined values so we don't overwrite existing DB data with nulls
         Object.keys(dbData).forEach(k => dbData[k] === undefined && delete dbData[k]);
