@@ -120,12 +120,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const initAuth = async () => {
             try {
+                // 1. Instant LocalStorage check to bypass LockManager hangs 
+                const rawStorageStr = localStorage.getItem('sb-' + import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token');
+
+                if (rawStorageStr) {
+                    try {
+                        const parsed = JSON.parse(rawStorageStr);
+                        if (parsed && parsed.user) {
+                            // We have a stored user! Skip waiting for the lock and load profile immediately
+                            await loadProfile(parsed.user);
+
+                            // Inform the strict UI loader that we are done booting
+                            if (mounted) {
+                                setIsLoading(false);
+                                clearTimeout(fallbackTimer);
+                            }
+
+                            // Still call getSession in background to let Supabase refresh tokens if needed
+                            supabase.auth.getSession().catch(e => console.warn("Background session sync:", e.message));
+                            return;
+                        }
+                    } catch (e) {
+                        // ignore parse errors
+                    }
+                }
+
+                // 2. Fallback to standard Supabase getSession if nothing in localStorage
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
                     console.error("getSession error:", error);
                     throw error;
                 }
                 await loadProfile(session?.user);
+
             } catch (error: any) {
                 console.error("Error getting session:", error);
                 if (error?.message?.includes('LockManager') || error?.message?.includes('timed out')) {
