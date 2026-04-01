@@ -28,10 +28,9 @@ export default function Auth() {
             } else {
                 await signup(email, password);
             }
-            navigate('/dashboard');
+            // Do NOT navigate here. `PublicRoute` handles the redirect once AuthContext updates `isAuthenticated`
         } catch (error: any) {
             setErrorMsg(error.message || 'Authentication failed');
-        } finally {
             setIsLoading(false);
         }
     };

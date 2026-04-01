@@ -1,11 +1,17 @@
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Flame, Shield, Award, ClipboardList, AlertCircle, Info, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Flame, Shield, Award, ClipboardList, AlertCircle, Info, ChevronRight, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Profile() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const { streak } = useApp();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
+    };
 
     const getRiskColor = (tier?: string) => {
         if (tier === 'low') return 'text-accent-green';
@@ -131,6 +137,16 @@ export default function Profile() {
                         <ChevronRight size={20} className="text-text-secondary group-hover:text-text-primary transition-colors" />
                     </Link>
                 </div>
+            </div>
+
+            {/* Logout Button (Mobile Only) */}
+            <div className="pt-4 md:hidden pb-4">
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-accent-red font-bold rounded-radius-lg border border-red-500/20 hover:bg-red-500/20 transition-colors"
+                >
+                    <LogOut size={20} /> Sign Out
+                </button>
             </div>
 
         </div>
