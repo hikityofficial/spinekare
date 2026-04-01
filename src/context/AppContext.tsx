@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { UserStreak, Routine, SpineFact } from '../types';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
+import { FALLBACK_FACTS } from '../data/facts';
 
 interface AppContextType {
     streak: UserStreak;
@@ -90,7 +91,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const fetchDailyContent = async () => {
-            const fDay = (dayOfYear % 5) + 1;
+            const fDay = (dayOfYear % FALLBACK_FACTS.length) + 1;
 
             const [exercisesRes, factRes] = await Promise.all([
                 supabase.from('exercises').select('*').order('id'),
@@ -166,6 +167,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     category: factRes.data.category,
                     dayNumber: factRes.data.day_number
                 });
+            } else {
+                setTodayFact(FALLBACK_FACTS[(fDay - 1) % FALLBACK_FACTS.length]);
             }
         };
 
@@ -241,7 +244,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
                 // Persist the reset / bonus / streak break to DB
                 if (isNewWeek || bonusToAward > 0 || computedCurrentStreak !== data.current_streak) {
-                    await supabase.from('user_streaks').upsert({
+                    supabase.from('user_streaks').upsert({
                         user_id: user.id,
                         current_streak: computedCurrentStreak,
                         longest_streak: data.longest_streak,
@@ -250,21 +253,38 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                         week_number: currentWeek,
                         week_year: currentYear,
                         last_completed_date: data.last_completed_date ?? null,
-                    });
+                    }).then(({ error: err }) => { if (err) console.error(err); });
                 }
-            } else if (error && error.code === 'PGRST116') {
-                // Initialize default in DB
-                await supabase.from('user_streaks').insert({
-                    user_id: user.id,
-                    week_number: currentWeek,
-                    week_year: currentYear,
-                    weekly_points: 0,
-                });
+            } else if (error) {
+                let initPoints = 0;
+                let initStreak = 0;
+
+                try {
+                    const localCached = localStorage.getItem(`spinekare-streak-${user.id}`);
+                    if (localCached) {
+                        const parsed = JSON.parse(localCached);
+                        initPoints = parsed.totalPoints || 0;
+                        initStreak = parsed.currentStreak || 0;
+                    }
+                } catch(e) {}
+
+                if (error.code === 'PGRST116') {
+                    // Initialize default in DB silently
+                    supabase.from('user_streaks').insert({
+                        user_id: user.id,
+                        week_number: currentWeek,
+                        week_year: currentYear,
+                        weekly_points: 0,
+                    }).then(() => {});
+                } else {
+                    console.warn(`Fallback active: Database error fetching user_streaks. Error code: ${error.code}`);
+                }
+
                 setStreak({
                     userId: user.id,
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    totalPoints: 0,
+                    currentStreak: initStreak,
+                    longestStreak: initStreak,
+                    totalPoints: initPoints,
                     lastActivityDate: '',
                     streakFreezes: 0,
                     weeklyPoints: 0,
@@ -309,7 +329,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             week_number: updated.weekNumber,
             week_year: updated.weekYear,
             last_completed_date: new Date().toISOString()
-        });
+        }).then(({ error: err }) => { if (err) console.error("Streak DB update failed, fell back to local storage:", err); });
     };
 
     const addPoints = async (points: number) => {
@@ -332,7 +352,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             week_number: updated.weekNumber,
             week_year: updated.weekYear,
             last_completed_date: updated.lastActivityDate ? new Date(updated.lastActivityDate).toISOString() : null
-        });
+        }).then(({ error: err }) => { if (err) console.warn("Points DB update failed, saved to local cache:", err); });
     };
 
     return (

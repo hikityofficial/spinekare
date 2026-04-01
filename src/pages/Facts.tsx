@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { SpineFact } from '../types';
 import { BookOpen, Search } from 'lucide-react';
+import { FALLBACK_FACTS } from '../data/facts';
 
 export default function Facts() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -15,13 +16,15 @@ export default function Facts() {
                 .select('*')
                 .order('id', { ascending: true });
 
-            if (data && !error) {
+            if (data && !error && data.length >= FALLBACK_FACTS.length) {
                 setFacts(data.map(d => ({
                     id: d.id,
                     fact: d.fact,
                     category: d.category,
                     dayNumber: d.day_number
                 })));
+            } else {
+                setFacts(FALLBACK_FACTS);
             }
             setIsLoading(false);
         };

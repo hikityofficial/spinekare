@@ -1,12 +1,10 @@
 -- =========================================================================
 -- SPINEKARE COMPLETE SUPABASE SCHEMA & SEED SCRIPT
 -- =========================================================================
--- Run this entire file in your Supabase SQL Editor once to set up the app.
 
 -- -------------------------------------------------------------------------
 -- 1. USER PROFILES EXTENSION
 -- -------------------------------------------------------------------------
--- Appends the complete risk assessment columns to the default user_profiles table.
 ALTER TABLE public.user_profiles 
 ADD COLUMN IF NOT EXISTS primary_reason TEXT,
 ADD COLUMN IF NOT EXISTS gender TEXT,
@@ -17,7 +15,6 @@ ADD COLUMN IF NOT EXISTS pain_level TEXT,
 ADD COLUMN IF NOT EXISTS posture_awareness TEXT,
 ADD COLUMN IF NOT EXISTS sleep_position TEXT,
 ADD COLUMN IF NOT EXISTS is_weightlifter TEXT;
-
 
 -- -------------------------------------------------------------------------
 -- 2. CLINICS TABLE
@@ -36,12 +33,10 @@ ALTER TABLE public.clinics ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Enable read access for all users" ON public.clinics;
 CREATE POLICY "Enable read access for all users" ON public.clinics FOR SELECT USING (true);
 
--- Insert dummy clinics
 INSERT INTO public.clinics (name, address, phone_number, website_url, latitude, longitude) VALUES
 ('Spine & Ortho Elite Clinic', '123 Wellness Ave, NY', '+1-555-0100', 'https://example.com/spine', 40.7128, -74.0060),
 ('Back Pain Relief Center', '456 Therapy Lane, CA', '+1-555-0200', 'https://example.com/back', 34.0522, -118.2437)
 ON CONFLICT DO NOTHING;
-
 
 -- -------------------------------------------------------------------------
 -- 3. EXERCISES TABLE
@@ -62,16 +57,20 @@ ALTER TABLE public.exercises ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Enable read access for all users" ON public.exercises;
 CREATE POLICY "Enable read access for all users" ON public.exercises FOR SELECT USING (true);
 
--- Insert core exercises (Using ON CONFLICT to avoid duplicate insert errors if run multiple times)
 INSERT INTO public.exercises (id, name, description, target_area, category, duration_seconds, what_it_does, difficulty) VALUES
-(1, 'Cat-Cow Stretch', 'A gentle flow between two animal poses that warms the body and brings flexibility to the spine.', 'full', 'Flexibility', 60, 'Improves lumbar flexibility and relieves disc compression', 'beginner'),
-(2, 'Child''s Pose', 'A resting posture that stretches the back muscles and decompresses the spine.', 'lumbar', 'Decompression', 45, 'Gently stretches the lower back and hips, relieving tension', 'beginner'),
-(3, 'Bird Dog', 'A floor exercise that strengthens the core while moving the limbs.', 'core', 'Strengthening', 60, 'Builds core stability to protect the lower spine', 'intermediate'),
-(4, 'Thoracic Rotation', 'Opening up the mid-back to prevent stiffness from sitting.', 'thoracic', 'Mobility', 45, 'Prevents upper back rounding and improves breathing mechanics', 'beginner'),
-(5, 'Cervical Retraction (Chin Tucks)', 'Pulling the head straight back to align the neck.', 'cervical', 'Posture correction', 30, 'Counteracts "text neck" and forward head posture', 'beginner'),
-(6, 'Prone Cobra', 'Lying on the stomach and lifting the chest slightly.', 'lumbar', 'Strengthening', 45, 'Strengthens the erector spinae muscles along the spine', 'intermediate')
-ON CONFLICT DO NOTHING;
-
+(1, 'Cat-Cow Back Bend', 'A gentle spinal flexion and extension exercise performed on hands and knees.', 'cervical', 'Cervical', 120, 'Mobilises the entire spine, relieves tension.', 'beginner'),
+(2, 'Standing Back Bend', 'An upright spinal extension exercise to decompress lumbar and cervical discs.', 'cervical', 'Cervical', 120, 'Extends the spine against gravity.', 'beginner'),
+(3, 'Bird-Dog', 'Core stabilisation exercise extending opposite arm and leg from a tabletop position.', 'core', 'Lumbar', 180, 'Builds deep core and lumbar stabiliser strength.', 'beginner'),
+(4, 'Prone Leg Raise', 'Lying face down, alternately raising each leg 30 degrees to strengthen the lower back.', 'lumbar', 'Sacral', 180, 'Strengthens lumbar extensors.', 'beginner'),
+(5, 'Single Knee-to-Chest', 'Lying on back, bringing one knee at a time to the chest to stretch the lumbar spine.', 'lumbar', 'Sacral', 180, 'Releases lumbar compression.', 'beginner'),
+(6, 'Double Knee-to-Chest', 'Lying on back, pulling both knees simultaneously to the chest.', 'lumbar', 'Sacral', 120, 'Provides deep lumbar flexion stretch.', 'beginner'),
+(7, 'Supine Waist Rotation', 'Lying on back, rotating bent knees side to side for a waist and oblique stretch.', 'lumbar', 'Sacral', 120, 'Mobilises the thoracolumbar fascia.', 'beginner'),
+(8, 'Cervical Traction', 'Lying on a bed with the head hanging off the edge to decompress the cervical spine.', 'cervical', 'Cervical', 105, 'Uses gravity for cervical traction.', 'beginner'),
+(9, '90-90 Hip Flexor Raise', 'Lying on back, raising one leg to 90° at both hip and knee, held for 8 seconds.', 'lumbar', 'Sacral', 180, 'Activates hip flexors and core.', 'beginner'),
+(10, 'Lateral Body Stretch', 'Folding one knee at a time and stretching the full body laterally, held 8 seconds per side.', 'lumbar', 'Sacral', 180, 'Elongates the entire lateral chain.', 'beginner'),
+(11, 'Glute Bridge', 'Lying on back with knees bent, lifting hips into a bridge position and holding.', 'lumbar', 'Sacral', 120, 'Strengthens glutes and hamstrings.', 'intermediate'),
+(12, 'Full-Body Supine Stretch', 'Lying on back with arms overhead, extending the entire body for 10 seconds.', 'full', 'Cervical', 10, 'Elongates the entire spine from cervical to sacral.', 'beginner')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, duration_seconds = EXCLUDED.duration_seconds;
 
 -- -------------------------------------------------------------------------
 -- 4. ROUTINES TABLE
@@ -88,13 +87,15 @@ ALTER TABLE public.routines ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Enable read access for all users" ON public.routines;
 CREATE POLICY "Enable read access for all users" ON public.routines FOR SELECT USING (true);
 
--- Insert initial routines
 INSERT INTO public.routines (id, day_number, title, focus_area, estimated_minutes) VALUES
 (1, 1, 'Day 1 — Full Spine Mobility', 'Full Spine Mobility', 5),
 (2, 2, 'Day 2 — Lumbar Relief', 'Lumbar Relief', 4),
-(3, 3, 'Day 3 — Core Stability', 'Core Stability', 5)
-ON CONFLICT (day_number) DO NOTHING;
-
+(3, 3, 'Day 3 — Core Stability', 'Core Stability', 5),
+(4, 4, 'Day 4 — Spinal Decompression', 'Spinal Decompression', 6),
+(5, 5, 'Day 5 — Advanced Core Stability', 'Core Stability', 7),
+(6, 6, 'Day 6 — Lower Back Restoration', 'Lumbar Relief', 5),
+(7, 7, 'Day 7 — The SpineKare Challenge', 'Full Routine', 10)
+ON CONFLICT (day_number) DO UPDATE SET title = EXCLUDED.title, focus_area = EXCLUDED.focus_area, estimated_minutes = EXCLUDED.estimated_minutes;
 
 -- -------------------------------------------------------------------------
 -- 5. ROUTINE EXERCISES MAPPING
@@ -110,13 +111,15 @@ ALTER TABLE public.routine_exercises ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Enable read access for all users" ON public.routine_exercises;
 CREATE POLICY "Enable read access for all users" ON public.routine_exercises FOR SELECT USING (true);
 
--- Map exercises to routines (Delete first to prevent duplicate mappings if re-running script)
 DELETE FROM public.routine_exercises;
 INSERT INTO public.routine_exercises (routine_id, exercise_id, order_index) VALUES
 (1, 1, 1), (1, 4, 2), (1, 2, 3), (1, 5, 4),
-(2, 2, 1), (2, 6, 2), (2, 3, 3),
-(3, 3, 1), (3, 6, 2), (3, 1, 3), (3, 4, 4);
-
+(2, 5, 1), (2, 6, 2), (2, 7, 3), (2, 4, 4),
+(3, 3, 1), (3, 11, 2), (3, 9, 3), (3, 10, 4),
+(4, 8, 1), (4, 12, 2), (4, 1, 3), (4, 2, 4),
+(5, 3, 1), (5, 9, 2), (5, 11, 3), (5, 4, 4),
+(6, 6, 1), (6, 5, 2), (6, 7, 3), (6, 12, 4),
+(7, 1, 1), (7, 3, 2), (7, 6, 3), (7, 11, 4), (7, 12, 5);
 
 -- -------------------------------------------------------------------------
 -- 6. SPINE FACTS TABLE
@@ -132,13 +135,45 @@ ALTER TABLE public.spine_facts ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Enable read access for all users" ON public.spine_facts;
 CREATE POLICY "Enable read access for all users" ON public.spine_facts FOR SELECT USING (true);
 
--- Insert facts
 INSERT INTO public.spine_facts (id, day_number, fact, category) VALUES
 (1, 1, 'The intervertebral discs in your spine act as shock absorbers and are 80% water when you wake up.', 'Anatomy'),
 (2, 2, 'Your spine has natural curves — the S-shape is a biomechanical marvel that distributes load across your body.', 'Anatomy'),
 (3, 3, 'Humans lose about 1cm of height throughout the day as spinal discs compress under gravity.', 'Anatomy'),
 (4, 4, 'Sitting puts up to 40% more pressure on your spine than standing.', 'Biomechanics'),
-(5, 5, 'A strong core acts like a muscular corset, taking up to 30% of the load off your lower back.', 'Biomechanics')
-ON CONFLICT (day_number) DO NOTHING;
+(5, 5, 'A strong core acts like a muscular corset, taking up to 30% of the load off your lower back.', 'Biomechanics'),
+(6, 6, 'The spine consists of 33 individual vertebrae, interlocking to provide both incredible flexibility and structural support.', 'Anatomy'),
+(7, 7, 'Hydration is crucial for spine health—drinking water helps maintain the plumpness and buoyancy of your intervertebral discs.', 'Prevention'),
+(8, 8, 'Every segment of the spine has a specific role; the thoracic spine is designed for rotation, while the lumbar spine is built for stability.', 'Mobility'),
+(9, 9, 'Positioning your monitor exactly at eye level reduces the dynamic weight of your head on your cervical spine by up to 20 lbs.', 'Ergonomics'),
+(10, 10, 'Movement is lotion for your joints. Prolonged static postures are the absolute leading cause of spine stiffness and degeneration.', 'Mobility'),
+(11, 11, '"Text neck" can add up to 60 pounds of severe pressure on your cervical spine due to the extreme forward angle of the head.', 'Posture'),
+(12, 12, 'The glutes are the functional foundation of your spine. Weak glutes force the lower back to compensate, causing chronic lumbar pain.', 'Biomechanics'),
+(13, 13, 'Sleep posture matters deeply. Sleeping on your back with a pillow beneath your knees maintains neutral lumbar alignment.', 'Prevention'),
+(14, 14, 'The solid spinal cord actually ends around the first lumbar vertebra, branching out into a bundle of nerves called the cauda equina.', 'Anatomy'),
+(15, 15, 'Your spine curves are designed to distribute mechanical stress. Losing your natural curve (a "straight back") actually increases injury risk.', 'Biomechanics')
+ON CONFLICT (day_number) DO UPDATE SET fact = EXCLUDED.fact, category = EXCLUDED.category;
+
+-- -------------------------------------------------------------------------
+-- 7. USER STREAKS TABLE
+-- -------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.user_streaks (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  current_streak integer NOT NULL DEFAULT 0,
+  longest_streak integer NOT NULL DEFAULT 0,
+  total_points integer NOT NULL DEFAULT 0,
+  weekly_points integer NOT NULL DEFAULT 0,
+  week_number integer NOT NULL DEFAULT 0,
+  week_year integer NOT NULL DEFAULT 0,
+  last_completed_date timestamp with time zone
+);
+
+ALTER TABLE public.user_streaks ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage their own streaks" ON public.user_streaks;
+CREATE POLICY "Users can manage their own streaks"
+  ON public.user_streaks
+  FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- END OF SCRIPT
