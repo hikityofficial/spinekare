@@ -187,10 +187,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = async () => {
         setIsLoading(true);
-        const { error } = await supabase.auth.signOut();
-        setIsLoading(false);
-        if (error) throw error;
-        setUser(null);
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error("Supabase signout threw error, force clearing session locally.", error);
+        } finally {
+            setUser(null);
+            setIsLoading(false);
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/'; 
+        }
     };
 
     const updateProfile = async (data: Partial<UserProfile>) => {

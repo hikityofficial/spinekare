@@ -43,6 +43,15 @@ export const DashboardLayout = () => {
                 <Award size={14} className="text-accent-cyan" />
                 <span className="font-bold text-xs tracking-wide text-text-primary">{streak.totalPoints}pts</span>
             </div>
+            {/* Global Sign Out for all devices universally */}
+            <button 
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 transition-colors ml-2" 
+                title="Sign Out completely"
+            >
+                <LogOut size={14} className="text-accent-red" />
+                <span className="font-bold text-xs tracking-wide text-accent-red">Sign Out</span>
+            </button>
         </div>
     );
 
@@ -71,7 +80,7 @@ export const DashboardLayout = () => {
                     </div>
                 </div>
 
-                <nav className="flex-1 px-4 py-4 space-y-2">
+                <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
                     <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-radius-lg hover:bg-bg-card transition-colors text-text-primary">
                         <Home size={20} /> Dashboard
                     </Link>

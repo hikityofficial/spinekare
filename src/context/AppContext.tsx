@@ -92,18 +92,35 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const fetchDailyContent = async () => {
             const fDay = (dayOfYear % FALLBACK_FACTS.length) + 1;
+            
+            // Age & Risk based routine daily assignment
+            let ageOffset = 0;
+            if (user?.ageGroup === '50-64' || user?.ageGroup === '65+') ageOffset = 3;
+            else if (user?.ageGroup === '25-34') ageOffset = 1;
 
-            const [exercisesRes, factRes] = await Promise.all([
+            const rDay = ((dayOfYear + ageOffset) % 7) + 1;
+
+            // Strict Network Race condition to forcefully drop bad JWT loops
+            const timeoutPromise = new Promise<any>((resolve) => 
+                setTimeout(() => resolve([{data: null}, {data: null}, {data: null}, {data: null}]), 1500)
+            );
+
+            const fetchPromise = Promise.all([
                 supabase.from('exercises').select('*').order('id'),
-                supabase.from('spine_facts').select('*').eq('day_number', fDay).single()
+                supabase.from('spine_facts').select('*').eq('day_number', fDay).single(),
+                supabase.from('routines').select('*').eq('day_number', rDay).single(),
+                supabase.from('routine_exercises').select('*').order('order_index')
+            ]).catch(() => [{data: null}, {data: null}, {data: null}, {data: null}]);
+
+            const [exercisesRes, factRes, routineRes, mappingRes] = await Promise.race([
+                fetchPromise,
+                timeoutPromise
             ]);
 
-            // Build allExercises: start from LOCAL_EXERCISES (always 12),
-            // then overlay any DB data on matching entries.
             import('../data/localExercises').then(({ LOCAL_EXERCISES }) => {
                 let allExercises = LOCAL_EXERCISES;
 
-                if (exercisesRes.data && exercisesRes.data.length > 0) {
+                if (exercisesRes?.data && exercisesRes.data.length > 0) {
                     const dbMap: Record<number, any> = {};
                     exercisesRes.data.forEach((row: any) => { dbMap[row.id] = row; });
 
@@ -122,45 +139,44 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     });
                 }
 
-                // ── Personalize Daily Routine based on Risk Tier & Streak Day ──
-                const tier = user?.riskTier || 'moderate';
+                // Map Actual Database Routines
                 const currentDay = streak.currentStreak + 1;
-
+                let title = routineRes?.data?.title || `Day ${currentDay} — Posture Program`;
+                let focusArea = routineRes?.data?.focus_area || 'Correction';
                 let selectedExercises: any[] = [];
-                let title = "Daily Assignment";
-                let count = 4;
 
-                if (tier === 'low') {
-                    count = 3;
-                    title = `Day ${currentDay} — Spine Maintenance`;
-                } else if (tier === 'moderate') {
-                    count = 4;
-                    title = `Day ${currentDay} — Posture Correction`;
-                } else {
-                    count = 6;
-                    title = `Day ${currentDay} — Full Corrective Program`;
+                if (routineRes?.data && mappingRes?.data) {
+                    const myMappings = mappingRes.data.filter((rm: any) => rm.routine_id === routineRes.data.id);
+                    // Filter based on risk tier safety
+                    const safeDifficulty = ['beginner'];
+                    if (user?.riskTier === 'low' || user?.riskTier === 'moderate') safeDifficulty.push('intermediate');
+                    
+                    selectedExercises = myMappings.map((rm: any) => {
+                        return allExercises.find(e => e.id === rm.exercise_id);
+                    }).filter(Boolean);
                 }
 
-                for (let i = 0; i < count; i++) {
-                    const index = (currentDay + i) % allExercises.length;
-                    selectedExercises.push(allExercises[index]);
+                // Ultra fail-safe if routines table is missing or network failed completely
+                if (selectedExercises.length === 0) {
+                    for (let i = 0; i < 4; i++) {
+                        selectedExercises.push(allExercises[(currentDay + i) % allExercises.length]);
+                    }
                 }
 
-                const estimatedMins = Math.ceil(
-                    selectedExercises.reduce((acc, ex) => acc + ex.durationSeconds + 15, 0) / 60
-                );
+                const estimatedMins = routineRes?.data?.estimated_minutes 
+                    || Math.ceil(selectedExercises.reduce((acc, ex) => acc + ex.durationSeconds + 15, 0) / 60);
 
                 setTodayRoutine({
                     id: currentDay,
                     dayNumber: currentDay,
-                    title: title,
-                    focusArea: tier === 'low' ? 'Maintenance' : 'Correction',
+                    title,
+                    focusArea,
                     estimatedMinutes: estimatedMins,
                     exercises: selectedExercises
                 });
             }); // end import LOCAL_EXERCISES
 
-            if (factRes.data) {
+            if (factRes?.data) {
                 setTodayFact({
                     id: factRes.data.id,
                     fact: factRes.data.fact,
