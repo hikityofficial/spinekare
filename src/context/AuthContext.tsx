@@ -38,7 +38,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     const cached = localStorage.getItem(`spinekare-profile-${sessionUser.id}`);
                     if (cached) {
                         cachedProfile = JSON.parse(cached);
-                        if (mounted) setUser(cachedProfile);
+                        if (mounted) {
+                            setUser(cachedProfile);
+                            setIsLoading(false); // Enable instant UI!
+                        }
                     }
                 } catch (e) { }
 
