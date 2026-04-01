@@ -167,6 +167,7 @@ CREATE TABLE IF NOT EXISTS public.user_streaks (
   last_completed_date timestamp with time zone
 );
 
+
 ALTER TABLE public.user_streaks ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can manage their own streaks" ON public.user_streaks;

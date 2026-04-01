@@ -17,3 +17,4 @@ export const FALLBACK_FACTS: SpineFact[] = [
     { id: 14, dayNumber: 14, category: 'Anatomy', fact: 'The solid spinal cord actually ends around the first lumbar vertebra, branching out into a bundle of nerves called the cauda equina.' },
     { id: 15, dayNumber: 15, category: 'Biomechanics', fact: 'Your spine curves are designed to distribute mechanical stress. Losing your natural curve (a "straight back") actually increases injury risk.' }
 ];
+
